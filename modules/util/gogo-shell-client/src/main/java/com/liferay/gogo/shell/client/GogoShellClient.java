@@ -31,6 +31,7 @@ import java.util.List;
  * </p>
  *
  * @author Gregory Amerson
+ * @authod Simon Jiang
  */
 public class GogoShellClient implements AutoCloseable {
 
@@ -60,7 +61,7 @@ public class GogoShellClient implements AutoCloseable {
 	}
 
 	public String send(String command) throws IOException {
-		byte[] bytes = command.getBytes();
+		byte[] bytes = command.getBytes("UTF-8");
 
 		int[] codes = new int[bytes.length + 2];
 
@@ -74,6 +75,29 @@ public class GogoShellClient implements AutoCloseable {
 		_sendCommand(codes);
 
 		return _readUntilNextGogoPrompt();
+	}
+
+	public String send(String command, boolean ignoreInput) throws IOException {
+		byte[] bytes = command.getBytes("UTF-8");
+
+		int[] codes = new int[bytes.length + 2];
+
+		for (int i = 0; i < bytes.length; i++) {
+			codes[i] = bytes[i];
+		}
+
+		codes[bytes.length] = '\r';
+		codes[bytes.length + 1] = '\n';
+
+		_sendCommand(codes);
+
+		int inputLength = 0;
+
+		if (ignoreInput) {
+			inputLength = codes.length;
+		}
+
+		return _readUntilNextGogoPrompt(inputLength);
 	}
 
 	private static void _assertCondition(boolean condition) {
@@ -115,7 +139,7 @@ public class GogoShellClient implements AutoCloseable {
 
 		// Send the terminal type:
 
-		//255(IAC),250(SB),24,0,'V','T','2','2','0',255(IAC),240(SE)
+		// 255(IAC),250(SB),24,0,'V','T','2','2','0',255(IAC),240(SE)
 
 		_sendCommand(255, 250, 24, 0, 'V', 'T', '2', '2', '0', 255, 240);
 
@@ -194,6 +218,42 @@ public class GogoShellClient implements AutoCloseable {
 				if (string.equals("g! ")) {
 					break;
 				}
+			}
+
+			c = _inputStream.read();
+		}
+
+		String output = sb.substring(0, sb.length() - 3);
+
+		return output.trim();
+	}
+
+	private String _readUntilNextGogoPrompt(int ignoreLength)
+		throws IOException {
+
+		StringBuilder sb = new StringBuilder();
+
+		int c = _inputStream.read();
+
+		int replyCount = 0;
+
+		while (c != -1) {
+			if (ignoreLength > 0) {
+				if (replyCount >= ignoreLength) {
+					sb.append((char)c);
+				}
+				else {
+					replyCount++;
+				}
+			}
+			else {
+				sb.append((char)c);
+			}
+
+			String inputString = sb.toString();
+
+			if (inputString.endsWith("g! ")) {
+				break;
 			}
 
 			c = _inputStream.read();
