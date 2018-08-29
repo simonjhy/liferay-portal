@@ -162,6 +162,32 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 
 		String servletContextName = servletContext.getServletContextName();
 
+		List<String> beanFilterNames =
+			(List<String>)servletContext.getAttribute(
+				WebKeys.BEAN_FILTER_NAMES);
+		List<String> beanPortletIds = (List<String>)servletContext.getAttribute(
+			WebKeys.BEAN_PORTLET_IDS);
+
+		if ((beanFilterNames != null) || (beanPortletIds != null)) {
+			if ((beanFilterNames != null) && _log.isInfoEnabled()) {
+				_log.info(
+					StringBundler.concat(
+						String.valueOf(beanFilterNames.size()),
+						" bean filters for ", servletContextName,
+						" are available for use"));
+			}
+
+			if ((beanPortletIds != null) && _log.isInfoEnabled()) {
+				_log.info(
+					StringBundler.concat(
+						String.valueOf(beanPortletIds.size()),
+						" bean portlets for ", servletContextName,
+						" are available for use"));
+			}
+
+			return;
+		}
+
 		if (_log.isDebugEnabled()) {
 			_log.debug("Invoking deploy for " + servletContextName);
 		}
@@ -322,6 +348,44 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 		List<Portlet> portlets = _portlets.remove(servletContextName);
 
 		if (portlets == null) {
+			List<String> beanFilterNames =
+				(List<String>)servletContext.getAttribute(
+					WebKeys.BEAN_FILTER_NAMES);
+
+			if ((beanFilterNames != null) && _log.isInfoEnabled()) {
+				if (beanFilterNames.size() == 1) {
+					_log.info(
+						"1 bean filter for " + servletContextName +
+							" was unregistered");
+				}
+				else {
+					_log.info(
+						StringBundler.concat(
+							String.valueOf(beanFilterNames.size()),
+							" bean filters for ", servletContextName,
+							" were unregistered"));
+				}
+			}
+
+			List<String> beanPortletIds =
+				(List<String>)servletContext.getAttribute(
+					WebKeys.BEAN_PORTLET_IDS);
+
+			if ((beanPortletIds != null) && _log.isInfoEnabled()) {
+				if (beanPortletIds.size() == 1) {
+					_log.info(
+						"1 bean portlet for " + servletContextName +
+							" was unregistered");
+				}
+				else {
+					_log.info(
+						StringBundler.concat(
+							String.valueOf(beanPortletIds.size()),
+							" bean portlets for ", servletContextName,
+							" were unregistered"));
+				}
+			}
+
 			return;
 		}
 

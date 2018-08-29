@@ -63,6 +63,7 @@ import com.liferay.portal.kernel.template.TemplateHandler;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ServiceProxyFactory;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -859,7 +860,7 @@ public class PortletImpl extends PortletBaseImpl {
 	 */
 	@Override
 	public String getDisplayName() {
-		return _displayName;
+		return GetterUtil.getString(_displayName);
 	}
 
 	/**
@@ -4653,7 +4654,7 @@ public class PortletImpl extends PortletBaseImpl {
 	 * String)}, or {@link javax.portlet.HeaderResponse#addDependency(String,
 	 * String, String, String)} are to be referenced in the page's header.
 	 */
-	private boolean _portletDependencyCssEnabled;
+	private boolean _portletDependencyCssEnabled = true;
 
 	/**
 	 * <code>True</code> if the JavaScript resource dependencies specified in
@@ -4662,7 +4663,7 @@ public class PortletImpl extends PortletBaseImpl {
 	 * String)}, or {@link javax.portlet.HeaderResponse#addDependency(String,
 	 * String, String, String)} are to be referenced in the page's header.
 	 */
-	private boolean _portletDependencyJavaScriptEnabled;
+	private boolean _portletDependencyJavaScriptEnabled = true;
 
 	/**
 	 * The filters of the portlet.

@@ -376,6 +376,11 @@ public class LayoutRevisionLocalServiceUtil {
 			start, end, orderByComparator);
 	}
 
+	public static java.util.List<com.liferay.portal.kernel.model.LayoutRevision> getLayoutRevisionsByStatus(
+		int status) {
+		return getService().getLayoutRevisionsByStatus(status);
+	}
+
 	/**
 	* Returns the number of layout revisions.
 	*

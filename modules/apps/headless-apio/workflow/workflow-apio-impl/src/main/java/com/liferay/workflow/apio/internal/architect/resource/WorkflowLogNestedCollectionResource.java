@@ -94,13 +94,13 @@ public class WorkflowLogNestedCollectionResource
 		).addLinkedModel(
 			"task", WorkflowTaskIdentifier.class, WorkflowLog::getWorkflowTaskId
 		).addString(
-			"type", this::_getWorkflowLogType
-		).addString(
 			"commentLog", WorkflowLog::getComment
 		).addString(
 			"previousState", WorkflowLog::getPreviousState
 		).addString(
 			"state", WorkflowLog::getState
+		).addString(
+			"type", this::_getWorkflowLogType
 		).build();
 	}
 
@@ -113,7 +113,6 @@ public class WorkflowLogNestedCollectionResource
 				company.getCompanyId(), workflowTaskId, null,
 				pagination.getStartPosition(), pagination.getEndPosition(),
 				null);
-
 		int count = _workflowLogManager.getWorkflowLogCountByWorkflowTask(
 			company.getCompanyId(), workflowTaskId, null);
 

@@ -20,7 +20,7 @@ Here are some of the types of changes documented in this file:
   replaces an old API, in spite of the old API being kept in Liferay Portal for
   backwards compatibility.
 
-*This document has been reviewed through commit `946edcc08f6c`.*
+*This document has been reviewed through commit `ef156169d4fa`.*
 
 ## Breaking Changes Contribution Guidelines
 
@@ -845,6 +845,43 @@ This change helps stabilize the foundation of Liferay Portal's utilities.
 
 ---------------------------------------
 
+### Changed the From Last Publish Date Option in Staging
+- **Date:** 2018-Jun-06
+- **JIRA Ticket:** LPS-81695
+
+#### What changed?
+
+The *From Last Publish Date* option used in the publication process has
+programmatically changed.
+
+#### Who is affected?
+
+This affects anyone who implemented Staging support for their custom entities.
+
+#### How should I update my code?
+
+You must create a `*StagingModelListener` class for your custom entity, which
+extends the
+[`com.liferay.portal.kernel.model.BaseModelListener`](https://docs.liferay.com/ce/portal/7.1-latest/javadocs/portal-kernel/com/liferay/portal/kernel/model/BaseModelListener.html).
+You can examine the
+[`BlogsEntryStagingModelListener`](https://github.com/liferay/liferay-portal/blob/7.1.0-ga1/modules/apps/blogs/blogs-service/src/main/java/com/liferay/blogs/internal/model/listener/BlogsEntryStagingModelListener.java)
+class as an example.
+
+You must also update the `doPrepareManifestSummary` method in your custom
+`*PortletDataHandler` to use the `populateLastPublishDateCounts` method from the
+[`com.liferay.exportimport.internal.staging.StagingImpl`](https://docs.liferay.com/ce/apps/web-experience/latest/javadocs/com/liferay/exportimport/staging/StagingImpl.html),
+in case of a *From Last Publish Date* publication. See the
+[`BlogsPortletDataHandler`](https://github.com/liferay/liferay-portal/blob/7.1.0-ga1/modules/apps/blogs/blogs-web/src/main/java/com/liferay/blogs/web/internal/exportimport/data/handler/BlogsPortletDataHandler.java)
+as an example.
+
+#### Why was this change made?
+
+It was hard to collect which entities should be published to the live site.
+Instead of running queries to find the contents that were modified since the
+last publication, now changesets are used to track this information.
+
+---------------------------------------
+
 ### Decoupled Several Classes from PortletURLImpl
 - **Date:** 2018-Jun-08
 - **JIRA Ticket:** LPS-82119
@@ -955,5 +992,31 @@ Developer Mode is enabled upon starting your app server.
 
 This was done to strengthen Liferay Portal's security due to potential XXE/SSRF
 vulnerabilities.
+
+---------------------------------------
+
+### Removed Description HTML Escaping in PortletDisplay
+- **Date:** 2018-Jul-17
+- **JIRA Ticket:** LPS-83185
+
+#### What changed?
+
+The portlet description stored in `PortletDisplay.java` is no longer escaped
+automatically.
+
+#### Who is affected?
+
+This affects anyone who relied on the portlet description's value already being
+escaped and used it to generate HTML. In that case, a small UI change might be
+observed as some characters could become unescaped.
+
+#### How should I update my code?
+
+If you were using the `portletDescription` value to generate HTML, you
+should escape it using the proper escape sequence using `HtmlUtil.escape`.
+
+#### Why was this change made?
+
+This change corrects a best practice violation regarding content escaping.
 
 ---------------------------------------

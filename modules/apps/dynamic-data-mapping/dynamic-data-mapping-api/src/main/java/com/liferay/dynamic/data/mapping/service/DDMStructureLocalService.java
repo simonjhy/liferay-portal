@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.service.BaseLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.permission.ModelPermissions;
+import com.liferay.portal.kernel.spring.aop.Skip;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
@@ -457,6 +458,10 @@ public interface DDMStructureLocalService extends BaseLocalService,
 		String structureKey, boolean includeAncestorStructures);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public DDMStructure fetchStructureByUuidAndGroupId(String uuid,
+		long groupId, boolean includeAncestorStructures);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ActionableDynamicQuery getActionableDynamicQuery();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -665,6 +670,7 @@ public interface DDMStructureLocalService extends BaseLocalService,
 	public List<DDMStructure> getStructure(long groupId, String name,
 		String description);
 
+	@Skip
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DDMForm getStructureDDMForm(DDMStructure structure)
 		throws PortalException;

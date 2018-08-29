@@ -29,9 +29,8 @@ import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.exportimport.kernel.service.ExportImportConfigurationLocalService;
 import com.liferay.exportimport.kernel.service.ExportImportLocalService;
 import com.liferay.exportimport.kernel.staging.Staging;
+import com.liferay.exportimport.kernel.staging.StagingURLHelper;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Portlet;
@@ -279,7 +278,7 @@ public class ExportImportChangesetMVCActionCommandImpl
 					stagingGroup.getTypeSettingsProperties();
 
 				HttpPrincipal httpPrincipal = new HttpPrincipal(
-					_staging.buildRemoteURL(typeSettingsProperties),
+					_stagingURLHelper.buildRemoteURL(typeSettingsProperties),
 					user.getLogin(), user.getPassword(),
 					user.isPasswordEncrypted());
 
@@ -326,9 +325,6 @@ public class ExportImportChangesetMVCActionCommandImpl
 		sendRedirect(actionRequest, actionResponse, backgroundTaskId);
 	}
 
-	private static final Log _log = LogFactoryUtil.getLog(
-		ExportImportChangesetMVCActionCommandImpl.class);
-
 	@Reference
 	private ChangesetManager _changesetManager;
 
@@ -364,5 +360,8 @@ public class ExportImportChangesetMVCActionCommandImpl
 
 	@Reference
 	private Staging _staging;
+
+	@Reference
+	private StagingURLHelper _stagingURLHelper;
 
 }

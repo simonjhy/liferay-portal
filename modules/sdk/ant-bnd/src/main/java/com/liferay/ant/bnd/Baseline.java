@@ -177,6 +177,7 @@ public abstract class Baseline {
 				Version newerVersion = info.newerVersion;
 
 				if (_ignoreExcessiveVersionIncreases &&
+					(info.suggestedVersion != null) &&
 					(newerVersion.compareTo(info.suggestedVersion) > 0)) {
 
 					info.suggestedVersion = newerVersion;
@@ -505,6 +506,14 @@ public abstract class Baseline {
 						}
 					}
 				}
+			}
+
+			Version newerVersion = info.newerVersion;
+
+			if ((newerVersion != null) &&
+				(newerVersion.compareTo(info.suggestedVersion) == 0)) {
+
+				writePackageInfoFile = false;
 			}
 
 			if (writePackageInfoFile) {

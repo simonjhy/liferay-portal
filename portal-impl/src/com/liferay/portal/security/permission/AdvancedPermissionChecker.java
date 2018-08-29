@@ -567,15 +567,26 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 					roleIdsSet.add(organizationUserRole.getRoleId());
 				}
 
-				if ((group.isSite() &&
-					 (userBag.hasUserGroup(group) ||
-					  userBag.hasUserOrgGroup(group))) ||
-					group.isUserPersonalSite()) {
+				if (group.isSite() &&
+					(userBag.hasUserGroup(group) ||
+					 userBag.hasUserOrgGroup(group))) {
 
 					Role siteMemberRole = RoleLocalServiceUtil.getRole(
 						group.getCompanyId(), RoleConstants.SITE_MEMBER);
 
 					roleIdsSet.add(siteMemberRole.getRoleId());
+				}
+
+				if (group.isUserPersonalSite()) {
+					Role powerUserRole = RoleLocalServiceUtil.getRole(
+						getCompanyId(), RoleConstants.POWER_USER);
+
+					if (userBag.hasRole(powerUserRole)) {
+						Role siteMemberRole = RoleLocalServiceUtil.getRole(
+							group.getCompanyId(), RoleConstants.SITE_MEMBER);
+
+						roleIdsSet.add(siteMemberRole.getRoleId());
+					}
 				}
 
 				if ((group.isOrganization() &&
@@ -1510,6 +1521,34 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 
 			if (hasLayoutManagerPermission) {
 				return true;
+			}
+		}
+
+		// Allow read-only access to personal site assets. Group is user
+		// personal site here only when current user is the personal site owner.
+
+		if ((group != null) && group.isUserPersonalSite() &&
+			ActionKeys.VIEW.equals(actionId)) {
+
+			// The only check we can perform on top is for the Site Member role.
+			// The Site Member role is derived from the Power User role. When a
+			// user is missing the Power User role, then the Site Member role
+			// is not granted and we do not check default actions granted to the
+			// Site Member role. Hence, it is the only role left. All other
+			// roles were already checked.
+
+			Role siteMemberRole = RoleLocalServiceUtil.getRole(
+				getCompanyId(), RoleConstants.SITE_MEMBER);
+
+			if (!ArrayUtil.contains(roleIds, siteMemberRole.getRoleId())) {
+				boolean hasPermission = doCheckPermission(
+					companyId, groupId, name, primKey,
+					new long[] {siteMemberRole.getRoleId()}, actionId,
+					stopWatch);
+
+				if (hasPermission) {
+					return true;
+				}
 			}
 		}
 

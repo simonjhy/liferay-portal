@@ -14,6 +14,7 @@
 
 package com.liferay.portal.portlet.bridge.soy.internal;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.log.Log;
@@ -44,7 +45,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnsyncPrintWriterPool;
 import com.liferay.portal.kernel.util.Validator;
@@ -126,7 +126,8 @@ public class SoyPortlet extends MVCPortlet {
 		_bundle = FrameworkUtil.getBundle(clazz);
 
 		try {
-			MVCCommandCache mvcRenderCommandCache = getRenderMVCCommandCache();
+			MVCCommandCache<?> mvcRenderCommandCache =
+				getRenderMVCCommandCache();
 
 			FriendlyURLMapper friendlyURLMapper = _getFriendlyURLMapper();
 
@@ -457,10 +458,10 @@ public class SoyPortlet extends MVCPortlet {
 	}
 
 	private MVCRenderCommand _getMVCRenderCommand(String mvcRenderCommandName) {
-		MVCCommandCache mvcRenderCommandCache = getRenderMVCCommandCache();
+		MVCCommandCache<MVCRenderCommand> mvcRenderCommandCache =
+			getRenderMVCCommandCache();
 
-		return (MVCRenderCommand)mvcRenderCommandCache.getMVCCommand(
-			mvcRenderCommandName);
+		return mvcRenderCommandCache.getMVCCommand(mvcRenderCommandName);
 	}
 
 	private Portlet _getPortlet() {
@@ -495,7 +496,7 @@ public class SoyPortlet extends MVCPortlet {
 			SoyTemplateResourcesProviderUtil.getBundleTemplateResources(
 				_bundle, templatePath));
 
-		MVCCommandCache mvcCommandCache = getRenderMVCCommandCache();
+		MVCCommandCache<?> mvcCommandCache = getRenderMVCCommandCache();
 
 		for (String mvcCommandName : mvcCommandCache.getMVCCommandNames()) {
 			MVCCommand mvcCommand = _getMVCRenderCommand(mvcCommandName);

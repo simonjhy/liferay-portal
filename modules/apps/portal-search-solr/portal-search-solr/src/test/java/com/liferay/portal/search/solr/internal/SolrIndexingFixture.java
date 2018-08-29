@@ -19,7 +19,6 @@ import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.search.IndexSearcher;
 import com.liferay.portal.kernel.search.IndexWriter;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
-import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.Digester;
 import com.liferay.portal.kernel.util.Localization;
 import com.liferay.portal.kernel.util.Props;
@@ -173,7 +172,13 @@ public class SolrIndexingFixture implements IndexingFixture {
 		Digester digester = Mockito.mock(Digester.class);
 
 		Mockito.doAnswer(
-			invocation -> RandomTestUtil.randomBytes()
+			invocation -> {
+				Object[] args = invocation.getArguments();
+
+				ByteBuffer byteBuffer = (ByteBuffer)args[1];
+
+				return byteBuffer.array();
+			}
 		).when(
 			digester
 		).digestRaw(

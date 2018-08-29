@@ -36,19 +36,61 @@ public class JobFactory {
 	public static Job newJob(
 		String jobName, String testSuiteName, String portalBranchName) {
 
+		Job job = _newJob(jobName, testSuiteName, portalBranchName);
+
+		job.readJobProperties();
+
+		return job;
+	}
+
+	private static boolean _isCentralMergePullRequest(
+		GitWorkingDirectory gitWorkingDirectory) {
+
+		List<File> currentBranchModifiedFiles =
+			gitWorkingDirectory.getModifiedFilesList();
+
+		if (currentBranchModifiedFiles.size() == 1) {
+			File modifiedFile = currentBranchModifiedFiles.get(0);
+
+			String modifiedFileName = modifiedFile.getName();
+
+			if (modifiedFileName.equals("ci-merge")) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private static Job _newJob(
+		String jobName, String testSuiteName, String portalBranchName) {
+
 		Job job = _jobs.get(jobName);
 
 		if (job != null) {
 			return job;
 		}
 
+		if (jobName.equals("git-bisect-tool")) {
+			_jobs.put(jobName, new GitBisectToolJob(jobName, portalBranchName));
+
+			return _jobs.get(jobName);
+		}
+
+		if (jobName.equals("git-bisect-tool-batch")) {
+			_jobs.put(
+				jobName, new GitBisectToolBatchJob(jobName, portalBranchName));
+
+			return _jobs.get(jobName);
+		}
+
 		if (jobName.contains("test-plugins-acceptance-pullrequest(")) {
-			PluginsRepositoryJob pluginsRepositoryJob =
-				new PluginsRepositoryJob(jobName);
+			PluginsGitRepositoryJob pluginsGitRepositoryJob =
+				new PluginsGitRepositoryJob(jobName);
 
-			_jobs.put(jobName, pluginsRepositoryJob);
+			_jobs.put(jobName, pluginsGitRepositoryJob);
 
-			return pluginsRepositoryJob;
+			return pluginsGitRepositoryJob;
 		}
 
 		if (jobName.contains("test-portal-acceptance-pullrequest(")) {
@@ -74,6 +116,21 @@ public class JobFactory {
 			return _jobs.get(jobName);
 		}
 
+		if (jobName.equals("test-portal-fixpack-release")) {
+			_jobs.put(
+				jobName,
+				new PortalFixpackReleaseJob(jobName, portalBranchName));
+
+			return _jobs.get(jobName);
+		}
+
+		if (jobName.equals("test-portal-hotfix-release")) {
+			_jobs.put(
+				jobName, new PortalHotfixReleaseJob(jobName, portalBranchName));
+
+			return _jobs.get(jobName);
+		}
+
 		if (jobName.equals("test-portal-release")) {
 			_jobs.put(jobName, new PortalReleaseJob(jobName, portalBranchName));
 
@@ -88,31 +145,12 @@ public class JobFactory {
 
 		if (jobName.contains("test-subrepository-acceptance-pullrequest(")) {
 			_jobs.put(
-				jobName, new SubrepositoryAcceptancePullRequestJob(jobName));
+				jobName, new GitSubrepositoryAcceptancePullRequestJob(jobName));
 
 			return _jobs.get(jobName);
 		}
 
 		throw new IllegalArgumentException("Invalid job name " + jobName);
-	}
-
-	private static boolean _isCentralMergePullRequest(
-		GitWorkingDirectory gitWorkingDirectory) {
-
-		List<File> currentBranchModifiedFiles =
-			gitWorkingDirectory.getModifiedFilesList();
-
-		if (currentBranchModifiedFiles.size() == 1) {
-			File modifiedFile = currentBranchModifiedFiles.get(0);
-
-			String modifiedFileName = modifiedFile.getName();
-
-			if (modifiedFileName.equals("ci-merge")) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	private static final Map<String, Job> _jobs = new HashMap<>();
