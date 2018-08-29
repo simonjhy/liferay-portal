@@ -56,7 +56,7 @@
 </tr>
 <tr>
 	<td>CHECKBOX_LABEL</td>
-	<td>//div[contains(@data-fieldname,'${key_fieldName}')]//label | //li[contains(.,'${key_fieldName}')]//label</td>
+	<td>//div[contains(@data-fieldname,'${key_fieldName}')]//label | //li[contains(.,'${key_fieldName}')]//label | //label[.//input[@type='checkbox' and contains(@id,'${key_fieldName}')]]</td>
 	<td></td>
 </tr>
 <tr>
@@ -180,7 +180,7 @@
 </tr>
 <tr>
 	<td>GRID_RADIO_OPTIONS</td>
-	<td>//div[contains(@class,'field-grid')]//tr[@name='${key_optionRowName}']//input[@value='${key_categoryColumnName}']</td>
+	<td>//div[contains(@class,'field-grid')]//tr[contains(@name,'${key_optionRowName}')]//input[@value='${key_categoryColumnName}']</td>
 	<td></td>
 </tr>
 <tr>

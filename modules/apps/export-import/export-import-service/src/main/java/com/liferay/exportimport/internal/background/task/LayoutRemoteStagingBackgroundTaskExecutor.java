@@ -25,6 +25,7 @@ import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskExecutor;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskResult;
+import com.liferay.portal.kernel.exception.NoSuchLayoutException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
@@ -33,6 +34,8 @@ import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.security.auth.HttpPrincipal;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.util.ClassLoaderUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -45,6 +48,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Mate Thurzo
@@ -151,6 +155,13 @@ public class LayoutRemoteStagingBackgroundTaskExecutor
 				String.valueOf(
 					exportImportConfiguration.getExportImportConfigurationId()),
 				exportImportConfiguration);
+
+			ServiceContext serviceContext =
+				ServiceContextThreadLocal.getServiceContext();
+
+			ExportImportHelperUtil.processBackgroundTaskManifestSummary(
+				serviceContext.getUserId(), sourceGroupId, backgroundTask,
+				file);
 		}
 		catch (Throwable t) {
 			ExportImportThreadLocal.setLayoutStagingInProcess(false);
@@ -200,13 +211,31 @@ public class LayoutRemoteStagingBackgroundTaskExecutor
 		List<Layout> layouts = new ArrayList<>();
 
 		if (layoutIdMap != null) {
-			for (Map.Entry<Long, Boolean> entry : layoutIdMap.entrySet()) {
+			Set<Map.Entry<Long, Boolean>> entrySet = layoutIdMap.entrySet();
+
+			for (Map.Entry<Long, Boolean> entry : entrySet) {
 				long plid = GetterUtil.getLong(String.valueOf(entry.getKey()));
 				boolean includeChildren = entry.getValue();
 
-				Layout layout =
-					ExportImportHelperUtil.getLayoutOrCreateDummyRootLayout(
-						plid);
+				Layout layout = null;
+
+				try {
+					layout =
+						ExportImportHelperUtil.getLayoutOrCreateDummyRootLayout(
+							plid);
+				}
+				catch (NoSuchLayoutException nsle) {
+
+					// See LPS-36174
+
+					if (_log.isDebugEnabled()) {
+						_log.debug(nsle, nsle);
+					}
+
+					entrySet.remove(plid);
+
+					continue;
+				}
 
 				if (!layouts.contains(layout)) {
 					layouts.add(layout);

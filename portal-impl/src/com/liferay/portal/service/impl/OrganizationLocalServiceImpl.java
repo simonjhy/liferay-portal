@@ -2430,8 +2430,7 @@ public class OrganizationLocalServiceImpl
 				OrganizationConstants.DEFAULT_PARENT_ORGANIZATION_ID) {
 
 			if (!isRootable(type)) {
-				throw new OrganizationParentException(
-					"Organization of type " + type + " cannot be a root");
+				throw new OrganizationParentException.MustBeRootable(type);
 			}
 		}
 		else {
@@ -2440,15 +2439,14 @@ public class OrganizationLocalServiceImpl
 
 			if (parentOrganization == null) {
 				throw new OrganizationParentException(
-					"Organization " + parentOrganizationId + " doesn't exist");
+					"Organization " + parentOrganizationId + " does not exist");
 			}
 
 			String[] childrenTypes = getChildrenTypes(
 				parentOrganization.getType());
 
 			if (childrenTypes.length == 0) {
-				throw new OrganizationParentException(
-					"Organization of type " + type + " cannot have children");
+				throw new OrganizationParentException.MustNotHaveChildren(type);
 			}
 
 			if ((companyId != parentOrganization.getCompanyId()) ||
@@ -2458,10 +2456,8 @@ public class OrganizationLocalServiceImpl
 			}
 
 			if (!ArrayUtil.contains(childrenTypes, type)) {
-				throw new OrganizationParentException(
-					StringBundler.concat(
-						"Type ", type, " not allowed as child of ",
-						parentOrganization.getType()));
+				throw new OrganizationParentException.MustHaveValidChildType(
+					type, parentOrganization.getType());
 			}
 		}
 

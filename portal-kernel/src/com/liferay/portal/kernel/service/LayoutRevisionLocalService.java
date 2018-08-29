@@ -300,6 +300,9 @@ public interface LayoutRevisionLocalService extends BaseLocalService,
 		long layoutBranchId, long plid, int start, int end,
 		OrderByComparator<LayoutRevision> orderByComparator);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<LayoutRevision> getLayoutRevisionsByStatus(int status);
+
 	/**
 	* Returns the number of layout revisions.
 	*

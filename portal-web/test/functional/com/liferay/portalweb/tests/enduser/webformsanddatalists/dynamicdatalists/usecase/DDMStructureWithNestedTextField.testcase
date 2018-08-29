@@ -56,7 +56,7 @@
 	</set-up>
 
 	<tear-down>
-		<var method="TestPropsUtil#get('test.portal.instance')" name="testPortalInstance" />
+		<var method="PropsUtil#get('test.portal.instance')" name="testPortalInstance" />
 
 		<if>
 			<equals arg1="${testPortalInstance}" arg2="true" />
@@ -79,12 +79,12 @@
 		<execute macro="DDLRecord#addCP" />
 
 		<execute macro="DDLRecord#populateFieldText">
-			<var name="ddlRecordFieldData" value="English (United States) Parent" />
+			<var name="ddlRecordFieldData" value="en-US Parent" />
 			<var name="fieldName" value="textParent" />
 		</execute>
 
 		<execute macro="DDLRecord#populateFieldText">
-			<var name="ddlRecordFieldData" value="English (United States) Child" />
+			<var name="ddlRecordFieldData" value="en-US Child" />
 			<var name="fieldName" value="textChild" />
 		</execute>
 

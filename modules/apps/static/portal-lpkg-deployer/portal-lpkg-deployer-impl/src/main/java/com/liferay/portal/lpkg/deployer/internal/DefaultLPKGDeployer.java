@@ -234,7 +234,8 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 	@Override
 	public InputStream toBundle(File lpkgFile) throws IOException {
 		try (UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
-				new UnsyncByteArrayOutputStream()) {
+				new UnsyncByteArrayOutputStream(
+					(int)(lpkgFile.length() + 512))) {
 
 			try (ZipFile zipFile = new ZipFile(lpkgFile);
 				JarOutputStream jarOutputStream = new JarOutputStream(
@@ -347,7 +348,7 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 		LPKGIndexValidatorThreadLocal.setEnabled(false);
 
 		try {
-			_instalLPKGs(bundleContext, lpkgFiles);
+			_installLPKGs(bundleContext, lpkgFiles);
 
 			_installOverrideJars(bundleContext, jarFiles);
 
@@ -377,6 +378,25 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 		Files.createDirectories(deploymentDirPath);
 
 		return deploymentDirPath;
+	}
+
+	private void _installLPKGs(
+		BundleContext bundleContext, List<File> lpkgFiles) {
+
+		for (File lpkgFile : lpkgFiles) {
+			try {
+				List<Bundle> bundles = deploy(bundleContext, lpkgFile);
+
+				if (!bundles.isEmpty()) {
+					Bundle lpkgBundle = bundles.get(0);
+
+					lpkgBundle.start();
+				}
+			}
+			catch (Exception e) {
+				_log.error("Unable to deploy LPKG file " + lpkgFile, e);
+			}
+		}
 	}
 
 	private void _installOverrideJars(
@@ -456,25 +476,6 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 
 		if (modified) {
 			_saveOverrideWarsProperties(bundleContext, properties);
-		}
-	}
-
-	private void _instalLPKGs(
-		BundleContext bundleContext, List<File> lpkgFiles) {
-
-		for (File lpkgFile : lpkgFiles) {
-			try {
-				List<Bundle> bundles = deploy(bundleContext, lpkgFile);
-
-				if (!bundles.isEmpty()) {
-					Bundle lpkgBundle = bundles.get(0);
-
-					lpkgBundle.start();
-				}
-			}
-			catch (Exception e) {
-				_log.error("Unable to deploy LPKG file " + lpkgFile, e);
-			}
 		}
 	}
 
@@ -701,7 +702,7 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 		DefaultLPKGDeployer.class);
 
 	private static final Pattern _pattern = Pattern.compile(
-		"/?(.*?)(-\\d+\\.\\d+\\.\\d+)(\\..+)?(\\.[jw]ar)");
+		".*?(-\\d+\\.\\d+\\.\\d+)\\..+?\\.[jw]ar");
 
 	private Path _deploymentDirPath;
 	private BundleTracker<List<Bundle>> _lpkgBundleTracker;
