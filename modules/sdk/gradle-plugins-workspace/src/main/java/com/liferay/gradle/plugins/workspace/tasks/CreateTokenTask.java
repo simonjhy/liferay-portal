@@ -43,7 +43,9 @@ import org.gradle.api.tasks.TaskAction;
 /**
  * @author Andrea Di Giorgi
  * @author Gregory Amerson
+ * @deprecated The token is no longer being used
  */
+@Deprecated
 public class CreateTokenTask extends DefaultTask {
 
 	public CreateTokenTask() {
