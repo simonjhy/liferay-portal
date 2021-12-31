@@ -1408,6 +1408,22 @@
 			<description name="Applies rules to enforce consisteny in code style." />
 		</check>
 	</source-processor>
+	<source-processor name="UpgradeSourceProcessor">
+		<check name="AnalysisReportCheck">
+			<category name="Upgrade" />
+			<description name="Analysis the project and generate a report." />
+			<property name="fileTypes" value=".java" />
+			<property name="fileTypes" value=".jsp" />
+			<property name="fileTypes" value=".properties" />
+			<property name="fileTypes" value=".xml" />
+			<property name="fileTypes" value="build.gradle" />
+			<property name="fileTypes" value="settings.gradle" />
+			<property name="fileTypes" value="service.xml" />
+			<property name="fileTypes" value="Language**.properties" />
+			<property name="fileTypes" value="portal**.properties" />
+			<property name="showDetails" value="true" />
+		</check>
+	</source-processor>
 	<source-processor name="XMLSourceProcessor">
 		<check name="XMLBuildFileCheck">
 			<category name="Bug Prevention" />
