@@ -1408,6 +1408,12 @@
 			<description name="Applies rules to enforce consisteny in code style." />
 		</check>
 	</source-processor>
+	<source-processor name="UpgradeSourceProcessor">
+		<check name="AnalysisReportCheck">
+			<category name="Upgrade" />
+			<description name="Analysis the project and generate a report." />
+		</check>
+	</source-processor>
 	<source-processor name="XMLSourceProcessor">
 		<check name="XMLBuildFileCheck">
 			<category name="Bug Prevention" />
