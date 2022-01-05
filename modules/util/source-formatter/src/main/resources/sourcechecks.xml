@@ -1414,6 +1414,7 @@
 			<description name="Analysis the project and generate a report." />
 			<property name="fileTypes" value=".java" />
 			<property name="fileTypes" value=".jsp" />
+			<property name="fileTypes" value=".jspf" />
 			<property name="fileTypes" value=".properties" />
 			<property name="fileTypes" value=".xml" />
 			<property name="fileTypes" value="build.gradle" />
