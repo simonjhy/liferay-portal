@@ -1404,9 +1404,20 @@
 		</check>
 	</source-processor>
 	<source-processor name="UpgradeSourceProcessor">
+		<check name="UpgradeCreateMavenModuleCheck">
+			<category name="Upgrade" />
+			<description name="Performs creating module for maven plugin project" />
+			<weight>5</weight>
+		</check>
+		<check name="UpgradeCreatePluginModuleCheck">
+			<category name="Upgrade" />
+			<description name="Performs creating module for plugin project" />
+			<weight>4</weight>
+		</check>
 		<check name="UpgradeJavaCheck">
 			<category name="Upgrade" />
 			<description name="Performs upgrade checks for `java` files" />
+			<weight>10</weight>
 		</check>
 	</source-processor>
 	<source-processor name="XMLSourceProcessor">

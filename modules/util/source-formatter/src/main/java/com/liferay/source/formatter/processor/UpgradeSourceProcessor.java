@@ -49,6 +49,6 @@ public class UpgradeSourceProcessor extends BaseSourceProcessor {
 		return _INCLUDES;
 	}
 
-	private static final String[] _INCLUDES = {"**/*.java"};
+	private static final String[] _INCLUDES = {"**/*.java", "**/lugbot.yaml"};
 
 }
