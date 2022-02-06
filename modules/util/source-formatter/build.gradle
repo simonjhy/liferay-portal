@@ -11,6 +11,16 @@ buildPluginDescriptor {
 	goalPrefix = "source-formatter"
 }
 
+repositories {
+	maven {
+		url "https://repo.gradle.org/gradle/libs-releases-local/"
+	}
+
+	maven {
+		url "https://repository.liferay.com/nexus/content/groups/public"
+	}
+}
+
 dependencies {
 	compile group: "com.googlecode.java-diff-utils", name: "diffutils", version: "1.3.0"
 	compile group: "com.puppycrawl.tools", name: "checkstyle", version: "8.29"
@@ -28,6 +38,12 @@ dependencies {
 	compile group: "org.json", name: "json", version: "20180813"
 	compile group: "org.reflections", name: "reflections", "version": "0.10.2"
 	compile group: "xerces", name: "xercesImpl", version: "2.12.1"
+
+	compile group: "org.yaml", name: "snakeyaml", version: "1.28"
+	compile group: "biz.aQute.bnd", name: "biz.aQute.bndlib", version: "5.3.0"
+	compile group: "org.apache.maven", name: "maven-model", version: "3.8.1"
+	compile group: "com.liferay.blade", name: "com.liferay.blade.cli", version: "4.0.10"
+	compile group: "org.gradle", name: "gradle-tooling-api", version: "6.6.1"
 
 	compileInclude group: "com.liferay", name: "com.liferay.petra.function", version: "5.0.1"
 	compileInclude group: "com.liferay", name: "com.liferay.petra.lang", version: "1.0.0"
@@ -63,6 +79,13 @@ liferay {
 
 liferayOSGi {
 	expandCompileInclude = true
+}
+
+processResources {
+	from (configurations.compile) {
+		include "com.liferay.blade.cli-*.jar"
+	}
+	rename(/com.liferay.blade.cli-(.+)\.jar/, "blade-latest.jar")
 }
 
 updateFileVersions {

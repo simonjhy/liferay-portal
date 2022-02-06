@@ -321,6 +321,8 @@ PersistenceCallCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-preve
 PersistenceUpdateCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | .java | Checks that there are no stale references in service code from persistence updates. |
 PlusStatementCheck | [Styling](styling_checks.markdown#styling-checks) | .java, .jsp, .jspf, .jspx, .tag, .tpl or .vm | Performs several checks to statements where `+` is used for concatenation. |
 PortletURLBuilderCheck | [Miscellaneous](miscellaneous_checks.markdown#miscellaneous-checks) | .java, .jsp, .jspf, .jspx, .tag, .tpl or .vm | Checks that `PortletURLBuilder` is used when possible. |
+[PortletURLBuilderCheck](checks/builder_check.markdown#buildercheck) | [Miscellaneous](miscellaneous_checks.markdown#miscellaneous-checks) | .java, .jsp, .jspf, .jspx, .tag, .tpl or .vm | Checks that `PortletURLBuilder` is used when possible. |
+>>>>>>> LPS-144771 maven create module provider
 PoshiDependenciesFileLocationCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | .function, .macro or .testcase | Checks that dependencies files are located in the correct directory. |
 PoshiStylingCheck | [Styling](styling_checks.markdown#styling-checks) | .function, .macro or .testcase | Applies rules to enforce consisteny in code style. |
 PoshiVariableNameCheck | [Styling](styling_checks.markdown#styling-checks) | .function, .macro or .testcase | Checks variable names for correct use of `camelCase`. |
