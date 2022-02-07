@@ -14,6 +14,8 @@
 
 package com.liferay.source.formatter.upgrade;
 
+import com.liferay.portal.kernel.util.StringUtil;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,11 +50,16 @@ public class BuildScriptVisitor extends CodeVisitorSupport {
 	}
 
 	@Override
-	public void visitArgumentlistExpression(ArgumentListExpression argumentListExpression) {
+	public void visitArgumentlistExpression(
+		ArgumentListExpression argumentListExpression) {
+
 		List<Expression> expressions = argumentListExpression.getExpressions();
 
-		if ((expressions.size() == 1) && (expressions.get(0) instanceof ConstantExpression)) {
-			ConstantExpression constantExpression = (ConstantExpression)expressions.get(0);
+		if ((expressions.size() == 1) &&
+			(expressions.get(0) instanceof ConstantExpression)) {
+
+			ConstantExpression constantExpression =
+				(ConstantExpression)expressions.get(0);
 
 			constantExpression.getLineNumber();
 
@@ -62,7 +69,8 @@ public class BuildScriptVisitor extends CodeVisitorSupport {
 
 			if (deps.length >= 3) {
 				GradleDependency gradleDependency = new GradleDependency(
-					_configurationName, deps[0], deps[1], deps[2], constantExpression.getLineNumber(),
+					_configurationName, deps[0], deps[1], deps[2],
+					constantExpression.getLineNumber(),
 					constantExpression.getLastLineNumber());
 
 				if (_inDependencies && !_inBuildscriptDependencies) {
@@ -94,19 +102,21 @@ public class BuildScriptVisitor extends CodeVisitorSupport {
 
 	@Override
 	public void visitMapExpression(MapExpression expression) {
-		List<MapEntryExpression> mapEntryExpressions = expression.getMapEntryExpressions();
+		List<MapEntryExpression> mapEntryExpressions =
+			expression.getMapEntryExpressions();
 		Map<String, String> dependencyMap = new HashMap<>();
 
 		boolean gav = false;
 
 		for (MapEntryExpression mapEntryExpression : mapEntryExpressions) {
 			Expression keyExpression = mapEntryExpression.getKeyExpression();
-			Expression valueExpression = mapEntryExpression.getValueExpression();
+			Expression valueExpression =
+				mapEntryExpression.getValueExpression();
 
 			String key = keyExpression.getText();
 			String value = valueExpression.getText();
 
-			if (key.equalsIgnoreCase("group")) {
+			if (StringUtil.equalsIgnoreCase(key, "group")) {
 				gav = true;
 			}
 
@@ -123,15 +133,19 @@ public class BuildScriptVisitor extends CodeVisitorSupport {
 			if (_inDependencies && !_inBuildscriptDependencies) {
 				_dependencies.add(
 					new GradleDependency(
-						_configurationName, dependencyMap.get("group"), name, dependencyMap.get("version"),
-						expression.getLineNumber(), expression.getLastLineNumber()));
+						_configurationName, dependencyMap.get("group"), name,
+						dependencyMap.get("version"),
+						expression.getLineNumber(),
+						expression.getLastLineNumber()));
 			}
 
 			if (_inBuildscriptDependencies) {
 				_buildscriptDependencies.add(
 					new GradleDependency(
-						_configurationName, dependencyMap.get("group"), name, dependencyMap.get("version"),
-						expression.getLineNumber(), expression.getLastLineNumber()));
+						_configurationName, dependencyMap.get("group"), name,
+						dependencyMap.get("version"),
+						expression.getLineNumber(),
+						expression.getLastLineNumber()));
 			}
 		}
 
@@ -168,12 +182,16 @@ public class BuildScriptVisitor extends CodeVisitorSupport {
 			_inDependencies = true;
 		}
 
-		if (_inBuildscript && _inDependencies && (_buildscriptDependenciesLastLineNumber == -1)) {
+		if (_inBuildscript && _inDependencies &&
+			(_buildscriptDependenciesLastLineNumber == -1)) {
+
 			_buildscriptDependenciesLastLineNumber = call.getLastLineNumber();
 			_inBuildscriptDependencies = true;
 		}
 
-		if ((_inDependencies || _inBuildscriptDependencies) && (_blockStatements > 0)) {
+		if ((_inDependencies || _inBuildscriptDependencies) &&
+			(_blockStatements > 0)) {
+
 			_configurationName = method;
 
 			super.visitMethodCallExpression(call);
@@ -185,15 +203,16 @@ public class BuildScriptVisitor extends CodeVisitorSupport {
 		}
 	}
 
-	private int _blockStatements = 0;
-	private List<GradleDependency> _buildscriptDependencies = new ArrayList<>();
+	private int _blockStatements;
+	private final List<GradleDependency> _buildscriptDependencies =
+		new ArrayList<>();
 	private int _buildscriptDependenciesLastLineNumber = -1;
 	private int _buildscriptLastLineNumber = -1;
 	private String _configurationName;
-	private List<GradleDependency> _dependencies = new ArrayList<>();
+	private final List<GradleDependency> _dependencies = new ArrayList<>();
 	private int _dependenciesLastLineNumber = -1;
-	private boolean _inBuildscript = false;
-	private boolean _inBuildscriptDependencies = false;
-	private boolean _inDependencies = false;
+	private boolean _inBuildscript;
+	private boolean _inBuildscriptDependencies;
+	private boolean _inDependencies;
 
 }

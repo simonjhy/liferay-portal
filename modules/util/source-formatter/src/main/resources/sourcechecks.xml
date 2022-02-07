@@ -1427,6 +1427,11 @@
 			<description name="Performs upgrade checks for `java` files" />
 			<weight>10</weight>
 		</check>
+		<check name="UpgradeWorkspacePluginVersionCheck">
+			<category name="Upgrade" />
+			<description name="Performs upgrade gradle workspace project plugin version" />
+			<weight>9</weight>
+		</check>
 	</source-processor>
 	<source-processor name="XMLSourceProcessor">
 		<check name="XMLBuildFileCheck">

@@ -1,17 +1,15 @@
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
  */
 
 package com.liferay.source.formatter.upgrade.util;
@@ -37,12 +35,10 @@ import java.util.stream.Stream;
  */
 public class FileFunctions {
 
-	public static void copyFile(Path srcPath, Path destPath) throws IOException {
-		if ((srcPath == null) || (destPath == null)) {
-			return;
-		}
+	public static void copyFile(Path srcPath, Path destPath)
+		throws IOException {
 
-		if (!Files.exists(srcPath)) {
+		if ((srcPath == null) || (destPath == null) || !Files.exists(srcPath)) {
 			return;
 		}
 
@@ -60,7 +56,8 @@ public class FileFunctions {
 
 	public static void copyFolder(Path src, Path dest) throws IOException {
 		try (Stream<Path> paths = Files.walk(src)) {
-			paths.forEach(source -> _copy(source, dest.resolve(src.relativize(source))));
+			paths.forEach(
+				source -> _copy(source, dest.resolve(src.relativize(source))));
 		}
 	}
 
@@ -70,14 +67,18 @@ public class FileFunctions {
 			new SimpleFileVisitor<Path>() {
 
 				@Override
-				public FileVisitResult postVisitDirectory(Path dirPath, IOException ioe) throws IOException {
+				public FileVisitResult postVisitDirectory(
+						Path dirPath, IOException ioException)
+					throws IOException {
+
 					Files.delete(dirPath);
 
 					return FileVisitResult.CONTINUE;
 				}
 
 				@Override
-				public FileVisitResult visitFile(Path path, BasicFileAttributes basicFileAttributes)
+				public FileVisitResult visitFile(
+						Path path, BasicFileAttributes basicFileAttributes)
 					throws IOException {
 
 					Files.delete(path);
@@ -104,13 +105,13 @@ public class FileFunctions {
 				deleteDir(file.toPath());
 			}
 		}
-		catch (final Exception ignored) {
+		catch (final Exception exception) {
 		}
 
 		try {
 			return file.delete();
 		}
-		catch (final Exception ignored) {
+		catch (final Exception exception) {
 			return false;
 		}
 	}
@@ -119,12 +120,10 @@ public class FileFunctions {
 		return name.replaceAll("[^a-zA-Z0-9-_]", "_");
 	}
 
-	public static void moveFile(Path srcPath, Path destPath) throws IOException {
-		if ((srcPath == null) || (destPath == null)) {
-			return;
-		}
+	public static void moveFile(Path srcPath, Path destPath)
+		throws IOException {
 
-		if (!Files.exists(srcPath)) {
+		if ((srcPath == null) || (destPath == null) || !Files.exists(srcPath)) {
 			return;
 		}
 
@@ -137,12 +136,15 @@ public class FileFunctions {
 						List<IOException> moveErrors = srcPaths.map(
 							newSrcPath -> {
 								try {
-									moveFile(newSrcPath, destPath.resolve(srcPath.relativize(newSrcPath)));
+									moveFile(
+										newSrcPath,
+										destPath.resolve(
+											srcPath.relativize(newSrcPath)));
 
 									return null;
 								}
-								catch (IOException e) {
-									return e;
+								catch (IOException ioException) {
+									return ioException;
 								}
 							}
 						).filter(
@@ -168,7 +170,8 @@ public class FileFunctions {
 		int offset = 0;
 
 		while (true) {
-			int count = inputStream.read(buffer, offset, buffer.length - offset);
+			int count = inputStream.read(
+				buffer, offset, buffer.length - offset);
 
 			if (count == -1) {
 				break;
@@ -200,8 +203,7 @@ public class FileFunctions {
 		try {
 			Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
 		}
-		catch (Exception e) {
-			//
+		catch (Exception exception) {
 		}
 	}
 

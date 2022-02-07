@@ -43,28 +43,38 @@ import org.codehaus.groovy.control.MultipleCompilationErrorsException;
  */
 public class GradleBuildScript {
 
-	public GradleBuildScript(File file) throws IOException, MultipleCompilationErrorsException {
+	public GradleBuildScript(File file)
+		throws IOException, MultipleCompilationErrorsException {
+
 		this(file.toPath());
 	}
 
-	public GradleBuildScript(Path path) throws IOException, MultipleCompilationErrorsException {
+	public GradleBuildScript(Path path)
+		throws IOException, MultipleCompilationErrorsException {
+
 		this(new String(Files.readAllBytes(path)));
 
 		_path = path;
 	}
 
-	public GradleBuildScript(String scriptContents) throws MultipleCompilationErrorsException {
+	public GradleBuildScript(String scriptContents)
+		throws MultipleCompilationErrorsException {
+
 		if (scriptContents.isEmpty()) {
 			_astNodes = Collections.emptyList();
 		}
 		else {
 			AstBuilder astBuilder = new AstBuilder();
 
-			_astNodes = astBuilder.buildFromString(CompilePhase.CONVERSION, scriptContents);
+			_astNodes = astBuilder.buildFromString(
+				CompilePhase.CONVERSION, scriptContents);
 		}
 	}
 
-	public BuildScriptVisitor deleteDependencies(List<GradleDependency> dependencies) throws IOException {
+	public BuildScriptVisitor deleteDependencies(
+			List<GradleDependency> dependencies)
+		throws IOException {
+
 		BuildScriptVisitor buildScriptVisitor = new BuildScriptVisitor();
 
 		_walkScript(buildScriptVisitor);
@@ -115,7 +125,8 @@ public class GradleBuildScript {
 
 		_walkScript(buildScriptVisitor);
 
-		List<GradleDependency> dependencies = buildScriptVisitor.getDependencies();
+		List<GradleDependency> dependencies =
+			buildScriptVisitor.getDependencies();
 
 		return dependencies.stream(
 		).filter(
@@ -129,11 +140,15 @@ public class GradleBuildScript {
 		return _fileContents;
 	}
 
-	public BuildScriptVisitor insertDependency(GradleDependency gradleDependency) throws IOException {
+	public BuildScriptVisitor insertDependency(
+			GradleDependency gradleDependency)
+		throws IOException {
+
 		return _insertDependency(_toGradleDependencyString(gradleDependency));
 	}
 
-	public void modifyDependencyVersion(GradleDependency oldDependency, GradleDependency newDependency)
+	public void modifyDependencyVersion(
+			GradleDependency oldDependency, GradleDependency newDependency)
 		throws IOException {
 
 		List<String> gradleFileContents = Files.readAllLines(_path);
@@ -142,12 +157,14 @@ public class GradleBuildScript {
 
 		String lineToModify = gradleFileContents.get(lineNumber);
 
-		Pattern pattern = Pattern.compile("(.*)(" + Pattern.quote(oldDependency.getVersion()) + ")(.*)");
+		Pattern pattern = Pattern.compile(
+			"(.*)(" + Pattern.quote(oldDependency.getVersion()) + ")(.*)");
 
 		Matcher matcher = pattern.matcher(lineToModify);
 
 		if (matcher.find()) {
-			String modifiedLine = matcher.replaceFirst("$1" + newDependency.getVersion() + "$3");
+			String modifiedLine = matcher.replaceFirst(
+				"$1" + newDependency.getVersion() + "$3");
 
 			gradleFileContents.set(lineNumber, modifiedLine);
 
@@ -155,14 +172,18 @@ public class GradleBuildScript {
 		}
 	}
 
-	public void updateDependencies(List<GradleDependency> gradleDependencies) throws IOException {
+	public void updateDependencies(List<GradleDependency> gradleDependencies)
+		throws IOException {
+
 		_walkScript(new BuildScriptVisitor());
 
 		gradleDependencies.sort(
 			new Comparator<GradleDependency>() {
 
 				@Override
-				public int compare(GradleDependency dep1, GradleDependency dep2) {
+				public int compare(
+					GradleDependency dep1, GradleDependency dep2) {
+
 					int lastLineNumber1 = dep1.getLastLineNumber();
 					int lastLineNumber2 = dep2.getLastLineNumber();
 
@@ -185,7 +206,10 @@ public class GradleBuildScript {
 		Files.write(_path, content.getBytes());
 	}
 
-	public void updateDependency(GradleDependency oldArtifact, GradleDependency newArtifact) throws IOException {
+	public void updateDependency(
+			GradleDependency oldArtifact, GradleDependency newArtifact)
+		throws IOException {
+
 		_fileContents = Files.readAllLines(_path);
 
 		_updateDependency(oldArtifact, newArtifact);
@@ -209,7 +233,9 @@ public class GradleBuildScript {
 		Files.write(_path, content.getBytes());
 	}
 
-	private BuildScriptVisitor _insertDependency(String dependency) throws IOException {
+	private BuildScriptVisitor _insertDependency(String dependency)
+		throws IOException {
+
 		BuildScriptVisitor buildScriptVisitor = new BuildScriptVisitor();
 
 		_walkScript(buildScriptVisitor);
@@ -234,7 +260,8 @@ public class GradleBuildScript {
 			dependency = "\t" + dependency;
 		}
 
-		int dependencyLastLineNumber = buildScriptVisitor.getDependenciesLastLineNumber();
+		int dependencyLastLineNumber =
+			buildScriptVisitor.getDependenciesLastLineNumber();
 
 		if (dependencyLastLineNumber == -1) {
 			_fileContents.add("");
@@ -258,7 +285,9 @@ public class GradleBuildScript {
 		Files.write(_path, content.getBytes());
 	}
 
-	private String _toGradleDependencyString(GradleDependency gradleDependency) {
+	private String _toGradleDependencyString(
+		GradleDependency gradleDependency) {
+
 		StringBuilder sb = new StringBuilder();
 
 		sb.append(gradleDependency.getConfiguration());
@@ -281,8 +310,12 @@ public class GradleBuildScript {
 		return sb.toString();
 	}
 
-	private void _updateDependency(GradleDependency oldArtifact, GradleDependency newArtifact) {
-		int[] lineNumbers = {oldArtifact.getLineNumber(), oldArtifact.getLastLineNumber()};
+	private void _updateDependency(
+		GradleDependency oldArtifact, GradleDependency newArtifact) {
+
+		int[] lineNumbers = {
+			oldArtifact.getLineNumber(), oldArtifact.getLastLineNumber()
+		};
 
 		if (lineNumbers.length != 2) {
 			return;
@@ -292,17 +325,22 @@ public class GradleBuildScript {
 
 		String content = _fileContents.get(startLineNumber - 1);
 
-		String newContent = content.replaceFirst(oldArtifact.getConfiguration(), newArtifact.getConfiguration());
+		String newContent = content.replaceFirst(
+			oldArtifact.getConfiguration(), newArtifact.getConfiguration());
 
 		newContent = newContent.replaceFirst(
 			"group\\s*:\\s*[\"\']" + oldArtifact.getGroup() + "[\"\']\\s*,",
 			"group: \"" + newArtifact.getGroup() + "\",");
 
 		newContent = newContent.replaceFirst(
-			"name\\s*:\\s*[\"\']" + oldArtifact.getName() + "[\"\']\\s*,", "name: \"" + newArtifact.getName() + "\",");
+			"name\\s*:\\s*[\"\']" + oldArtifact.getName() + "[\"\']\\s*,",
+			"name: \"" + newArtifact.getName() + "\",");
 
-		if ((oldArtifact.getVersion() != null) && (newArtifact.getVersion() == null)) {
-			newContent = newContent.replaceFirst(",\\s*version\\s*:\\s*[\"\'][\\w|\\.]+[\"\']", "");
+		if ((oldArtifact.getVersion() != null) &&
+			(newArtifact.getVersion() == null)) {
+
+			newContent = newContent.replaceFirst(
+				",\\s*version\\s*:\\s*[\"\'][\\w|\\.]+[\"\']", "");
 		}
 
 		_fileContents.set(startLineNumber - 1, newContent);

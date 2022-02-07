@@ -28,19 +28,21 @@ import java.util.regex.Pattern;
  */
 public class GradleDependency implements Comparable<GradleDependency> {
 
-	public static final Pattern GAV_SHORT = Pattern.compile(
-		"\\s*[\"']{1}(?<group>[^:]+):(?<name>[^:]+)(:(?<version>[^:]+)(:(?<classifier>[^@]+)(@(?<extension>[^@]+))?)?)?[\"']{1}\\s*");
-
-	public static final Pattern GROUP_LONG = Pattern.compile(".*group\\s*:\\s*[\"'](?<group>[^\"']+).*");
-
-	public static final Pattern NAME_LONG = Pattern.compile(".*name\\s*:\\s*[\"'](?<name>[^\"']+).*");
-
-	public static final Pattern VERSION_LONG = Pattern.compile(".*version\\s*:\\s*[\"'](?<version>[^\"']+).*");
+	public static final Pattern gavShortPattern = Pattern.compile(
+		"\\s*[\"']{1}(?<group>[^:]+):(?<name>[^:]+)(:(?<version>[^:]" +
+			"+)(:(?<classifier>[^@]+)(@(?<extension>[^@]+))?)?)?[\"']{1}\\s*");
+	public static final Pattern groupLongPattern = Pattern.compile(
+		".*group\\s*:\\s*[\"'](?<group>[^\"']+).*");
+	public static final Pattern nameLongPattern = Pattern.compile(
+		".*name\\s*:\\s*[\"'](?<name>[^\"']+).*");
+	public static final Pattern versionLongPattern = Pattern.compile(
+		".*version\\s*:\\s*[\"'](?<version>[^\"']+).*");
 
 	public GradleDependency(String singleLine) {
 		if (!singleLine.matches(".*\\s+.*")) {
 			throw new IllegalArgumentException(
-				"At least on space is required in Gradle dependency definitions: " + singleLine);
+				"At least on space is required in Gradle dependency" +
+					" definitions: " + singleLine);
 		}
 
 		String[] parts = singleLine.split("\\s+", 2);
@@ -50,30 +52,39 @@ public class GradleDependency implements Comparable<GradleDependency> {
 
 		Matcher matcher;
 
-		if (reference.startsWith("project(") || reference.startsWith("files(")) {
+		if (reference.startsWith("project(") ||
+			reference.startsWith("files(")) {
+
 			_group = null;
 			_name = null;
 			_reference = reference;
 			_version = null;
 		}
 		else {
-			Matcher gavShort = matcher = GAV_SHORT.matcher(reference);
+			Matcher gavShortMatcher =
+				matcher = gavShortPattern.matcher(reference);
 
-			if (gavShort.matches()) {
+			if (gavShortMatcher.matches()) {
 				_group = matcher.group("group");
 				_name = matcher.group("name");
 				_reference = null;
 				_version = matcher.group("version");
 			}
 			else {
-				Matcher groupLong = GROUP_LONG.matcher(reference);
-				Matcher nameLong = NAME_LONG.matcher(reference);
-				Matcher versionLong = VERSION_LONG.matcher(reference);
+				Matcher groupLongMatcher = groupLongPattern.matcher(reference);
+				Matcher nameLongMatcher = nameLongPattern.matcher(reference);
+				Matcher versionLongMatcher = versionLongPattern.matcher(
+					reference);
 
-				_group = groupLong.matches() ? groupLong.group("group") : null;
-				_name = nameLong.matches() ? nameLong.group("name") : null;
+				_group =
+					groupLongMatcher.matches() ?
+						groupLongMatcher.group("group") : null;
+				_name =
+					nameLongMatcher.matches() ? nameLongMatcher.group("name") :
+						null;
 				_reference = null;
-				_version = versionLong.matches() ? versionLong.group("version") : null;
+				_version = versionLongMatcher.matches() ?
+					versionLongMatcher.group("version") : null;
 			}
 		}
 
@@ -82,7 +93,8 @@ public class GradleDependency implements Comparable<GradleDependency> {
 	}
 
 	public GradleDependency(
-		String configuration, String group, String name, String version, int lineNumber, int lastLineNumber) {
+		String configuration, String group, String name, String version,
+		int lineNumber, int lastLineNumber) {
 
 		_configuration = configuration;
 		_group = group;
@@ -95,7 +107,9 @@ public class GradleDependency implements Comparable<GradleDependency> {
 	}
 
 	public GradleDependency clone() {
-		return new GradleDependency(_configuration, _group, _name, _version, _lineNumber, _lastLineNumber);
+		return new GradleDependency(
+			_configuration, _group, _name, _version, _lineNumber,
+			_lastLineNumber);
 	}
 
 	@Override
@@ -104,30 +118,22 @@ public class GradleDependency implements Comparable<GradleDependency> {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof GradleDependency)) {
+		if (!(object instanceof GradleDependency)) {
 			return false;
 		}
 
-		GradleDependency other = (GradleDependency)obj;
+		GradleDependency other = (GradleDependency)object;
 
-		if (!Objects.equals(_configuration, other._configuration)) {
-			return false;
-		}
+		if (!Objects.equals(_configuration, other._configuration) ||
+			!Objects.equals(_reference, other._reference) ||
+			!Objects.equals(_group, other._group) ||
+			!Objects.equals(_name, other._name)) {
 
-		if (!Objects.equals(_reference, other._reference)) {
-			return false;
-		}
-
-		if (!Objects.equals(_group, other._group)) {
-			return false;
-		}
-
-		if (!Objects.equals(_name, other._name)) {
 			return false;
 		}
 
@@ -178,7 +184,8 @@ public class GradleDependency implements Comparable<GradleDependency> {
 		}
 
 		return MessageFormat.format(
-			"{0} group: \"{1}\", name: \"{2}\", version: \"{3}\"", _configuration, _group, _name, _version);
+			"{0} group: \"{1}\", name: \"{2}\", version: \"{3}\"",
+			_configuration, _group, _name, _version);
 	}
 
 	private final String _configuration;
