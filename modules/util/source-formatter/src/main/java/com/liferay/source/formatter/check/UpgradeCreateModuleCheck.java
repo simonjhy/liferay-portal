@@ -25,15 +25,12 @@ import com.liferay.source.formatter.upgrade.LugbotConfig;
 import com.liferay.source.formatter.upgrade.util.GradleFunctions;
 import com.liferay.source.formatter.upgrade.util.MavenFunctions;
 import com.liferay.source.formatter.upgrade.util.PluginsUtils;
-import com.liferay.source.formatter.upgrade.util.WorkspaceFunctions;
-import com.liferay.source.formatter.upgrade.util.YamlFunctions;
 import com.liferay.source.formatter.util.SourceFormatterUtil;
 
 import java.io.IOException;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import java.text.MessageFormat;
 
@@ -48,56 +45,12 @@ import java.util.stream.Collectors;
 /**
  * @author Simon Jiang
  */
-public abstract class UpgradeCreateModuleCheck extends BaseFileCheck {
-
-	public abstract List<Pair<String, String>> computePossibleUpgrades(
-			Path repoPath, LugbotConfig lugbotConfig)
-		throws IOException;
-
-	public abstract List<Pair<String, String>> findPlugins(
-			Path originPath, List<String> pluginNames)
-		throws IOException;
-
-	public abstract boolean isValidModulePath(Path path);
+public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 
 	@Override
-	protected String doProcess(
-			String fileName, String absolutePath, String content)
+	protected void doUpgrade(
+			Path repoPath, LugbotConfig lugbotConfig, Path workspacePath)
 		throws Exception {
-
-		if (!StringUtil.endsWith(fileName, "lugbot.yaml")) {
-			return content;
-		}
-
-		LugbotConfig lugbotConfig = YamlFunctions.load(content);
-
-		String baseDirValue = getBaseDirName();
-
-		Path repoPath = Paths.get(baseDirValue);
-
-		Optional<Path> workspacePathOptional = Optional.of(
-			lugbotConfig
-		).map(
-			config -> {
-				if (Objects.nonNull(config.tasks.workspacePath)) {
-					Path originalWorkspacePath = repoPath.resolve(
-						config.tasks.workspacePath);
-
-					return originalWorkspacePath.normalize();
-				}
-
-				return repoPath;
-			}
-		).filter(
-			WorkspaceFunctions::isWorkspacePath
-		);
-
-		if (!workspacePathOptional.isPresent()) {
-			SourceFormatterUtil.printError(
-				repoPath.toString(), "is not valid lifeay workspace project");
-
-			return content;
-		}
 
 		List<String> pluginNames = lugbotConfig.tasks.plugins;
 
@@ -106,14 +59,14 @@ public abstract class UpgradeCreateModuleCheck extends BaseFileCheck {
 				repoPath, lugbotConfig);
 
 			if (pluginTypes.isEmpty()) {
-				return content;
+				return;
 			}
 
 			Optional<Path> originPathOptional = MavenFunctions.getOriginPath(
 				repoPath, lugbotConfig);
 
 			Path sourcePath = originPathOptional.orElse(repoPath);
-			
+
 			pluginTypes.stream(
 			).map(
 				pair -> {
@@ -138,12 +91,14 @@ public abstract class UpgradeCreateModuleCheck extends BaseFileCheck {
 
 					try {
 						newModulePathOptional = _createModuleProjectSkeleton(
-							workspacePathOptional.get(), pluginPath, type,
-							lugbotConfig);
+							workspacePath, pluginPath, type, lugbotConfig);
 					}
 					catch (Throwable throwable) {
 						SourceFormatterUtil.printError(
-							null, MessageFormat.format("Error creating war project skeleton {0}", throwable.getMessage()));
+							null,
+							MessageFormat.format(
+								"Error creating war project skeleton {0}",
+								throwable.getMessage()));
 					}
 
 					return new Pair<>(plugin, newModulePathOptional);
@@ -161,8 +116,6 @@ public abstract class UpgradeCreateModuleCheck extends BaseFileCheck {
 					"Failed to create moudle {0} for {1}", pluginNames,
 					repoPath));
 		}
-
-		return content;
 	}
 
 	protected String getServiceBuilderParentName(
@@ -350,8 +303,8 @@ public abstract class UpgradeCreateModuleCheck extends BaseFileCheck {
 		SourceFormatterUtil.printError(
 			null,
 			MessageFormat.format(
-				"Creating new module project skeleton for {0} to {1}", pluginPath,
-				targetPathOptional.orElseThrow(Exception::new)));
+				"Creating new module project skeleton for {0} to {1}",
+				pluginPath, targetPathOptional.orElseThrow(Exception::new)));
 
 		args.add(moduleName);
 

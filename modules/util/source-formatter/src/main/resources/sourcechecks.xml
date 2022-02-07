@@ -1406,11 +1406,13 @@
 	<source-processor name="UpgradeSourceProcessor">
 		<check name="UpgradeCreateMavenModuleCheck">
 			<category name="Upgrade" />
+			<property name="checkId" value="maven-create-modules" />
 			<description name="Performs creating module for maven plugin project" />
 			<weight>5</weight>
 		</check>
 		<check name="UpgradeCreatePluginModuleCheck">
 			<category name="Upgrade" />
+			<property name="checkId" value="plugins-create-modules" />
 			<description name="Performs creating module for plugin project" />
 			<weight>4</weight>
 		</check>

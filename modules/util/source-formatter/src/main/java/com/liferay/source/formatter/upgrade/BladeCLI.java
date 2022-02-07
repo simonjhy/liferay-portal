@@ -19,7 +19,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+
 import java.nio.file.Files;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +35,7 @@ import java.util.zip.ZipInputStream;
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Java;
+
 import org.osgi.framework.Version;
 
 /**
@@ -126,11 +129,11 @@ public class BladeCLI {
 			properties.getProperty("user.home"), ".source-format-upgrade");
 
 		File bladeJarFile = new File(temp, jarName);
-		
+
 		if (!bladeJarFile.exists()) {
 			File parentFile = bladeJarFile.getParentFile();
-			
-			if (!parentFile.exists()){
+
+			if (!parentFile.exists()) {
 				parentFile.mkdirs();
 			}
 		}
@@ -176,28 +179,6 @@ public class BladeCLI {
 		}
 
 		return bladeJarFile;
-	}
-	
-	private static void _writeFile(File f, InputStream contents) {
-		_writeFile(f, contents, null);
-	}
-
-	private static void _writeFile(File f, InputStream contents, String expectedProjectName) {
-		if (f.exists() && !f.canWrite()) {
-			return;
-		}
-
-		byte[] buffer = new byte[1024];
-
-		try (FileOutputStream out = new FileOutputStream(f)) {
-			for (int count; (count = contents.read(buffer)) != -1;) {
-				out.write(buffer, 0, count);
-			}
-
-			out.flush();
-		}
-		catch (IOException ioException) {
-		}
 	}
 
 	public static synchronized String[] getProjectTemplates()
@@ -269,6 +250,24 @@ public class BladeCLI {
 		}
 
 		return null;
+	}
+
+	private static void _writeFile(File f, InputStream contentsInputStream) {
+		if (f.exists() && !f.canWrite()) {
+			return;
+		}
+
+		byte[] buffer = new byte[1024];
+
+		try (FileOutputStream outFileOutputStream = new FileOutputStream(f)) {
+			for (int count; (count = contentsInputStream.read(buffer)) != -1;) {
+				outFileOutputStream.write(buffer, 0, count);
+			}
+
+			outFileOutputStream.flush();
+		}
+		catch (IOException ioException) {
+		}
 	}
 
 }

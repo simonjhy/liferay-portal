@@ -14,15 +14,17 @@
 
 package com.liferay.source.formatter.check;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Optional;
+import aQute.libg.tuple.Pair;
 
 import com.liferay.source.formatter.upgrade.LugbotConfig;
 import com.liferay.source.formatter.upgrade.util.MavenFunctions;
 
-import aQute.libg.tuple.Pair;
+import java.io.IOException;
+
+import java.nio.file.Path;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Simon Jiang
