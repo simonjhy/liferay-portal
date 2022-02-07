@@ -20,6 +20,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.source.formatter.upgrade.GradleBuildScript;
+import com.liferay.source.formatter.upgrade.GradleDependency;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,12 +30,13 @@ import java.io.StringReader;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentMap;
 
+import org.codehaus.groovy.control.MultipleCompilationErrorsException;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 
@@ -43,6 +46,21 @@ import org.gradle.tooling.ProjectConnection;
  */
 public class GradleFunctions {
 
+	public static Optional<GradleDependency> getWorkspacePluginDependency(Path workspacePath)
+		throws IOException, MultipleCompilationErrorsException {
+
+		GradleBuildScript settingsGradle = new GradleBuildScript(workspacePath.resolve("settings.gradle"));
+
+		List<GradleDependency> buildScriptDependencies = settingsGradle.getBuildScriptDependencies();
+
+		return buildScriptDependencies.stream(
+		).filter(
+			dep -> Objects.equals(dep.getGroup(), "com.liferay")
+		).filter(
+			dep -> Objects.equals(dep.getName(), "com.liferay.gradle.plugins.workspace")
+		).findFirst();
+	}
+	
 	public static Optional<Path> getWorkspacePathByType(
 		Path workspacePath, String type) {
 
