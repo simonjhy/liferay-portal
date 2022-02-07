@@ -17,6 +17,22 @@ copyGradleTestDependencies {
 	into jar.destinationDir
 }
 
+repositories {
+	mavenLocal()
+	maven {
+		url uri('/home/simon/work/github/liferay-portal/.m2')
+	}
+	maven {
+		url uri('/home/simon/work/github/liferay-portal/.m2-tmp')
+	}
+	maven {
+		url "https://repository.liferay.com/nexus/content/groups/public"
+	}
+	maven {
+		url "https://repo.gradle.org/gradle/libs-releases-local/"
+	}
+}
+
 dependencies {
 	compile group: "com.liferay", name: "com.liferay.gradle.util", version: "1.0.46"
 

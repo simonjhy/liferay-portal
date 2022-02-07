@@ -48,6 +48,13 @@ public class FormatSourceTask extends JavaExec {
 		super.exec();
 	}
 
+    @Override
+    public List<String> getJvmArgs() {
+        List<String> jvmArgs = super.getJvmArgs();
+        jvmArgs.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5006");
+        return jvmArgs;
+    }
+
 	public File getBaseDir() {
 		return GradleUtil.toFile(
 			getProject(), _sourceFormatterArgs.getBaseDirName());

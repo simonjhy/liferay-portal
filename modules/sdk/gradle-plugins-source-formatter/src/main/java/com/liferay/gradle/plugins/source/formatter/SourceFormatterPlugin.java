@@ -80,7 +80,7 @@ public class SourceFormatterPlugin implements Plugin<Project> {
 	private void _addDependenciesSourceFormatter(Project project) {
 		GradleUtil.addDependency(
 			project, CONFIGURATION_NAME, "com.liferay",
-			"com.liferay.source.formatter", "latest.release");
+			"com.liferay.source.formatter", "1.0.1200");
 	}
 
 	private FormatSourceTask _addTaskCheckSourceFormatting(Project project) {
