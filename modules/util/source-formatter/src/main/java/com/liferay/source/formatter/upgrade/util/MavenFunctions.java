@@ -66,7 +66,9 @@ import org.apache.maven.model.merge.ModelMerger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 /**
+ * @author Raymond Augé
  * @author Seiphon Wang
+ * @author Simon Jiang
  */
 public class MavenFunctions {
 
@@ -143,7 +145,7 @@ public class MavenFunctions {
 			SourceFormatterUtil.printError(
 				null,
 				MessageFormat.format(
-					"No possible upgrades for {} because no workspace is " +
+					"No possible upgrades for {0} because no workspace is " +
 						"present",
 					possibleUpgrade));
 
@@ -165,7 +167,7 @@ public class MavenFunctions {
 		SourceFormatterUtil.printError(
 			null,
 			MessageFormat.format(
-				"No possible upgrades for {} because no maven modules were " +
+				"No possible upgrades for {0} because no maven modules were " +
 					"found at {}",
 				possibleUpgrade));
 
@@ -411,9 +413,9 @@ public class MavenFunctions {
 								SourceFormatterUtil.printError(
 									null,
 									MessageFormat.format(
-										"Bom defined in {} " +
+										"Bom defined in {0} " +
 											"dependencyManagement was not" +
-												" found: {}",
+												" found: {1}",
 										model, dep));
 
 								return;

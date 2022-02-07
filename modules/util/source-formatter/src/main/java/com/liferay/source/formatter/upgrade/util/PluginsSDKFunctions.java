@@ -30,6 +30,7 @@ import java.util.stream.Stream;
 
 /**
  * @author Gregory Amerson
+ * @author Simon Jiang
  */
 public class PluginsSDKFunctions {
 

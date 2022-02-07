@@ -14,15 +14,12 @@
 
 package com.liferay.source.formatter.upgrade;
 
-import com.liferay.portal.kernel.util.FileUtil;
-
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-
 import java.nio.file.Files;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -36,11 +33,10 @@ import java.util.zip.ZipInputStream;
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Java;
-
 import org.osgi.framework.Version;
 
 /**
- * @author Terry Jia
+ * @author Simon Jiang
  */
 public class BladeCLI {
 
@@ -123,13 +119,21 @@ public class BladeCLI {
 		return execute(getBladeJar(BLADE_LATEST), args);
 	}
 
-	public static File getBladeJar(String jarName) {
+	public static File getBladeJar(String jarName) throws BladeCLIException {
 		Properties properties = System.getProperties();
 
 		File temp = new File(
 			properties.getProperty("user.home"), ".source-format-upgrade");
 
-		File bladeJar = new File(temp, jarName);
+		File bladeJarFile = new File(temp, jarName);
+		
+		if (!bladeJarFile.exists()) {
+			File parentFile = bladeJarFile.getParentFile();
+			
+			if (!parentFile.exists()){
+				parentFile.mkdirs();
+			}
+		}
 
 		boolean needToCopy = true;
 
@@ -138,12 +142,12 @@ public class BladeCLI {
 		try (InputStream inputStream = bladeClassLoader.getResourceAsStream(
 				jarName)) {
 
-			if (bladeJar.exists()) {
+			if (bladeJarFile.exists()) {
 				Version newBladeVersion = Version.parseVersion(
 					_getBladeVersion(inputStream));
 
 				try (InputStream existedBladeInputStream = Files.newInputStream(
-						bladeJar.toPath())) {
+						bladeJarFile.toPath())) {
 
 					Version existedBladeVersion = Version.parseVersion(
 						_getBladeVersion(existedBladeInputStream));
@@ -155,21 +159,45 @@ public class BladeCLI {
 			}
 		}
 		catch (IOException ioException) {
+			throw new BladeCLIException(ioException.getMessage(), ioException);
 		}
 
 		try (InputStream inputStream = bladeClassLoader.getResourceAsStream(
 				jarName)) {
 
 			if (needToCopy) {
-				bladeJar.delete();
+				bladeJarFile.delete();
 
-				FileUtil.write(bladeJar, inputStream);
+				_writeFile(bladeJarFile, inputStream);
 			}
+		}
+		catch (Exception exception) {
+			throw new BladeCLIException(exception.getMessage(), exception);
+		}
+
+		return bladeJarFile;
+	}
+	
+	private static void _writeFile(File f, InputStream contents) {
+		_writeFile(f, contents, null);
+	}
+
+	private static void _writeFile(File f, InputStream contents, String expectedProjectName) {
+		if (f.exists() && !f.canWrite()) {
+			return;
+		}
+
+		byte[] buffer = new byte[1024];
+
+		try (FileOutputStream out = new FileOutputStream(f)) {
+			for (int count; (count = contents.read(buffer)) != -1;) {
+				out.write(buffer, 0, count);
+			}
+
+			out.flush();
 		}
 		catch (IOException ioException) {
 		}
-
-		return bladeJar;
 	}
 
 	public static synchronized String[] getProjectTemplates()

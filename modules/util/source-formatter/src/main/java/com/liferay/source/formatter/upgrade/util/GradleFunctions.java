@@ -39,6 +39,7 @@ import org.gradle.tooling.ProjectConnection;
 
 /**
  * @author Raymond Augé
+ * @author Simon Jiang
  */
 public class GradleFunctions {
 

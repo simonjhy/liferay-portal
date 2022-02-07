@@ -65,7 +65,7 @@ public abstract class UpgradeCreateModuleCheck extends BaseFileCheck {
 			String fileName, String absolutePath, String content)
 		throws Exception {
 
-		if (!StringUtil.equalsIgnoreCase(fileName, "lugbot.xml")) {
+		if (!StringUtil.endsWith(fileName, "lugbot.yaml")) {
 			return content;
 		}
 
@@ -99,11 +99,6 @@ public abstract class UpgradeCreateModuleCheck extends BaseFileCheck {
 			return content;
 		}
 
-		Optional<Path> originPathOptional = MavenFunctions.getOriginPath(
-			repoPath, lugbotConfig);
-
-		Path sourcePath = originPathOptional.orElse(repoPath);
-
 		List<String> pluginNames = lugbotConfig.tasks.plugins;
 
 		try {
@@ -114,6 +109,11 @@ public abstract class UpgradeCreateModuleCheck extends BaseFileCheck {
 				return content;
 			}
 
+			Optional<Path> originPathOptional = MavenFunctions.getOriginPath(
+				repoPath, lugbotConfig);
+
+			Path sourcePath = originPathOptional.orElse(repoPath);
+			
 			pluginTypes.stream(
 			).map(
 				pair -> {
@@ -127,7 +127,7 @@ public abstract class UpgradeCreateModuleCheck extends BaseFileCheck {
 						SourceFormatterUtil.printError(
 							null,
 							MessageFormat.format(
-								"Expected {} to exist", pluginPath));
+								"Expected {0} to exist", pluginPath));
 
 						return new Pair<>(plugin, Optional.empty());
 					}
@@ -143,7 +143,7 @@ public abstract class UpgradeCreateModuleCheck extends BaseFileCheck {
 					}
 					catch (Throwable throwable) {
 						SourceFormatterUtil.printError(
-							null, "Error creating war project skeleton");
+							null, MessageFormat.format("Error creating war project skeleton {0}", throwable.getMessage()));
 					}
 
 					return new Pair<>(plugin, newModulePathOptional);
@@ -158,7 +158,7 @@ public abstract class UpgradeCreateModuleCheck extends BaseFileCheck {
 			SourceFormatterUtil.printError(
 				null,
 				MessageFormat.format(
-					"Failed to create moudle {} for {}", pluginNames,
+					"Failed to create moudle {0} for {1}", pluginNames,
 					repoPath));
 		}
 
@@ -328,7 +328,7 @@ public abstract class UpgradeCreateModuleCheck extends BaseFileCheck {
 				null,
 				MessageFormat.format(
 					"Unsupported type when creating new module project" +
-						" skeleton {} for {}",
+						" skeleton {0} for {1}",
 					type, pluginPath));
 		}
 
@@ -350,7 +350,7 @@ public abstract class UpgradeCreateModuleCheck extends BaseFileCheck {
 		SourceFormatterUtil.printError(
 			null,
 			MessageFormat.format(
-				"Creating new module project skeleton for {} to {}", pluginPath,
+				"Creating new module project skeleton for {0} to {1}", pluginPath,
 				targetPathOptional.orElseThrow(Exception::new)));
 
 		args.add(moduleName);
@@ -370,14 +370,14 @@ public abstract class UpgradeCreateModuleCheck extends BaseFileCheck {
 			SourceFormatterUtil.printError(
 				null,
 				MessageFormat.format(
-					"Error {} running 'blade create'",
+					"Error {0} running 'create'",
 					bladeCLIException.getMessage()));
 		}
 
 		SourceFormatterUtil.printError(
 			null,
 			MessageFormat.format(
-				"Executing command: create moudle {}",
+				"Executing command: create moudle {0}",
 				args.stream(
 				).collect(
 					Collectors.joining(" ")
@@ -411,14 +411,14 @@ public abstract class UpgradeCreateModuleCheck extends BaseFileCheck {
 				SourceFormatterUtil.printError(
 					null,
 					MessageFormat.format(
-						"Error {} running 'blade create'",
+						"Error {0} running 'create'",
 						bladeCLIException.getMessage()));
 			}
 
 			SourceFormatterUtil.printError(
 				null,
 				MessageFormat.format(
-					"Executing command: blade {}",
+					"Executing command: {0}",
 					Arrays.stream(
 						sbArgs
 					).collect(
@@ -430,7 +430,7 @@ public abstract class UpgradeCreateModuleCheck extends BaseFileCheck {
 			SourceFormatterUtil.printError(
 				null,
 				MessageFormat.format(
-					"New skeleton module created {}",
+					"New skeleton module created {0}",
 					newModulePathOptional.get()));
 		}
 

@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 
 /**
  * @author Seiphon Wang
+ * @author Simon Jiang
  */
 public class WorkspaceFunctions {
 

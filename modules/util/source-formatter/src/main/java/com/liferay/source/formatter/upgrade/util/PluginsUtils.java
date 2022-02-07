@@ -15,7 +15,7 @@
 package com.liferay.source.formatter.upgrade.util;
 
 /**
- * @author Gregory Amerson
+ * @author Simon Jiang
  */
 public class PluginsUtils {
 

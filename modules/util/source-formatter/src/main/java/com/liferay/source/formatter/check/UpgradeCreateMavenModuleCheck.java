@@ -14,18 +14,15 @@
 
 package com.liferay.source.formatter.check;
 
-import aQute.libg.tuple.Pair;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
 
 import com.liferay.source.formatter.upgrade.LugbotConfig;
 import com.liferay.source.formatter.upgrade.util.MavenFunctions;
 
-import java.io.IOException;
-
-import java.nio.file.Path;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import aQute.libg.tuple.Pair;
 
 /**
  * @author Simon Jiang
@@ -40,15 +37,11 @@ public class UpgradeCreateMavenModuleCheck extends UpgradeCreateModuleCheck {
 		Optional<Path> originPathOptional = MavenFunctions.getOriginPath(
 			repoPath, lugbotConfig);
 
-		if (originPathOptional.isPresent()) {
-			List<String> pluginNames = lugbotConfig.tasks.plugins;
+		Path sourcePath = originPathOptional.orElse(repoPath);
 
-			Path sourcePath = originPathOptional.orElse(repoPath);
+		List<String> pluginNames = lugbotConfig.tasks.plugins;
 
-			return MavenFunctions.findPlugins(sourcePath, pluginNames);
-		}
-
-		return Collections.emptyList();
+		return MavenFunctions.findPlugins(sourcePath, pluginNames);
 	}
 
 	@Override
