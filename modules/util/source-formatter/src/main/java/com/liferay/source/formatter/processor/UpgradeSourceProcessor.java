@@ -20,22 +20,12 @@ import java.util.List;
 
 /**
  * @author Hugo Huijswer
+ * @author Simon Jiang
  */
 public class UpgradeSourceProcessor extends BaseSourceProcessor {
 
 	@Override
 	protected List<String> doGetFileNames() throws IOException {
-		SourceFormatterArgs sourceFormatterArgs = getSourceFormatterArgs();
-
-		File upgradeInputDataDirectory = SourceFormatterUtil.getFile(
-			sourceFormatterArgs.getBaseDirName(),
-			SourceFormatterUtil.UPGRADE_INPUT_DATA_DIRECTORY_NAME,
-			sourceFormatterArgs.getMaxDirLevel());
-
-		if (upgradeInputDataDirectory == null) {
-			return Collections.emptyList();
-		}
-
 		return getFileNames(new String[0], getIncludes());
 	}
 
@@ -44,6 +34,6 @@ public class UpgradeSourceProcessor extends BaseSourceProcessor {
 		return _INCLUDES;
 	}
 
-	private static final String[] _INCLUDES = {"**/*.java", "**/lugbot.yaml"};
+	private static final String[] _INCLUDES = {"**/lugbot.yaml"};
 
 }

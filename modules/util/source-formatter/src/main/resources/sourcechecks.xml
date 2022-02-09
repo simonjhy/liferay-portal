@@ -1416,6 +1416,12 @@
 			<description name="Performs creating module for plugin project" />
 			<weight>4</weight>
 		</check>
+		<check name="UpgradeCreateWorkspaceCheck">
+			<category name="Upgrade" />
+			<property name="checkId" value="create-workspace" />
+			<description name="Performs creating workspace for upgrade" />
+			<weight>2</weight>
+		</check>
 		<check name="UpgradeJavaCheck">
 			<category name="Upgrade" />
 			<description name="Performs upgrade checks for `java` files" />

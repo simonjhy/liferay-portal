@@ -47,6 +47,16 @@ import java.util.stream.Collectors;
  */
 public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 
+	public abstract List<Pair<String, String>> computePossibleUpgrades(
+			Path repoPath, LugbotConfig lugbotConfig)
+		throws IOException;
+
+	public abstract List<Pair<String, String>> findPlugins(
+			Path originPath, List<String> pluginNames)
+		throws IOException;
+
+	public abstract boolean isValidModulePath(Path path);
+
 	@Override
 	protected void doUpgrade(
 			Path repoPath, LugbotConfig lugbotConfig, Path workspacePath)
@@ -115,6 +125,8 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 				MessageFormat.format(
 					"Failed to create moudle {0} for {1}", pluginNames,
 					repoPath));
+
+			throw new Exception(ioException.getMessage());
 		}
 	}
 
@@ -129,6 +141,11 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 		}
 
 		return serviceBuilderParentName;
+	}
+
+	@Override
+	protected boolean isNeedWorkspace() {
+		return true;
 	}
 
 	private Optional<Path> _createModuleProjectSkeleton(
