@@ -15,6 +15,9 @@
 package com.liferay.source.formatter.upgrade.util;
 
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.source.formatter.upgrade.BladeCLI;
+import com.liferay.source.formatter.upgrade.BladeCLIException;
 import com.liferay.source.formatter.util.FileUtil;
 
 import java.io.IOException;
@@ -24,7 +27,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -57,6 +62,28 @@ public class WorkspaceFunctions {
 		}
 
 		return retVal;
+	}
+
+	public static Optional<String> getLatestProductForUpgradeVersion(
+			Path workspacePath, String upgradeVersion)
+		throws BladeCLIException {
+
+		List<String> args = new ArrayList<>();
+
+		Collections.addAll(args, "init", "--list", "--all", "-q");
+
+		String getInitWorkspaceVersionCommand = StringUtil.merge(args, " ");
+
+		String[] initCommandResults = BladeCLI.executeWithLatestBlade(
+			getInitWorkspaceVersionCommand);
+
+		return Stream.of(
+			initCommandResults
+		).filter(
+			line -> line.contains("dxp")
+		).filter(
+			line -> line.contains(upgradeVersion)
+		).findFirst();
 	}
 
 	public static List<Path> getPossibleFolders(Path path) throws Exception {

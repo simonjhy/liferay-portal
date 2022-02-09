@@ -36,7 +36,14 @@ public class UpgradeJavaCheck extends BaseFileCheck {
 			String fileName, String absolutePath, String content)
 		throws Exception {
 
-		if (!fileName.endsWith(".java")) {
+		File upgradeInputDataDirectory = SourceFormatterUtil.getFile(
+			getBaseDirName(),
+			SourceFormatterUtil.UPGRADE_INPUT_DATA_DIRECTORY_NAME,
+			getMaxDirLevel());
+
+		if ((upgradeInputDataDirectory == null) ||
+			!fileName.endsWith(".java")) {
+
 			return content;
 		}
 

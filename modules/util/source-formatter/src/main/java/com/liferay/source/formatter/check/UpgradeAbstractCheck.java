@@ -14,15 +14,11 @@
 
 package com.liferay.source.formatter.check;
 
-import aQute.libg.tuple.Pair;
-
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.source.formatter.upgrade.LugbotConfig;
 import com.liferay.source.formatter.upgrade.util.WorkspaceFunctions;
 import com.liferay.source.formatter.upgrade.util.YamlFunctions;
 import com.liferay.source.formatter.util.SourceFormatterUtil;
-
-import java.io.IOException;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,16 +36,6 @@ import java.util.stream.Stream;
  */
 public abstract class UpgradeAbstractCheck extends BaseFileCheck {
 
-	public abstract List<Pair<String, String>> computePossibleUpgrades(
-			Path repoPath, LugbotConfig lugbotConfig)
-		throws IOException;
-
-	public abstract List<Pair<String, String>> findPlugins(
-			Path originPath, List<String> pluginNames)
-		throws IOException;
-
-	public abstract boolean isValidModulePath(Path path);
-
 	@Override
 	protected String doProcess(
 			String fileName, String absolutePath, String content)
@@ -59,7 +45,7 @@ public abstract class UpgradeAbstractCheck extends BaseFileCheck {
 			return content;
 		}
 
-		checkId = getAttributeValue(_CHECK_ID, absolutePath);
+		String checkId = getAttributeValue(_CHECK_ID, absolutePath);
 
 		LugbotConfig lugbotConfig = YamlFunctions.load(content);
 
@@ -79,29 +65,35 @@ public abstract class UpgradeAbstractCheck extends BaseFileCheck {
 
 		Path repoPath = Paths.get(baseDirValue);
 
-		Optional<Path> workspacePathOptional = Optional.of(
-			lugbotConfig
-		).map(
-			config -> {
-				if (Objects.nonNull(config.tasks.workspacePath)) {
-					Path originalWorkspacePath = repoPath.resolve(
-						config.tasks.workspacePath);
+		Optional<Path> workspacePathOptional = getWorkspacePathOptional(
+			lugbotConfig, repoPath);
 
-					return originalWorkspacePath.normalize();
-				}
+		if (isNeedWorkspace()) {
+			if (!workspacePathOptional.isPresent()) {
+				SourceFormatterUtil.printError(
+					repoPath.toString(),
+					"is not valid lifeay workspace project");
 
-				return repoPath;
+				return content;
 			}
-		).filter(
-			WorkspaceFunctions::isWorkspacePath
-		);
 
-		if (!workspacePathOptional.isPresent()) {
-			SourceFormatterUtil.printError(
-				repoPath.toString(), "is not valid lifeay workspace project");
+			doUpgrade(repoPath, lugbotConfig, workspacePathOptional.get());
 		}
+		else {
+			if (workspacePathOptional.isPresent()) {
+				SourceFormatterUtil.printError(
+					null,
+					MessageFormat.format(
+						"{0} should be empty", workspacePathOptional.get()));
 
-		doUpgrade(repoPath, lugbotConfig, workspacePathOptional.get());
+				return content;
+			}
+
+			Path workspacePath = repoPath.resolve(
+				lugbotConfig.tasks.workspacePath);
+
+			doUpgrade(repoPath, lugbotConfig, workspacePath.normalize());
+		}
 
 		return content;
 	}
@@ -146,7 +138,7 @@ public abstract class UpgradeAbstractCheck extends BaseFileCheck {
 		);
 	}
 
-	protected String checkId;
+	protected abstract boolean isNeedWorkspace();
 
 	private static final String _CHECK_ID = "checkId";
 

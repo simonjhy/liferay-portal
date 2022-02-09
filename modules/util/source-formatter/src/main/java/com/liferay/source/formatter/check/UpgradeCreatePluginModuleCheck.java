@@ -64,7 +64,7 @@ public class UpgradeCreatePluginModuleCheck extends UpgradeCreateModuleCheck {
 			Path originPath, List<String> pluginNames)
 		throws IOException {
 
-		return MavenFunctions.findPlugins(originPath, pluginNames);
+		return PluginsSDKFunctions.findPlugins(originPath, pluginNames);
 	}
 
 	@Override
