@@ -156,14 +156,12 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 	protected String getServiceBuilderParentName(
 		String serviceBuilderPortletName) {
 
-		String serviceBuilderParentName = serviceBuilderPortletName;
-
-		if (serviceBuilderParentName.endsWith("-portlet")) {
-			serviceBuilderParentName = serviceBuilderParentName.replaceAll(
+		if (serviceBuilderPortletName.endsWith("-portlet")) {
+			serviceBuilderPortletName = serviceBuilderPortletName.replaceAll(
 				"-portlet$", "");
 		}
 
-		return serviceBuilderParentName;
+		return serviceBuilderPortletName;
 	}
 
 	@Override
