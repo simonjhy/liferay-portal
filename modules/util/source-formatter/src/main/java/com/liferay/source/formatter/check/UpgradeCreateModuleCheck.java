@@ -14,9 +14,17 @@
 
 package com.liferay.source.formatter.check;
 
-import aQute.lib.exceptions.ConsumerWithException;
-
-import aQute.libg.tuple.Pair;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.source.formatter.upgrade.BladeCLI;
@@ -27,35 +35,23 @@ import com.liferay.source.formatter.upgrade.util.MavenFunctions;
 import com.liferay.source.formatter.upgrade.util.PluginsUtils;
 import com.liferay.source.formatter.util.SourceFormatterUtil;
 
-import java.io.IOException;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import java.text.MessageFormat;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import aQute.lib.exceptions.ConsumerWithException;
+import aQute.libg.tuple.Pair;
 
 /**
  * @author Simon Jiang
  */
 public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 
-	public abstract List<Pair<String, String>> computePossibleUpgrades(
+	protected abstract List<Pair<String, String>> computePossibleUpgrades(
 			Path repoPath, LugbotConfig lugbotConfig)
 		throws IOException;
 
-	public abstract List<Pair<String, String>> findPlugins(
+	protected abstract List<Pair<String, String>> findPlugins(
 			Path originPath, List<String> pluginNames)
 		throws IOException;
 
-	public abstract boolean isValidModulePath(Path path);
+	protected abstract boolean isValidModulePath(Path path);
 
 	@Override
 	protected void doUpgrade(
@@ -100,7 +96,7 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 					Optional<Path> newModulePathOptional = Optional.empty();
 
 					try {
-						newModulePathOptional = _createModuleProjectSkeleton(
+						newModulePathOptional = provideUpgrade(
 							workspacePath, pluginPath, type, lugbotConfig);
 					}
 					catch (Throwable throwable) {
@@ -130,8 +126,7 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 		}
 	}
 
-	protected String getServiceBuilderParentName(
-		Path pluginPath, String serviceBuilderPortletName) {
+	protected String getServiceBuilderParentName(String serviceBuilderPortletName) {
 
 		String serviceBuilderParentName = serviceBuilderPortletName;
 
@@ -148,8 +143,8 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 		return true;
 	}
 
-	private Optional<Path> _createModuleProjectSkeleton(
-			Path workspacePath, Path pluginPath, String type,
+	
+	protected Optional<Path> provideUpgrade(Path workspacePath, Path pluginPath, String type,
 			LugbotConfig lugbotConfig)
 		throws Exception {
 
@@ -229,7 +224,7 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 
 			createTypeOptional = Optional.of("service-builder");
 			moduleNameOptional = Optional.of(
-				getServiceBuilderParentName(pluginPath, pluginName));
+				getServiceBuilderParentName(pluginName));
 
 			targetPathOptional = GradleFunctions.getWorkspacePathByType(
 				workspacePath, PluginsUtils.SERVICE_BUILDER_PORTLET);
@@ -406,5 +401,4 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 
 		return newModulePathOptional;
 	}
-
 }

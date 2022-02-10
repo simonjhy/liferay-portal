@@ -14,32 +14,15 @@
 
 package com.liferay.source.formatter.upgrade.util;
 
-import aQute.bnd.stream.MapStream;
-
-import aQute.lib.exceptions.ConsumerWithException;
-import aQute.lib.exceptions.Exceptions;
-import aQute.lib.exceptions.PredicateWithException;
-
-import aQute.libg.tuple.Pair;
-
-import com.liferay.blade.cli.util.StringUtil;
-import com.liferay.petra.string.StringBundler;
-import com.liferay.poshi.core.util.ListUtil;
-import com.liferay.source.formatter.upgrade.LugbotConfig;
-import com.liferay.source.formatter.util.SourceFormatterUtil;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Reader;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import java.text.MessageFormat;
-
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,8 +45,20 @@ import org.apache.maven.model.Parent;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.merge.ModelMerger;
-
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+
+import com.liferay.blade.cli.util.StringUtil;
+import com.liferay.petra.string.StringBundler;
+import com.liferay.poshi.core.util.ListUtil;
+import com.liferay.source.formatter.upgrade.GAV;
+import com.liferay.source.formatter.upgrade.LugbotConfig;
+import com.liferay.source.formatter.util.SourceFormatterUtil;
+
+import aQute.bnd.stream.MapStream;
+import aQute.lib.exceptions.ConsumerWithException;
+import aQute.lib.exceptions.Exceptions;
+import aQute.lib.exceptions.PredicateWithException;
+import aQute.libg.tuple.Pair;
 
 /**
  * @author Raymond Augé
@@ -273,6 +268,14 @@ public class MavenFunctions {
 		);
 	}
 
+	public static boolean isUnknown(Dependency dep) {
+		if ((dep.getGroupId() == null) || (dep.getArtifactId() == null) || (dep.getVersion() == null)) {
+			return true;
+		}
+
+		return false;
+	}
+	
 	public static List<Path> getPossibleMavenPluginPath(
 			Path mavenPluginParentPath)
 		throws IOException {
