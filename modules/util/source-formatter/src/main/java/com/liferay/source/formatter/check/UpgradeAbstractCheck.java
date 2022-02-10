@@ -49,7 +49,7 @@ public abstract class UpgradeAbstractCheck extends BaseFileCheck {
 
 		LugbotConfig lugbotConfig = YamlFunctions.load(content);
 
-		List<String> upgradeTaskNames = getConfiguredUpgradeTasks(lugbotConfig);
+		List<String> upgradeTaskNames = _getConfiguredUpgradeTasks(lugbotConfig);
 
 		if (!upgradeTaskNames.contains(checkId)) {
 			SourceFormatterUtil.printError(
@@ -65,7 +65,7 @@ public abstract class UpgradeAbstractCheck extends BaseFileCheck {
 
 		Path repoPath = Paths.get(baseDirValue);
 
-		Optional<Path> workspacePathOptional = getWorkspacePathOptional(
+		Optional<Path> workspacePathOptional = _getWorkspacePathOptional(
 			lugbotConfig, repoPath);
 
 		if (isNeedWorkspace()) {
@@ -93,7 +93,7 @@ public abstract class UpgradeAbstractCheck extends BaseFileCheck {
 			Path repoPath, LugbotConfig lugbotConfig, Path workspacePath)
 		throws Exception;
 
-	protected List<String> getConfiguredUpgradeTasks(
+	private List<String> _getConfiguredUpgradeTasks(
 		LugbotConfig lugbotConfig) {
 
 		List<LugbotConfig.Upgrade> upgrades =
@@ -108,7 +108,7 @@ public abstract class UpgradeAbstractCheck extends BaseFileCheck {
 		);
 	}
 
-	protected Optional<Path> getWorkspacePathOptional(
+	private Optional<Path> _getWorkspacePathOptional(
 		LugbotConfig lugbotConfig, Path repoPath) {
 
 		return Optional.of(
