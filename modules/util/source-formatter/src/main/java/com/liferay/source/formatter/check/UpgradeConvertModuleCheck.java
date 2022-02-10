@@ -509,6 +509,9 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 		else if (Objects.equals("7.3", liferayVersion)) {
 			return _migratedDependencies73;
 		}
+		else if (Objects.equals("7.4", liferayVersion)) {
+			//TODO need to add 7.4 support
+		}
 
 		return Collections.emptyMap();
 	}

@@ -86,8 +86,6 @@ public class UpgradeWorkspacePluginVersionCheck extends UpgradeAbstractCheck {
 			Optional<List<Path>> upgradedWorkspacePluinPathsOptional =
 				repoWorkspacePluginDependencyOptional.map(
 					gradleDependency -> {
-						Version version = Version.emptyVersion;
-
 						Version latestVersion = Version.parseVersion(
 							latestWorkspacePluginDependency.getVersion());
 
@@ -95,10 +93,10 @@ public class UpgradeWorkspacePluginVersionCheck extends UpgradeAbstractCheck {
 							gradleDependency.getVersion());
 
 						if (latestVersion.compareTo(workspaceVersion) > 0) {
-							version = latestVersion;
+							return latestVersion;
 						}
 
-						return version;
+						return Version.emptyVersion;
 					}
 				).filter(
 					version -> !Objects.equals(version, Version.emptyVersion)

@@ -400,15 +400,9 @@ UnusedMethodCheck | [Performance](performance_checks.markdown#performance-checks
 UnusedParameterCheck | [Performance](performance_checks.markdown#performance-checks) | .java | Finds parameters in private methods that are not used. |
 UnusedVariableCheck | [Performance](performance_checks.markdown#performance-checks) | .java | Finds variables that are declared, but not used. |
 UnwrappedVariableInfoCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | .java | Finds cases where the variable should be wrapped into an inner class in order to defer array elements initialization. |
-UpgradeConvertMavenModuleCheck | [Upgrade](upgrade_checks.markdown#upgrade-checks) | .java | Performs upgrade and convert maven plugin project |
-UpgradeConvertPluginModuleCheck | [Upgrade](upgrade_checks.markdown#upgrade-checks) | .java | Performs upgrade and convert plugin project |
-UpgradeCreateMavenModuleCheck | [Upgrade](upgrade_checks.markdown#upgrade-checks) | .java | Performs creating module for maven plugin project |
-UpgradeCreatePluginModuleCheck | [Upgrade](upgrade_checks.markdown#upgrade-checks) | .java | Performs creating module for plugin project |
-UpgradeCreateWorkspaceCheck | [Upgrade](upgrade_checks.markdown#upgrade-checks) | .java | Performs creating workspace for upgrade |
 UpgradeDeprecatedAPICheck | [Upgrade](upgrade_checks.markdown#upgrade-checks) | .java | Finds calls to deprecated classes, constructors, fields or methods after an upgrade |
 UpgradeJavaCheck | [Upgrade](upgrade_checks.markdown#upgrade-checks) | .java | Performs upgrade checks for `java` files |
 UpgradeRemovedAPICheck | [Upgrade](upgrade_checks.markdown#upgrade-checks) | .java | Finds cases where calls are made to removed API after an upgrade. |
-UpgradeWorkspacePluginVersionCheck | [Upgrade](upgrade_checks.markdown#upgrade-checks) | .java | Performs upgrade gradle workspace project plugin version |
 [ValidatorEqualsCheck](check/validator_equals_check.markdown#validatorequalscheck) | [Performance](performance_checks.markdown#performance-checks) | .java, .jsp, .jspf, .jspx, .tag, .tpl or .vm | Checks that there are no calls to `Validator.equals(Object, Object)`. |
 ValidatorIsNullCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | .java, .jsp, .jspf, .jspx, .tag, .tpl or .vm | Ensures that only variable of type `Long`, `Serializable` or `String` is passed to method `com.liferay.portal.kernel.util.Validator.isNull`. |
 VariableDeclarationAsUsedCheck | [Performance](performance_checks.markdown#performance-checks) | .java | Finds cases where a variable declaration can be inlined or moved closer to where it is used. |
