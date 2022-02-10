@@ -322,6 +322,8 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 					"Unsupported type when creating new module project" +
 						" skeleton {0} for {1}",
 					type, pluginPath));
+
+			return Optional.empty();
 		}
 
 		String moduleName = moduleNameOptional.get();
