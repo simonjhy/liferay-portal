@@ -91,7 +91,7 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 						SourceFormatterUtil.printError(
 							null,
 							MessageFormat.format(
-								"Expected {0} to exist", pluginPath));
+								"{0} does not exist", pluginPath));
 
 						return dto;
 					}
@@ -126,7 +126,7 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 						SourceFormatterUtil.printError(
 							null,
 							MessageFormat.format(
-								"Error creating war project skeleton {0}",
+								"Failed to create war project skeleton: {0}",
 								throwable.getMessage()));
 					}
 
