@@ -50,10 +50,8 @@ public class UpgradeCreatePluginModuleCheck extends UpgradeCreateModuleCheck {
 		);
 
 		if (originPathOptional.isPresent()) {
-			List<String> pluginNames = lugbotConfig.tasks.plugins;
-
 			return PluginsSDKFunctions.findPlugins(
-				originPathOptional.get(), pluginNames);
+				originPathOptional.get(), lugbotConfig.tasks.plugins);
 		}
 
 		return Collections.emptyList();
