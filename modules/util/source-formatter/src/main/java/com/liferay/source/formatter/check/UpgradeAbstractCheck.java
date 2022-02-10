@@ -72,8 +72,9 @@ public abstract class UpgradeAbstractCheck extends BaseFileCheck {
 		if (isNeedWorkspace()) {
 			if (!workspacePathOptional.isPresent()) {
 				SourceFormatterUtil.printError(
-					repoPath.toString(),
-					"is not valid lifeay workspace project");
+					null,
+					repoPath.toString() +
+						" is not valid lifeay workspace project");
 
 				return content;
 			}
