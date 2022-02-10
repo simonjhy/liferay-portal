@@ -44,6 +44,12 @@ public class UpgradeJavaCheck extends BaseFileCheck {
 		if ((upgradeInputDataDirectory == null) ||
 			!fileName.endsWith(".java")) {
 
+			// TODO @simon, fileName should never be ".java" here, becasue you
+			// already replaced "**/*.java" with "**/lugbot.yaml" in
+			// UpgradeSourceProcessor.java, can you check it?
+			// If UpgradeSourceProcessor only process "**/lugbot.yaml", we
+			// shuld rename this check.
+
 			return content;
 		}
 
