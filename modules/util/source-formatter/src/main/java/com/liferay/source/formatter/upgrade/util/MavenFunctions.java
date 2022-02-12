@@ -14,6 +14,8 @@
 
 package com.liferay.source.formatter.upgrade.util;
 
+import static java.text.MessageFormat.format;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
@@ -50,7 +52,6 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import com.liferay.blade.cli.util.StringUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.poshi.core.util.ListUtil;
-import com.liferay.source.formatter.upgrade.GAV;
 import com.liferay.source.formatter.upgrade.LugbotConfig;
 import com.liferay.source.formatter.util.SourceFormatterUtil;
 
@@ -268,6 +269,59 @@ public class MavenFunctions {
 		);
 	}
 
+	public static String toGradleDependency(Dependency dep) {
+		String scope = Optional.ofNullable(
+			dep.getScope()
+		).orElse(
+			"compile"
+		);
+
+		String result;
+
+		switch (scope) {
+			case "compile":
+				result = format(
+					"compile group: \"{0}\", name: \"{1}\", version: \"{2}\"", dep.getGroupId(), dep.getArtifactId(),
+					dep.getVersion());
+
+				break;
+			case "runtime":
+				result = format(
+					"runtimeOnly group: \"{0}\", name: \"{1}\", version: \"{2}\"", dep.getGroupId(),
+					dep.getArtifactId(), dep.getVersion());
+
+				break;
+			case "test":
+				result = format(
+					"testCompile group: \"{0}\", name: \"{1}\", version: \"{2}\"", dep.getGroupId(),
+					dep.getArtifactId(), dep.getVersion());
+
+				break;
+			case "system":
+				result = format("compile files(\"{0}\")", dep.getSystemPath());
+
+				break;
+			case "provided":
+				result = format(
+					"compileOnly group: \"{0}\", name: \"{1}\", version: \"{2}\"", dep.getGroupId(),
+					dep.getArtifactId(), dep.getVersion());
+
+				break;
+			default:
+				result = format(
+					"compile group: \"{0}\", name: \"{1}\", version: \"{2}\"", dep.getGroupId(), dep.getArtifactId(),
+					dep.getVersion());
+
+				break;
+		}
+
+		if (dep.getClassifier() != null) {
+			result += format(", classifier: \"{0}\"", dep.getClassifier());
+		}
+
+		return result;
+	}
+	
 	public static boolean isUnknown(Dependency dep) {
 		if ((dep.getGroupId() == null) || (dep.getArtifactId() == null) || (dep.getVersion() == null)) {
 			return true;

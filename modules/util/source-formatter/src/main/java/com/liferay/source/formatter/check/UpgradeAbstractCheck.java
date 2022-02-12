@@ -80,15 +80,6 @@ public abstract class UpgradeAbstractCheck extends BaseFileCheck {
 			doUpgrade(repoPath, lugbotConfig, workspacePathOptional.get());
 		}
 		else {
-			if (workspacePathOptional.isPresent()) {
-				SourceFormatterUtil.printError(
-					null,
-					MessageFormat.format(
-						"{0} should be empty", workspacePathOptional.get()));
-
-				return content;
-			}
-
 			Path workspacePath = repoPath.resolve(
 				lugbotConfig.tasks.workspacePath);
 

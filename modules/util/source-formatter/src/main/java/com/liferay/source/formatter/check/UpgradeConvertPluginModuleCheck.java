@@ -85,7 +85,7 @@ public class UpgradeConvertPluginModuleCheck extends UpgradeConvertModuleCheck {
 		return WorkspaceFunctions.isValidPluginsSDKPath(path);
 	}
 
-	protected Optional<Path> converPluginProject(Path workspacePath, Path reportPath, Path pluginPath, Path modulePath, String type,
+	protected Optional<Path> converPluginProject(Path workspacePath, Path reportPath, Path pluginPath, String pluginName, Path modulePath, String type,
 			String upgradeVersion)
 		throws Exception {
 		List<GAV> convertedGavs = new CopyOnWriteArrayList<>();
@@ -144,7 +144,7 @@ public class UpgradeConvertPluginModuleCheck extends UpgradeConvertModuleCheck {
 
 		convertedGavs.addAll(convertPortalDependencyJarProperty(reportPath, pluginPath, upgradeVersion));
 
-		List<GradleDependency> convertedGradleDependencies = convertedGavs.stream(
+		Set<GradleDependency> convertedGradleDependencies = convertedGavs.stream(
 		).map(
 			gav -> {
 				if (gav.isUnknown() && contains(_portalClasspathDependenciesMap.keySet(), gav.getJarName())) {
@@ -154,7 +154,7 @@ public class UpgradeConvertPluginModuleCheck extends UpgradeConvertModuleCheck {
 				return new GradleDependency(gav.toCompileDependency());
 			}
 		).collect(
-			Collectors.toList()
+			Collectors.toSet()
 		);
 
 		convertWebInfLibNames(

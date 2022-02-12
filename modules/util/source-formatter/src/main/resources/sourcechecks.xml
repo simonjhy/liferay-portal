@@ -1408,29 +1408,41 @@
 			<category name="Upgrade" />
 			<property name="checkId" value="maven-create-modules" />
 			<description name="Performs creating module for maven plugin project" />
-			<weight>5</weight>
+			<weight>9</weight>
 		</check>
 		<check name="UpgradeCreatePluginModuleCheck">
 			<category name="Upgrade" />
 			<property name="checkId" value="plugins-create-modules" />
 			<description name="Performs creating module for plugin project" />
-			<weight>4</weight>
+			<weight>9</weight>
 		</check>
 		<check name="UpgradeCreateWorkspaceCheck">
 			<category name="Upgrade" />
 			<property name="checkId" value="create-workspace" />
 			<description name="Performs creating workspace for upgrade" />
-			<weight>2</weight>
+			<weight>10</weight>
 		</check>
 		<check name="UpgradeJavaCheck">
 			<category name="Upgrade" />
 			<description name="Performs upgrade checks for `java` files" />
-			<weight>10</weight>
+			<weight>6</weight>
 		</check>
 		<check name="UpgradeWorkspacePluginVersionCheck">
 			<category name="Upgrade" />
 			<description name="Performs upgrade gradle workspace project plugin version" />
-			<weight>9</weight>
+			<weight>7</weight>
+		</check>
+		<check name="UpgradeConvertMavenModuleCheck">
+			<category name="Upgrade" />
+			<property name="checkId" value="maven-convert-build" />
+			<description name="Performs upgrade and convert maven plugin project" />
+			<weight>8</weight>
+		</check>
+		<check name="UpgradeConvertPluginModuleCheck">
+			<category name="Upgrade" />
+			<property name="checkId" value="plugins-convert-build" />
+			<description name="Performs upgrade and convert plugin project" />
+			<weight>8</weight>
 		</check>
 	</source-processor>
 	<source-processor name="XMLSourceProcessor">

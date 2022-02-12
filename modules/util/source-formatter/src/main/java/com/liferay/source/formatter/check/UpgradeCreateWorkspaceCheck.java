@@ -14,23 +14,25 @@
 
 package com.liferay.source.formatter.check;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.source.formatter.upgrade.BladeCLI;
 import com.liferay.source.formatter.upgrade.BladeCLIException;
 import com.liferay.source.formatter.upgrade.LugbotConfig;
+import com.liferay.source.formatter.upgrade.util.GitFunctions;
 import com.liferay.source.formatter.upgrade.util.GradleFunctions;
 import com.liferay.source.formatter.upgrade.util.WorkspaceFunctions;
 import com.liferay.source.formatter.util.SourceFormatterUtil;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import java.text.MessageFormat;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import aQute.libg.tuple.Pair;
 
 /**
  * @author Simon Jiang
@@ -42,6 +44,26 @@ public class UpgradeCreateWorkspaceCheck extends UpgradeAbstractCheck {
 			Path repoPath, LugbotConfig lugbotConfig, Path workspacePath)
 		throws Exception {
 
+		if (Objects.isNull(workspacePath)) {
+			SourceFormatterUtil.printError(
+				null,
+				MessageFormat.format(
+					"{0} should not be null", workspacePath));
+			
+			return;
+		}
+		
+
+		if (WorkspaceFunctions.isWorkspacePath(workspacePath)) {
+			SourceFormatterUtil.printError(
+				null,
+				MessageFormat.format(
+					"{0} is already existed, do not need to create again", workspacePath));
+			
+			return;
+		}
+		
+		
 		Files.createDirectories(workspacePath);
 
 		String upgradeVersion = Optional.ofNullable(
@@ -76,7 +98,7 @@ public class UpgradeCreateWorkspaceCheck extends UpgradeAbstractCheck {
 
 			throw new Exception(bladeCLIException.getMessage());
 		}
-
+		
 		Path modulesPath = workspacePath.resolve(
 			workspacePath.resolve(
 				GradleFunctions.getWorkspaceProperty(
@@ -94,6 +116,15 @@ public class UpgradeCreateWorkspaceCheck extends UpgradeAbstractCheck {
 
 		if (Files.exists(themesPath)) {
 			Files.createFile(themesPath.resolve(".touch"));
+		}
+		
+		Path addPath = repoPath.relativize(workspacePath);
+		
+		String message = MessageFormat.format(
+				"Initialized a Liferay workspace at {0} using version {1}", workspacePath, version);
+
+		if (lugbotConfig.tasks.saveCommit) {
+			GitFunctions.commitChanges(repoPath, message, Collections.singleton(addPath.toString()), lugbotConfig);
 		}
 	}
 

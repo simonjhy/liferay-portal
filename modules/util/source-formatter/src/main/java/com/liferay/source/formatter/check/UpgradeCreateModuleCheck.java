@@ -26,10 +26,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.revwalk.RevCommit;
+
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.source.formatter.upgrade.BladeCLI;
 import com.liferay.source.formatter.upgrade.BladeCLIException;
 import com.liferay.source.formatter.upgrade.LugbotConfig;
+import com.liferay.source.formatter.upgrade.util.GitFunctions;
 import com.liferay.source.formatter.upgrade.util.GradleFunctions;
 import com.liferay.source.formatter.upgrade.util.MavenFunctions;
 import com.liferay.source.formatter.upgrade.util.PluginsUtils;
@@ -53,6 +58,30 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 
 	protected abstract boolean isValidModulePath(Path path);
 
+	private Pair<String, List<Path>> _commitNewProject(
+			Path warPath, Path repoPath, LugbotConfig lugbotConfig)
+		throws GitAPIException, IOException {
+
+		Path warFileName = warPath.getFileName();
+
+		String message = "Created new project skeleton " + warFileName + " in Liferay Workspace.";
+
+		Path addPath = repoPath.relativize(warPath);
+
+		Optional<RevCommit> commit = GitFunctions.commitChanges(
+			repoPath, message, Collections.singletonList(addPath.toString()), lugbotConfig);
+
+		if (!commit.isPresent()) {
+			return null;
+		}
+
+		RevCommit revCommit = commit.get();
+
+		ObjectId objectId = revCommit.toObjectId();
+
+		return new Pair<>(objectId.getName(), Collections.singletonList(warPath));
+	}
+	
 	@Override
 	protected void doUpgrade(
 			Path repoPath, LugbotConfig lugbotConfig, Path workspacePath)
@@ -76,6 +105,8 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 			pluginTypes.stream(
 			).map(
 				pair -> {
+					Pair<String, List<Path>> dto = null;
+					
 					String plugin = pair.getFirst();
 
 					Path originalPluginPath = sourcePath.resolve(plugin);
@@ -88,7 +119,7 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 							MessageFormat.format(
 								"Expected {0} to exist", pluginPath));
 
-						return new Pair<>(plugin, Optional.empty());
+						return dto;
 					}
 
 					String type = pair.getSecond();
@@ -98,6 +129,21 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 					try {
 						newModulePathOptional = provideUpgrade(
 							workspacePath, pluginPath, type, lugbotConfig);
+						
+						if (newModulePathOptional.isPresent()) {
+							
+							if (lugbotConfig.tasks.saveCommit == true) {
+								try {
+									dto = _commitNewProject(newModulePathOptional.get(), repoPath, lugbotConfig);
+								}
+								catch (Exception e) {
+								}		
+							}
+							else {
+								dto = new Pair<>(plugin, Collections.singletonList(newModulePathOptional.get()));
+							}
+						}
+						
 					}
 					catch (Throwable throwable) {
 						SourceFormatterUtil.printError(
@@ -107,7 +153,7 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 								throwable.getMessage()));
 					}
 
-					return new Pair<>(plugin, newModulePathOptional);
+					return dto;
 				}
 			).filter(
 				Objects::nonNull

@@ -18,6 +18,7 @@ import static java.util.stream.Collectors.toCollection;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -25,7 +26,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 
 import org.apache.maven.model.Dependency;
@@ -36,6 +36,7 @@ import com.liferay.source.formatter.upgrade.GradleDependency;
 import com.liferay.source.formatter.upgrade.LugbotConfig;
 import com.liferay.source.formatter.upgrade.UniqueDependency;
 import com.liferay.source.formatter.upgrade.util.MavenFunctions;
+import com.liferay.source.formatter.upgrade.util.PluginsUtils;
 
 import aQute.libg.tuple.Pair;
 
@@ -83,7 +84,7 @@ public class UpgradeConvertMavenModuleCheck extends UpgradeConvertModuleCheck {
 	}
 	
 	@Override
-	protected Optional<Path> converPluginProject(Path workspacePath, Path originalPath, Path pluginPath, Path modulePath,
+	protected Optional<Path> converPluginProject(Path workspacePath, Path originalPath, Path pluginPath, String pluginName, Path modulePath,
 			String type, String upgradeVersion) throws Exception {
 		Model model = MavenFunctions.readPom(pluginPath);
 
@@ -132,15 +133,17 @@ public class UpgradeConvertMavenModuleCheck extends UpgradeConvertModuleCheck {
 		).forEach(
 			dep -> {
 				GAV gav = migratedDependencies.get(dep.getArtifactId() + ".jar");
-
+				Dependency dependency = new Dependency();
+				
 				if (gav != null) {
-					dep.setArtifactId(gav.getArtifactId());
-					dep.setGroupId(gav.getGroupId());
-					dep.setVersion(gav.getVersion());
-
+					dependency.setArtifactId(gav.getArtifactId());
+					dependency.setGroupId(gav.getGroupId());
+					dependency.setVersion(gav.getVersion());
+					dependency.setSystemPath(gav.getJarName());
+					dependencies.add(new UniqueDependency(dependency));
 				}
-
-				dependencies.add(new UniqueDependency(dep));
+				
+				dependencies.add(new UniqueDependency(dependency));
 			}
 		);
 
@@ -159,10 +162,10 @@ public class UpgradeConvertMavenModuleCheck extends UpgradeConvertModuleCheck {
 			toCollection(HashSet<GradleDependency>::new)
 		);
 
-		_convertWebInfLibNames(workspacePath, pluginPath, convertedGradleDependencies, upgradeVersion, false);
+		convertWebInfLibNames(workspacePath, pluginPath, convertedGradleDependencies, upgradeVersion, false);
 
-		if (Objects.equals(PluginsConstants.SERVICE_BUILDER_PORTLET, type)) {
-			String moduleParentName = _getServiceBuilderParentName(pluginPath);
+		if (Objects.equals(PluginsUtils.SERVICE_BUILDER_PORTLET, type)) {
+			String moduleParentName = getServiceBuilderParentName(pluginName);
 
 			StringBuilder sb = new StringBuilder("compileOnly project(\":modules:");
 
@@ -180,35 +183,28 @@ public class UpgradeConvertMavenModuleCheck extends UpgradeConvertModuleCheck {
 
 		StringBuilder dependenciesBlock = new StringBuilder();
 
-		convertedGradleDependencies = new TreeSet<>(convertedGradleDependencies);
-
 		convertedGradleDependencies.forEach(
 			dep -> dependenciesBlock.append("\t" + dep.toString() + System.lineSeparator()));
 
-		if (!existingContent.contains(dependenciesBlock)) {
-			Matcher matcher = _dependenciesBlockPattern.matcher(existingContent);
+		dependenciesBlock.append(System.lineSeparator());
+		dependenciesBlock.append("}");
 
-			if (matcher.find()) {
-				String newContent = matcher.group(1) + dependenciesBlock.toString() + matcher.group(2);
+		Matcher matcher = dependenciesBlockPattern.matcher(existingContent);
 
-				Files.write(buildGradlePath, newContent.getBytes());
-			}
-			else if (existingContent.isBlank()) {
-				String newContent = "dependencies {" + System.lineSeparator() + dependenciesBlock.toString() + "}";
+		if (matcher.find()) {
+			String newContent = matcher.group(1) + dependenciesBlock.toString();
 
-				Files.write(buildGradlePath, newContent.getBytes());
-			}
-			else {
-				String newContent =
-					existingContent + System.lineSeparator() + System.lineSeparator() + "dependencies {" +
-						System.lineSeparator() + dependenciesBlock.toString() + "}";
-
-				Files.write(buildGradlePath, newContent.getBytes());
-			}
-
-			return Optional.of(modulePath);
+			Files.write(buildGradlePath, newContent.getBytes());
+		}
+		
+		return Optional.of(modulePath);
+	}
+	
+	private boolean _contains(Collection<?> collections, Object o) {
+		if ((collections == null) || (o == null)) {
+			return false;
 		}
 
-		return Optional.empty();
+		return collections.contains(o);
 	}
 }

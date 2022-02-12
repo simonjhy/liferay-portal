@@ -16,6 +16,7 @@ package com.liferay.source.formatter.upgrade;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Gregory Amerson
@@ -244,7 +245,8 @@ public class LugbotConfig {
 
 			Tasks targetTasks = (Tasks)object;
 
-			if (_isEqualIgnoreCase(mode, targetTasks.mode) &&
+			if (saveCommit == targetTasks.saveCommit &&	
+				_isEqualIgnoreCase(mode, targetTasks.mode) &&
 				_isEqualIgnoreCase(
 					upgradeVersion, targetTasks.upgradeVersion) &&
 				_isEqualIgnoreCase(
@@ -284,7 +286,8 @@ public class LugbotConfig {
 				(31 * hash) +
 					((workspacePath != null) ? workspacePath.hashCode() : 0);
 			hash = (31 * hash) + ((plugins != null) ? plugins.hashCode() : 0);
-
+			hash = (31 * hash) + Objects.hash(saveCommit);
+			
 			return hash;
 		}
 
@@ -297,6 +300,7 @@ public class LugbotConfig {
 		public CodeUpgrade upgrade;
 		public String upgradeVersion;
 		public String workspacePath;
+		public boolean saveCommit;
 
 	}
 

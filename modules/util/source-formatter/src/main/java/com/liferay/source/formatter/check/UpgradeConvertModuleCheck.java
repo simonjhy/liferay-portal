@@ -41,6 +41,9 @@ import java.util.stream.Stream;
 
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.LoadProperties;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
@@ -48,6 +51,7 @@ import com.liferay.source.formatter.upgrade.GAV;
 import com.liferay.source.formatter.upgrade.GradleDependency;
 import com.liferay.source.formatter.upgrade.LugbotConfig;
 import com.liferay.source.formatter.upgrade.util.FileFunctions;
+import com.liferay.source.formatter.upgrade.util.GitFunctions;
 import com.liferay.source.formatter.upgrade.util.GradleFunctions;
 import com.liferay.source.formatter.upgrade.util.MavenFunctions;
 import com.liferay.source.formatter.upgrade.util.PluginsUtils;
@@ -70,9 +74,34 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 
 	protected abstract boolean isValidModulePath(Path path);
 
-	protected abstract Optional<Path> converPluginProject(Path workspacePath, Path reportPath, Path pluginPath, Path modulePath, String type,
+	protected abstract Optional<Path> converPluginProject(Path workspacePath, Path reportPath, Path pluginPath, String pluginFileName, Path modulePath, String type,
 			String upgradeVersion)
 		throws Exception;
+	
+	
+	private Pair<String, List<Path>> _commitBuildChanges(
+			Path warPath, Path repoPath, LugbotConfig lugbotConfig)
+		throws GitAPIException, IOException {
+
+		Path warFileName = warPath.getFileName();
+
+		String message = "Convert project " + warFileName + " into Liferay Workspace.";
+
+		Path addPath = repoPath.relativize(warPath);
+
+		Optional<RevCommit> commit = GitFunctions.commitChanges(
+			repoPath, message, Collections.singletonList(addPath.toString()), lugbotConfig);
+
+		if (!commit.isPresent()) {
+			return null;
+		}
+
+		RevCommit revCommit = commit.get();
+
+		ObjectId objectId = revCommit.toObjectId();
+
+		return new Pair<>(objectId.getName(), Collections.singletonList(warPath));
+	}
 	
 	@Override
 	protected void doUpgrade(
@@ -87,6 +116,8 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 					null,
 					MessageFormat.format(
 						"Expected {0} can not find plugins to convert", repoPath));
+				
+				return;
 			}
 
 			Optional<Path> originPathOptional = MavenFunctions.getOriginPath(
@@ -97,6 +128,8 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 			pluginTypes.stream(
 			).map(
 				pair -> {
+					Pair<String, List<Path>> dto = null;
+					
 					String plugin = pair.getFirst();
 
 					Path originalPluginPath = sourcePath.resolve(plugin);
@@ -123,27 +156,38 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 						Files::exists
 					);
 
-//					if (!modulePath.isPresent()) {
-//						_logger.error("Expected {} to exist", modulePath.get());
-//
-//						return dto;
-//					}
+					if (!modulePath.isPresent()) {
+						return dto;
+					}
 
-					Optional<Path> convertedBuildPath = Optional.empty();
+					Optional<Path> convertedBuildPathOptional = Optional.empty();
 
 					try {
-						convertedBuildPath = converPluginProject(
-							workspacePath, sourcePath, pluginPath, modulePath.get(), type,
+						convertedBuildPathOptional = converPluginProject(
+							workspacePath, sourcePath, pluginPath, pluginFileName,  modulePath.get(), type,
 							lugbotConfig.tasks.upgradeVersion);
 					}
-					catch (Exception e) {
-//						logError(_logger, e, "Error converting build from {} to {}", pluginPath, modulePath.get());
+					catch (Exception exception) {
+						SourceFormatterUtil.printError(
+							null,
+							MessageFormat.format(
+								"Failed to convert {0} project dependency {1}", pluginPath, exception.getMessage()));
 					}
 
-					if (!convertedBuildPath.isPresent()) {
+					if (convertedBuildPathOptional.isPresent()) {
+						if (lugbotConfig.tasks.saveCommit) {
+							try {
+								dto = _commitBuildChanges(convertedBuildPathOptional.get(), repoPath, lugbotConfig);
+							}
+							catch (Exception e) {
+							}
+						}
+						else {
+							dto = new Pair<>(plugin, Collections.singletonList(convertedBuildPathOptional.get()));
+						}
 					}
 					
-					return new Pair<>(plugin, convertedBuildPath);
+					return dto;
 				}
 			).filter(
 				Objects::nonNull
@@ -152,7 +196,6 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 			);
 		}
 		catch (IOException e) {
-//			logError(_logger, e);
 		}
 	}
 
@@ -200,7 +243,7 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 					List<String> missingDependencyJars = new ArrayList<>();
 
 					try (InputStream inputStream = UpgradeConvertModuleCheck.class.getResourceAsStream(
-							"/portal-dependency-jars-62.properties")) {
+							"/dependencies/upgrade/portal-dependency-jars-62.properties")) {
 
 						Properties properties = loadProperties(inputStream);
 
@@ -389,14 +432,14 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 
 		return collections.contains(o);
 	}
-	
+
 	protected static final Pattern dependenciesBlockPattern = Pattern.compile(
 			"(.*^dependencies \\{.*)\\}", Pattern.MULTILINE | Pattern.DOTALL);
 	
 	protected abstract String getWebInf();
 	
 	protected void convertWebInfLibNames(
-			Path workspaceLibsPath, Path pluginPath, List<GradleDependency> convertDependencies, String liferayVersion,
+			Path workspaceLibsPath, Path pluginPath, Set<GradleDependency> convertDependencies, String liferayVersion,
 			boolean report)
 		throws Exception {
 
@@ -484,4 +527,44 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 		}
 	}
 	
+	private final void _loadMigratedDependencies(String resource, Map<String, GAV> migratedDependencies) {
+		try (InputStream inputStream = UpgradeConvertModuleCheck.class.getResourceAsStream(resource)) {
+			Properties properties = new Properties();
+
+			properties.load(inputStream);
+
+			Set<Map.Entry<Object, Object>> entries = properties.entrySet();
+
+			entries.forEach(
+				entry -> {
+					String key = (String)entry.getKey();
+					String value = (String)entry.getValue();
+
+					GAV gav = null;
+
+					if (Objects.equals("__remove__", value)) {
+						gav = new GAV(key);
+
+						gav.setRemove(true);
+					}
+					else {
+						String[] coords = value.split(":");
+
+						gav = new GAV(coords[0], coords[1], coords[2]);
+					}
+
+					migratedDependencies.put(key, gav);
+				});
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	{
+		_loadMigratedDependencies("/dependencies/upgrade/migrated-dependencies-7.1.properties", _migratedDependencies71);
+		_loadMigratedDependencies("/dependencies/upgrade/migrated-dependencies-7.2.properties", _migratedDependencies72);
+		_loadMigratedDependencies("/dependencies/upgrade/migrated-dependencies-7.3.properties", _migratedDependencies73);
+	}
 }
