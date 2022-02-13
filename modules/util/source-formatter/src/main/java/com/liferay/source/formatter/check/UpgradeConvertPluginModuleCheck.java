@@ -16,6 +16,7 @@ package com.liferay.source.formatter.check;
 
 import aQute.libg.tuple.Pair;
 
+import com.liferay.portal.kernel.security.xml.SecureXMLFactoryProviderUtil;
 import com.liferay.source.formatter.upgrade.GAV;
 import com.liferay.source.formatter.upgrade.GradleDependency;
 import com.liferay.source.formatter.upgrade.LugbotConfig;
@@ -89,7 +90,7 @@ public class UpgradeConvertPluginModuleCheck extends UpgradeConvertModuleCheck {
 
 		if (Files.exists(ivyPath)) {
 			DocumentBuilderFactory dbFactory =
-				DocumentBuilderFactory.newInstance();
+				SecureXMLFactoryProviderUtil.newDocumentBuilderFactory();
 
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 
@@ -103,7 +104,7 @@ public class UpgradeConvertPluginModuleCheck extends UpgradeConvertModuleCheck {
 				"dependency");
 
 			if ((depElements != null) && (depElements.getLength() > 0)) {
-				Map<String, GAV> migratedDependencies = getMigratedDependecies(
+				Map<String, GAV> migratedDependencies = getMigratedDependencies(
 					upgradeVersion);
 
 				Set<String> migratedKeys = migratedDependencies.keySet();
@@ -152,11 +153,11 @@ public class UpgradeConvertPluginModuleCheck extends UpgradeConvertModuleCheck {
 				gav -> {
 					if (gav.isUnknown() &&
 						contains(
-							_portalClasspathDependenciesMap.keySet(),
+							portalClasspathDependenciesMap.keySet(),
 							gav.getJarName())) {
 
 						return new GradleDependency(
-							_portalClasspathDependenciesMap.get(
+							portalClasspathDependenciesMap.get(
 								gav.getJarName()));
 					}
 

@@ -14,6 +14,8 @@
 
 package com.liferay.source.formatter.upgrade.util;
 
+import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.source.formatter.upgrade.LugbotConfig;
 
 import java.io.FileOutputStream;
@@ -77,13 +79,6 @@ public class GitFunctions {
 		throws GitAPIException, IOException {
 
 		try (Git git = Git.open(repoPath.toFile())) {
-			CheckoutCommand checkoutCommand = git.checkout();
-
-			checkoutCommand.setForced(resetHard);
-			checkoutCommand.setName(branchName);
-
-			Ref ref = checkoutCommand.call();
-
 			if (resetHard) {
 				StatusCommand statusCommand = git.status();
 
@@ -103,8 +98,8 @@ public class GitFunctions {
 						try {
 							Files.delete(path);
 						}
-						catch (IOException e) {
-							exceptions.add(e);
+						catch (IOException ioException) {
+							exceptions.add(ioException);
 						}
 					}
 				);
@@ -126,13 +121,19 @@ public class GitFunctions {
 					);
 
 					throw new IOException(
-						"Unable to reset branch to " + branchName +
-							"\nThe following files are untracked:\n" +
-								untrackedFiles);
+						StringBundler.concat(
+							"Unable to reset branch to ", branchName,
+							"\nThe following files are untracked:\n",
+							untrackedFiles));
 				}
 			}
 
-			return ref;
+			CheckoutCommand checkoutCommand = git.checkout();
+
+			checkoutCommand.setForced(resetHard);
+			checkoutCommand.setName(branchName);
+
+			return checkoutCommand.call();
 		}
 	}
 
@@ -168,15 +169,10 @@ public class GitFunctions {
 				AddCommand addCommand = git.add();
 
 				String osProperty = System.getProperty("os.name");
-				
-				
-				if (System.getProperty(
-						"os.name"
-					).toLowerCase(
-					).startsWith(
-						"win"
-					)) {
 
+				String osPropertyLowerCase = StringUtil.toLowerCase(osProperty);
+
+				if (osPropertyLowerCase.startsWith("win")) {
 					addFilePatterns = addFilePatterns.stream(
 					).map(
 						pattern -> pattern.replaceAll("\\\\", "/")
@@ -221,8 +217,8 @@ public class GitFunctions {
 
 			CommitCommand allCommitCommand = commitCommand.setAll(true);
 
-			CommitCommand allCommitMessageCommand =
-				allCommitCommand.setMessage(message);
+			CommitCommand allCommitMessageCommand = allCommitCommand.setMessage(
+				message);
 
 			RevCommit commitRevCommit = allCommitMessageCommand.call();
 

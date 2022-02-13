@@ -1404,18 +1404,6 @@
 		</check>
 	</source-processor>
 	<source-processor name="UpgradeSourceProcessor">
-		<check name="UpgradeCreateMavenModuleCheck">
-			<category name="Upgrade" />
-			<property name="checkId" value="maven-create-modules" />
-			<description name="Performs creating module for maven plugin project" />
-			<weight>9</weight>
-		</check>
-		<check name="UpgradeCreatePluginModuleCheck">
-			<category name="Upgrade" />
-			<property name="checkId" value="plugins-create-modules" />
-			<description name="Performs creating module for plugin project" />
-			<weight>9</weight>
-		</check>
 		<check name="UpgradeConvertMavenModuleCheck">
 			<category name="Upgrade" />
 			<property name="checkId" value="maven-convert-build" />
@@ -1427,6 +1415,18 @@
 			<property name="checkId" value="plugins-convert-build" />
 			<description name="Performs upgrade and convert plugin project" />
 			<weight>8</weight>
+		</check>
+		<check name="UpgradeCreateMavenModuleCheck">
+			<category name="Upgrade" />
+			<property name="checkId" value="maven-create-modules" />
+			<description name="Performs creating module for maven plugin project" />
+			<weight>9</weight>
+		</check>
+		<check name="UpgradeCreatePluginModuleCheck">
+			<category name="Upgrade" />
+			<property name="checkId" value="plugins-create-modules" />
+			<description name="Performs creating module for plugin project" />
+			<weight>9</weight>
 		</check>
 		<check name="UpgradeCreateWorkspaceCheck">
 			<category name="Upgrade" />

@@ -111,7 +111,7 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 										newModulePathOptional.get(), repoPath,
 										lugbotConfig);
 								}
-								catch (Exception e) {
+								catch (Exception exception) {
 								}
 							}
 							else {
@@ -444,15 +444,15 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 
 		Path addPath = repoPath.relativize(warPath);
 
-		Optional<RevCommit> commit = GitFunctions.commitChanges(
+		Optional<RevCommit> commitOptional = GitFunctions.commitChanges(
 			repoPath, message, Collections.singletonList(addPath.toString()),
 			lugbotConfig);
 
-		if (!commit.isPresent()) {
+		if (!commitOptional.isPresent()) {
 			return null;
 		}
 
-		RevCommit revCommit = commit.get();
+		RevCommit revCommit = commitOptional.get();
 
 		ObjectId objectId = revCommit.toObjectId();
 

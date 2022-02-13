@@ -107,15 +107,19 @@ public class UpgradeWorkspacePluginVersionCheck extends UpgradeAbstractCheck {
 					modifiedPaths -> {
 						if (lugbotConfig.tasks.saveCommit) {
 							try {
-								GitFunctions.commitChanges(
-									repoPath,
+								String pluginVersion =
+									latestWorkspacePluginDependency.
+										getVersion();
+
+								String commitMessage =
 									"Upgrade workspace plugin version to " +
-										latestWorkspacePluginDependency.
-											getVersion(),
-									lugbotConfig);
+										pluginVersion;
+
+								GitFunctions.commitChanges(
+									repoPath, commitMessage, lugbotConfig);
 							}
-							catch (GitAPIException | IOException e) {
-								e.printStackTrace();
+							catch (GitAPIException | IOException exception) {
+								exception.printStackTrace();
 							}
 						}
 

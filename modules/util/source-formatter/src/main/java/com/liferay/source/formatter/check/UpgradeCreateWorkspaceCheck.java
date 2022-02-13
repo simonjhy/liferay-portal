@@ -116,13 +116,13 @@ public class UpgradeCreateWorkspaceCheck extends UpgradeAbstractCheck {
 			Files.createFile(themesPath.resolve(".touch"));
 		}
 
-		Path addPath = repoPath.relativize(workspacePath);
-
-		String message = MessageFormat.format(
-			"Initialized a Liferay workspace at {0} using version {1}",
-			workspacePath, version);
-
 		if (lugbotConfig.tasks.saveCommit) {
+			Path addPath = repoPath.relativize(workspacePath);
+
+			String message = MessageFormat.format(
+				"Initialized a Liferay workspace at {0} using version {1}",
+				workspacePath, version);
+
 			GitFunctions.commitChanges(
 				repoPath, message, Collections.singleton(addPath.toString()),
 				lugbotConfig);

@@ -14,8 +14,6 @@
 
 package com.liferay.source.formatter.check;
 
-import static java.util.stream.Collectors.toCollection;
-
 import aQute.libg.tuple.Pair;
 
 import com.liferay.source.formatter.upgrade.GAV;
@@ -39,6 +37,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -87,10 +87,10 @@ public class UpgradeConvertMavenModuleCheck extends UpgradeConvertModuleCheck {
 		).map(
 			UniqueDependency::new
 		).collect(
-			toCollection(HashSet<Dependency>::new)
+			Collectors.toCollection(HashSet<Dependency>::new)
 		);
 
-		Map<String, GAV> migratedDependencies = getMigratedDependecies(
+		Map<String, GAV> migratedDependencies = getMigratedDependencies(
 			upgradeVersion);
 
 		if (!dependencies.isEmpty()) {
@@ -109,11 +109,11 @@ public class UpgradeConvertMavenModuleCheck extends UpgradeConvertModuleCheck {
 					}
 					else if (gav.isUnknown()) {
 						if (MavenFunctions.isUnknown(dep)) {
-							//							_logger.warn("Dependency {} was considered unknown", dep);
+							//Dependency {} was considered unknown", dep);
 							iterator.remove();
 						}
 						else {
-							//							_logger.warn("Dependency {} was considered unknown for GAV {}", dep, gav);
+							//Dependency {} was considered unknown for GAV {});
 						}
 					}
 					else {
@@ -125,9 +125,13 @@ public class UpgradeConvertMavenModuleCheck extends UpgradeConvertModuleCheck {
 			}
 		}
 
-		convertPortalDependencyJarProperty(
-			originalPath, pluginPath, upgradeVersion
-		).forEach(
+		List<GAV> convertPortalDependencyJarToGavs =
+			convertPortalDependencyJarProperty(
+				originalPath, pluginPath, upgradeVersion);
+
+		Stream<GAV> gavStream = convertPortalDependencyJarToGavs.stream();
+
+		gavStream.forEach(
 			dep -> {
 				GAV gav = migratedDependencies.get(
 					dep.getArtifactId() + ".jar");
@@ -138,23 +142,23 @@ public class UpgradeConvertMavenModuleCheck extends UpgradeConvertModuleCheck {
 					dependency.setGroupId(gav.getGroupId());
 					dependency.setVersion(gav.getVersion());
 					dependency.setSystemPath(gav.getJarName());
+
 					dependencies.add(new UniqueDependency(dependency));
 				}
 
 				dependencies.add(new UniqueDependency(dependency));
-			}
-		);
+			});
 
 		Set<GradleDependency> convertedGradleDependencies = dependencies.stream(
 		).map(
 			dep -> {
 				if (MavenFunctions.isUnknown(dep) &&
 					_contains(
-						_portalClasspathDependenciesMap.keySet(),
+						portalClasspathDependenciesMap.keySet(),
 						dep.getSystemPath())) {
 
 					return new GradleDependency(
-						_portalClasspathDependenciesMap.get(
+						portalClasspathDependenciesMap.get(
 							dep.getSystemPath()));
 				}
 
@@ -162,7 +166,7 @@ public class UpgradeConvertMavenModuleCheck extends UpgradeConvertModuleCheck {
 					MavenFunctions.toGradleDependency(dep));
 			}
 		).collect(
-			toCollection(HashSet<GradleDependency>::new)
+			Collectors.toCollection(HashSet<GradleDependency>::new)
 		);
 
 		convertWebInfLibNames(
@@ -226,12 +230,12 @@ public class UpgradeConvertMavenModuleCheck extends UpgradeConvertModuleCheck {
 		return MavenFunctions.isValidMavenPath(path);
 	}
 
-	private boolean _contains(Collection<?> collections, Object o) {
-		if ((collections == null) || (o == null)) {
+	private boolean _contains(Collection<?> collections, Object object) {
+		if ((collections == null) || (object == null)) {
 			return false;
 		}
 
-		return collections.contains(o);
+		return collections.contains(object);
 	}
 
 	private static final String _WEB_INF_PATH = "src/main/webapp/WEB-INF";

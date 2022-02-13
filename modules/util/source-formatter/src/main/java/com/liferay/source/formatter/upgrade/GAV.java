@@ -1,17 +1,15 @@
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
  */
 
 package com.liferay.source.formatter.upgrade;
@@ -27,35 +25,35 @@ import java.util.Optional;
 public class GAV {
 
 	public GAV() {
-		_groupId = Optional.empty();
-		_artifactId = Optional.empty();
-		_version = Optional.empty();
+		_groupIdOptional = Optional.empty();
+		_artifactIdOptional = Optional.empty();
+		_versionOptional = Optional.empty();
 	}
 
 	public GAV(Object groupId, Object artifactId, Object version) {
-		_groupId = Optional.ofNullable(groupId);
-		_artifactId = Optional.ofNullable(artifactId);
-		_version = Optional.ofNullable(version);
+		_groupIdOptional = Optional.ofNullable(groupId);
+		_artifactIdOptional = Optional.ofNullable(artifactId);
+		_versionOptional = Optional.ofNullable(version);
 	}
 
 	public GAV(String jarName) {
 		_jarName = jarName;
 
-		_groupId = Optional.empty();
-		_artifactId = Optional.empty();
-		_version = Optional.empty();
+		_groupIdOptional = Optional.empty();
+		_artifactIdOptional = Optional.empty();
+		_versionOptional = Optional.empty();
 	}
 
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (!(obj instanceof GAV)) {
+		if (!(object instanceof GAV)) {
 			return false;
 		}
 
-		GAV other = (GAV)obj;
+		GAV other = (GAV)object;
 
 		if (!Objects.equals(getGroupId(), other.getGroupId()) ||
 			!Objects.equals(getArtifactId(), other.getArtifactId()) ||
@@ -68,11 +66,11 @@ public class GAV {
 	}
 
 	public String getArtifactId() {
-		return _map(_artifactId);
+		return _map(_artifactIdOptional);
 	}
 
 	public String getGroupId() {
-		return _map(_groupId);
+		return _map(_groupIdOptional);
 	}
 
 	public String getJarName() {
@@ -80,7 +78,7 @@ public class GAV {
 	}
 
 	public String getVersion() {
-		return _map(_version);
+		return _map(_versionOptional);
 	}
 
 	@Override
@@ -93,8 +91,8 @@ public class GAV {
 	}
 
 	public boolean isUnknown() {
-		if (!_groupId.isPresent() || !_artifactId.isPresent() ||
-			!_version.isPresent()) {
+		if (!_groupIdOptional.isPresent() || !_artifactIdOptional.isPresent() ||
+			!_versionOptional.isPresent()) {
 
 			return true;
 		}
@@ -103,11 +101,11 @@ public class GAV {
 	}
 
 	public void setArtifactId(String artifactId) {
-		_artifactId = Optional.of(artifactId);
+		_artifactIdOptional = Optional.of(artifactId);
 	}
 
 	public void setGroupId(String groupId) {
-		_groupId = Optional.of(groupId);
+		_groupIdOptional = Optional.of(groupId);
 	}
 
 	public void setRemove(boolean remove) {
@@ -115,7 +113,7 @@ public class GAV {
 	}
 
 	public void setVersion(String version) {
-		_version = Optional.of(version);
+		_versionOptional = Optional.of(version);
 	}
 
 	public String toCompileDependency() {
@@ -145,18 +143,18 @@ public class GAV {
 			getArtifactId());
 	}
 
-	private String _map(Optional<Object> object) {
-		return object.map(
+	private String _map(Optional<Object> objectOptional) {
+		return objectOptional.map(
 			String.class::cast
 		).orElse(
 			"<unknown>"
 		);
 	}
 
-	private Optional<Object> _artifactId;
-	private Optional<Object> _groupId;
+	private Optional<Object> _artifactIdOptional;
+	private Optional<Object> _groupIdOptional;
 	private String _jarName;
 	private boolean _remove;
-	private Optional<Object> _version;
+	private Optional<Object> _versionOptional;
 
 }

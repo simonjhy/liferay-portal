@@ -73,12 +73,12 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 			Path repoPath, LugbotConfig lugbotConfig)
 		throws IOException;
 
-	protected boolean contains(Collection<?> collections, Object o) {
-		if ((collections == null) || (o == null)) {
+	protected boolean contains(Collection<?> collections, Object object) {
+		if ((collections == null) || (object == null)) {
 			return false;
 		}
 
-		return collections.contains(o);
+		return collections.contains(object);
 	}
 
 	protected abstract Optional<Path> converPluginProject(
@@ -119,12 +119,13 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 
 				try (InputStream inputStream =
 						UpgradeConvertModuleCheck.class.getResourceAsStream(
-							"/dependencies/upgrade/portal-dependency-jars-62.properties")) {
+							"/dependencies/upgrade/portal-dependency-jars-62." +
+								"properties")) {
 
 					Properties properties = loadProperties(inputStream);
 
 					Map<String, GAV> migratedDependencies =
-						getMigratedDependecies(liferayVersion);
+						getMigratedDependencies(liferayVersion);
 
 					for (String portalDependencyJar : portalDependencyJars) {
 						GAV gav = migratedDependencies.get(portalDependencyJar);
@@ -177,7 +178,7 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 						loadProperties.execute();
 					}
 
-					Optional<Path> portalDir = Optional.ofNullable(
+					Optional<Path> portalDirOptional = Optional.ofNullable(
 						project.getProperty(
 							"app.server." +
 								project.getProperty("app.server.type") +
@@ -186,13 +187,13 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 						Paths::get
 					);
 
-					if (portalDir.filter(
+					if (portalDirOptional.filter(
 							Files::exists
 						).isPresent()) {
 
 						missingDependencyJars.stream(
 						).map(
-							jarName -> portalDir.get(
+							jarName -> portalDirOptional.get(
 							).resolve(
 								"WEB-INF"
 							).resolve(
@@ -207,11 +208,9 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 						).forEach(
 							gav -> {
 								if (gav.isUnknown()) {
-									//										_logger.warn(
-									//											"Found dependency {} but unable to determine its artifactId. Please resolve " +
-									//												"manually.",
-									//											gav.getJarName());
+									//add log
 								}
+
 								convertedDependencies.add(gav);
 							}
 						);
@@ -223,10 +222,7 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 						).forEach(
 							gav -> {
 								if (gav.isUnknown()) {
-									//										_logger.warn(
-									//											"Found dependency {} but unable to determine its artifactId. Please resolve " +
-									//												"manually.",
-									//											gav.getJarName());
+									//add log
 								}
 
 								convertedDependencies.add(gav);
@@ -252,7 +248,7 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 			return;
 		}
 
-		Map<String, GAV> migratedDependencies = getMigratedDependecies(
+		Map<String, GAV> migratedDependencies = getMigratedDependencies(
 			liferayVersion);
 
 		Set<String> jarNames = migratedDependencies.keySet();
@@ -332,7 +328,7 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 									gav.toCompileDependency()));
 						}
 					}
-					catch (Exception e) {
+					catch (Exception exception) {
 						//						logError(_logger, e);
 					}
 				}
@@ -380,11 +376,11 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 					String pluginFileName = String.valueOf(
 						pluginPath.getFileName());
 
-					Optional<Path> modulesPath =
+					Optional<Path> modulesPathOptional =
 						GradleFunctions.getWorkspacePathByType(
 							workspacePath, type);
 
-					Optional<Path> modulePath = modulesPath.map(
+					Optional<Path> modulePathOptional = modulesPathOptional.map(
 						path -> {
 							if (Objects.equals(
 									type,
@@ -403,7 +399,7 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 						Files::exists
 					);
 
-					if (!modulePath.isPresent()) {
+					if (!modulePathOptional.isPresent()) {
 						return dto;
 					}
 
@@ -413,7 +409,7 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 					try {
 						convertedBuildPathOptional = converPluginProject(
 							workspacePath, sourcePath, pluginPath,
-							pluginFileName, modulePath.get(), type,
+							pluginFileName, modulePathOptional.get(), type,
 							lugbotConfig.tasks.upgradeVersion);
 					}
 					catch (Exception exception) {
@@ -431,7 +427,7 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 									convertedBuildPathOptional.get(), repoPath,
 									lugbotConfig);
 							}
-							catch (Exception e) {
+							catch (Exception exception) {
 							}
 						}
 						else {
@@ -450,7 +446,7 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 				Collectors.toMap(Pair::getFirst, Pair::getSecond)
 			);
 		}
-		catch (IOException e) {
+		catch (IOException ioException) {
 		}
 	}
 
@@ -476,10 +472,10 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 
 	protected GAV getGAVFromJarPath(Path dependencyJarPath) {
 		try (JarFile jarFile = new JarFile(dependencyJarPath.toFile())) {
-			Enumeration<JarEntry> jarEntries = jarFile.entries();
+			Enumeration<JarEntry> jarEntriesEnumeration = jarFile.entries();
 
-			while (jarEntries.hasMoreElements()) {
-				JarEntry jarEntry = jarEntries.nextElement();
+			while (jarEntriesEnumeration.hasMoreElements()) {
+				JarEntry jarEntry = jarEntriesEnumeration.nextElement();
 
 				String name = jarEntry.getName();
 
@@ -495,7 +491,7 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 				}
 			}
 		}
-		catch (IOException e) {
+		catch (IOException ioException) {
 		}
 
 		Path dependencyJarName = dependencyJarPath.getFileName();
@@ -503,7 +499,7 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 		return new GAV(dependencyJarName.toString());
 	}
 
-	protected Map<String, GAV> getMigratedDependecies(String liferayVersion) {
+	protected Map<String, GAV> getMigratedDependencies(String liferayVersion) {
 		if (Objects.equals("7.1", liferayVersion)) {
 			return _migratedDependencies71;
 		}
@@ -551,21 +547,10 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 		return properties;
 	}
 
-	protected static final String[] _PORTLET_PLUGIN_API_DEPENDENCIES = {
-		"commons-logging.jar", "log4j.jar", "util-bridges.jar", "util-java.jar",
-		"util-taglib.jar"
-	};
-
-	protected static final Map<String, GAV> _migratedDependencies71 =
-		new HashMap<>();
-	protected static final Map<String, GAV> _migratedDependencies72 =
-		new HashMap<>();
-	protected static final Map<String, GAV> _migratedDependencies73 =
-		new HashMap<>();
-	protected static final Map<String, String> _portalClasspathDependenciesMap =
-		new HashMap<>();
 	protected static final Pattern dependenciesBlockPattern = Pattern.compile(
 		"(.*^dependencies \\{.*)\\}", Pattern.MULTILINE | Pattern.DOTALL);
+	protected static final Map<String, String> portalClasspathDependenciesMap =
+		new HashMap<>();
 
 	private Pair<String, List<Path>> _commitBuildChanges(
 			Path warPath, Path repoPath, LugbotConfig lugbotConfig)
@@ -578,15 +563,15 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 
 		Path addPath = repoPath.relativize(warPath);
 
-		Optional<RevCommit> commit = GitFunctions.commitChanges(
+		Optional<RevCommit> commitOptional = GitFunctions.commitChanges(
 			repoPath, message, Collections.singletonList(addPath.toString()),
 			lugbotConfig);
 
-		if (!commit.isPresent()) {
+		if (!commitOptional.isPresent()) {
 			return null;
 		}
 
-		RevCommit revCommit = commit.get();
+		RevCommit revCommit = commitOptional.get();
 
 		ObjectId objectId = revCommit.toObjectId();
 
@@ -627,10 +612,22 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 					migratedDependencies.put(key, gav);
 				});
 		}
-		catch (IOException e) {
-			e.printStackTrace();
+		catch (IOException ioException) {
+			ioException.printStackTrace();
 		}
 	}
+
+	private static final String[] _PORTLET_PLUGIN_API_DEPENDENCIES = {
+		"commons-logging.jar", "log4j.jar", "util-bridges.jar", "util-java.jar",
+		"util-taglib.jar"
+	};
+
+	private static final Map<String, GAV> _migratedDependencies71 =
+		new HashMap<>();
+	private static final Map<String, GAV> _migratedDependencies72 =
+		new HashMap<>();
+	private static final Map<String, GAV> _migratedDependencies73 =
+		new HashMap<>();
 
 	{
 		_loadMigratedDependencies(
