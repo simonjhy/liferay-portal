@@ -11,11 +11,24 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
+
 package com.liferay.source.formatter.check;
 
+import aQute.libg.tuple.Pair;
+
+import com.liferay.source.formatter.upgrade.GAV;
+import com.liferay.source.formatter.upgrade.GradleDependency;
+import com.liferay.source.formatter.upgrade.LugbotConfig;
+import com.liferay.source.formatter.upgrade.util.MavenFunctions;
+import com.liferay.source.formatter.upgrade.util.PluginsSDKFunctions;
+import com.liferay.source.formatter.upgrade.util.PluginsUtils;
+import com.liferay.source.formatter.upgrade.util.WorkspaceFunctions;
+
 import java.io.IOException;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -34,20 +47,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.liferay.source.formatter.upgrade.GAV;
-import com.liferay.source.formatter.upgrade.GradleDependency;
-import com.liferay.source.formatter.upgrade.LugbotConfig;
-import com.liferay.source.formatter.upgrade.util.MavenFunctions;
-import com.liferay.source.formatter.upgrade.util.PluginsSDKFunctions;
-import com.liferay.source.formatter.upgrade.util.PluginsUtils;
-import com.liferay.source.formatter.upgrade.util.WorkspaceFunctions;
-
-import aQute.libg.tuple.Pair;
-
 /**
  * @author Simon Jiang
  */
-
 public class UpgradeConvertPluginModuleCheck extends UpgradeConvertModuleCheck {
 
 	@Override
@@ -75,25 +77,19 @@ public class UpgradeConvertPluginModuleCheck extends UpgradeConvertModuleCheck {
 		return Collections.emptyList();
 	}
 
-	@Override
-	protected List<Pair<String, String>> findPlugins(Path originPath, List<String> pluginNames) throws IOException {
-		return PluginsSDKFunctions.findPlugins(originPath, pluginNames);
-	}
-
-	@Override
-	protected boolean isValidModulePath(Path path) {
-		return WorkspaceFunctions.isValidPluginsSDKPath(path);
-	}
-
-	protected Optional<Path> converPluginProject(Path workspacePath, Path reportPath, Path pluginPath, String pluginName, Path modulePath, String type,
+	protected Optional<Path> converPluginProject(
+			Path workspacePath, Path reportPath, Path pluginPath,
+			String pluginName, Path modulePath, String type,
 			String upgradeVersion)
 		throws Exception {
+
 		List<GAV> convertedGavs = new CopyOnWriteArrayList<>();
 
 		Path ivyPath = pluginPath.resolve("ivy.xml");
 
 		if (Files.exists(ivyPath)) {
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilderFactory dbFactory =
+				DocumentBuilderFactory.newInstance();
 
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 
@@ -103,10 +99,12 @@ public class UpgradeConvertPluginModuleCheck extends UpgradeConvertModuleCheck {
 
 			documentElement.normalize();
 
-			NodeList depElements = documentElement.getElementsByTagName("dependency");
+			NodeList depElements = documentElement.getElementsByTagName(
+				"dependency");
 
 			if ((depElements != null) && (depElements.getLength() > 0)) {
-				Map<String, GAV> migratedDependencies = getMigratedDependecies(upgradeVersion);
+				Map<String, GAV> migratedDependencies = getMigratedDependecies(
+					upgradeVersion);
 
 				Set<String> migratedKeys = migratedDependencies.keySet();
 
@@ -133,7 +131,9 @@ public class UpgradeConvertPluginModuleCheck extends UpgradeConvertModuleCheck {
 						removedGav = true;
 					}
 
-					if ((name != null) && (org != null) && (rev != null) && !removedGav) {
+					if ((name != null) && (org != null) && (rev != null) &&
+						!removedGav) {
+
 						GAV gav = new GAV(org, name, rev);
 
 						convertedGavs.add(gav);
@@ -142,45 +142,60 @@ public class UpgradeConvertPluginModuleCheck extends UpgradeConvertModuleCheck {
 			}
 		}
 
-		convertedGavs.addAll(convertPortalDependencyJarProperty(reportPath, pluginPath, upgradeVersion));
+		convertedGavs.addAll(
+			convertPortalDependencyJarProperty(
+				reportPath, pluginPath, upgradeVersion));
 
-		Set<GradleDependency> convertedGradleDependencies = convertedGavs.stream(
-		).map(
-			gav -> {
-				if (gav.isUnknown() && contains(_portalClasspathDependenciesMap.keySet(), gav.getJarName())) {
-					return new GradleDependency(_portalClasspathDependenciesMap.get(gav.getJarName()));
+		Set<GradleDependency> convertedGradleDependencies =
+			convertedGavs.stream(
+			).map(
+				gav -> {
+					if (gav.isUnknown() &&
+						contains(
+							_portalClasspathDependenciesMap.keySet(),
+							gav.getJarName())) {
+
+						return new GradleDependency(
+							_portalClasspathDependenciesMap.get(
+								gav.getJarName()));
+					}
+
+					return new GradleDependency(gav.toCompileDependency());
 				}
-
-				return new GradleDependency(gav.toCompileDependency());
-			}
-		).collect(
-			Collectors.toSet()
-		);
+			).collect(
+				Collectors.toSet()
+			);
 
 		convertWebInfLibNames(
-			workspacePath.resolve("libs"), pluginPath, convertedGradleDependencies, upgradeVersion, false);
+			workspacePath.resolve("libs"), pluginPath,
+			convertedGradleDependencies, upgradeVersion, false);
 
 		if (Objects.equals(PluginsUtils.SERVICE_BUILDER_PORTLET, type)) {
-			String moduleParentName = getServiceBuilderParentName(String.valueOf(pluginPath.getFileName()));
+			String moduleParentName = getServiceBuilderParentName(
+				String.valueOf(pluginPath.getFileName()));
 
-			StringBuilder sb = new StringBuilder("compileOnly project(\":modules:");
+			StringBuilder sb = new StringBuilder(
+				"compileOnly project(\":modules:");
 
 			sb.append(moduleParentName);
 			sb.append(":");
 			sb.append(moduleParentName + "-api");
 			sb.append("\")");
 
-			convertedGradleDependencies.add(new GradleDependency(sb.toString()));
+			convertedGradleDependencies.add(
+				new GradleDependency(sb.toString()));
 		}
 
 		Path buildGradlePath = modulePath.resolve("build.gradle");
 
-		String existingContent = new String(Files.readAllBytes(buildGradlePath));
+		String existingContent = new String(
+			Files.readAllBytes(buildGradlePath));
 
 		StringBuilder dependenciesBlock = new StringBuilder();
 
 		convertedGradleDependencies.forEach(
-			dep -> dependenciesBlock.append("\t" + dep.toString() + System.lineSeparator()));
+			dep -> dependenciesBlock.append(
+				"\t" + dep.toString() + System.lineSeparator()));
 
 		dependenciesBlock.append(System.lineSeparator());
 		dependenciesBlock.append("}");
@@ -195,12 +210,24 @@ public class UpgradeConvertPluginModuleCheck extends UpgradeConvertModuleCheck {
 
 		return Optional.of(modulePath);
 	}
-	
-	
+
+	@Override
+	protected List<Pair<String, String>> findPlugins(
+			Path originPath, List<String> pluginNames)
+		throws IOException {
+
+		return PluginsSDKFunctions.findPlugins(originPath, pluginNames);
+	}
+
 	protected String getWebInf() {
 		return _WEB_INF_PATH;
 	}
-	
-	private static String _WEB_INF_PATH = "docroot/WEB-INF/";
-	
+
+	@Override
+	protected boolean isValidModulePath(Path path) {
+		return WorkspaceFunctions.isValidPluginsSDKPath(path);
+	}
+
+	private static final String _WEB_INF_PATH = "docroot/WEB-INF/";
+
 }

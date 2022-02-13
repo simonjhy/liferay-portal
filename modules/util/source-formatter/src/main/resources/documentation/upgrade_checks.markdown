@@ -3,6 +3,8 @@
 Check | File Extensions | Description
 ----- | --------------- | -----------
 JSPUpgradeRemovedTagsCheck | .jsp, .jspf, .jspx, .tag, .tpl or .vm | Finds removed tags when upgrading. |
+UpgradeConvertMavenModuleCheck | .java | Performs upgrade and convert maven plugin project |
+UpgradeConvertPluginModuleCheck | .java | Performs upgrade and convert plugin project |
 UpgradeCreateMavenModuleCheck | .java | Performs creating module for maven plugin project |
 UpgradeCreatePluginModuleCheck | .java | Performs creating module for plugin project |
 UpgradeCreateWorkspaceCheck | .java | Performs creating workspace for upgrade |

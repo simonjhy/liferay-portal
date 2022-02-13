@@ -14,10 +14,27 @@
 
 package com.liferay.source.formatter.check;
 
+import aQute.lib.exceptions.ConsumerWithException;
+
+import aQute.libg.tuple.Pair;
+
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.source.formatter.upgrade.BladeCLI;
+import com.liferay.source.formatter.upgrade.BladeCLIException;
+import com.liferay.source.formatter.upgrade.LugbotConfig;
+import com.liferay.source.formatter.upgrade.util.GitFunctions;
+import com.liferay.source.formatter.upgrade.util.GradleFunctions;
+import com.liferay.source.formatter.upgrade.util.MavenFunctions;
+import com.liferay.source.formatter.upgrade.util.PluginsUtils;
+import com.liferay.source.formatter.util.SourceFormatterUtil;
+
 import java.io.IOException;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
+
 import java.text.MessageFormat;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,19 +47,6 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.source.formatter.upgrade.BladeCLI;
-import com.liferay.source.formatter.upgrade.BladeCLIException;
-import com.liferay.source.formatter.upgrade.LugbotConfig;
-import com.liferay.source.formatter.upgrade.util.GitFunctions;
-import com.liferay.source.formatter.upgrade.util.GradleFunctions;
-import com.liferay.source.formatter.upgrade.util.MavenFunctions;
-import com.liferay.source.formatter.upgrade.util.PluginsUtils;
-import com.liferay.source.formatter.util.SourceFormatterUtil;
-
-import aQute.lib.exceptions.ConsumerWithException;
-import aQute.libg.tuple.Pair;
-
 /**
  * @author Simon Jiang
  */
@@ -52,36 +56,6 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 			Path repoPath, LugbotConfig lugbotConfig)
 		throws IOException;
 
-	protected abstract List<Pair<String, String>> findPlugins(
-			Path originPath, List<String> pluginNames)
-		throws IOException;
-
-	protected abstract boolean isValidModulePath(Path path);
-
-	private Pair<String, List<Path>> _commitNewProject(
-			Path warPath, Path repoPath, LugbotConfig lugbotConfig)
-		throws GitAPIException, IOException {
-
-		Path warFileName = warPath.getFileName();
-
-		String message = "Created new project skeleton " + warFileName + " in Liferay Workspace.";
-
-		Path addPath = repoPath.relativize(warPath);
-
-		Optional<RevCommit> commit = GitFunctions.commitChanges(
-			repoPath, message, Collections.singletonList(addPath.toString()), lugbotConfig);
-
-		if (!commit.isPresent()) {
-			return null;
-		}
-
-		RevCommit revCommit = commit.get();
-
-		ObjectId objectId = revCommit.toObjectId();
-
-		return new Pair<>(objectId.getName(), Collections.singletonList(warPath));
-	}
-	
 	@Override
 	protected void doUpgrade(
 			Path repoPath, LugbotConfig lugbotConfig, Path workspacePath)
@@ -106,7 +80,7 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 			).map(
 				pair -> {
 					Pair<String, List<Path>> dto = null;
-					
+
 					String plugin = pair.getFirst();
 
 					Path originalPluginPath = sourcePath.resolve(plugin);
@@ -129,21 +103,24 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 					try {
 						newModulePathOptional = provideUpgrade(
 							workspacePath, pluginPath, type, lugbotConfig);
-						
+
 						if (newModulePathOptional.isPresent()) {
-							
 							if (lugbotConfig.tasks.saveCommit == true) {
 								try {
-									dto = _commitNewProject(newModulePathOptional.get(), repoPath, lugbotConfig);
+									dto = _commitNewProject(
+										newModulePathOptional.get(), repoPath,
+										lugbotConfig);
 								}
 								catch (Exception e) {
-								}		
+								}
 							}
 							else {
-								dto = new Pair<>(plugin, Collections.singletonList(newModulePathOptional.get()));
+								dto = new Pair<>(
+									plugin,
+									Collections.singletonList(
+										newModulePathOptional.get()));
 							}
 						}
-						
 					}
 					catch (Throwable throwable) {
 						SourceFormatterUtil.printError(
@@ -172,7 +149,12 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 		}
 	}
 
-	protected String getServiceBuilderParentName(String serviceBuilderPortletName) {
+	protected abstract List<Pair<String, String>> findPlugins(
+			Path originPath, List<String> pluginNames)
+		throws IOException;
+
+	protected String getServiceBuilderParentName(
+		String serviceBuilderPortletName) {
 
 		String serviceBuilderParentName = serviceBuilderPortletName;
 
@@ -189,8 +171,10 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 		return true;
 	}
 
-	
-	protected Optional<Path> provideUpgrade(Path workspacePath, Path pluginPath, String type,
+	protected abstract boolean isValidModulePath(Path path);
+
+	protected Optional<Path> provideUpgrade(
+			Path workspacePath, Path pluginPath, String type,
 			LugbotConfig lugbotConfig)
 		throws Exception {
 
@@ -447,4 +431,33 @@ public abstract class UpgradeCreateModuleCheck extends UpgradeAbstractCheck {
 
 		return newModulePathOptional;
 	}
+
+	private Pair<String, List<Path>> _commitNewProject(
+			Path warPath, Path repoPath, LugbotConfig lugbotConfig)
+		throws GitAPIException, IOException {
+
+		Path warFileName = warPath.getFileName();
+
+		String message =
+			"Created new project skeleton " + warFileName +
+				" in Liferay Workspace.";
+
+		Path addPath = repoPath.relativize(warPath);
+
+		Optional<RevCommit> commit = GitFunctions.commitChanges(
+			repoPath, message, Collections.singletonList(addPath.toString()),
+			lugbotConfig);
+
+		if (!commit.isPresent()) {
+			return null;
+		}
+
+		RevCommit revCommit = commit.get();
+
+		ObjectId objectId = revCommit.toObjectId();
+
+		return new Pair<>(
+			objectId.getName(), Collections.singletonList(warPath));
+	}
+
 }

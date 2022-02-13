@@ -55,15 +55,10 @@ public class UniqueDependency extends Dependency {
 
 		Dependency other = (Dependency)obj;
 
-		if (!Objects.equals(getGroupId(), other.getGroupId())) {
-			return false;
-		}
+		if (!Objects.equals(getGroupId(), other.getGroupId()) ||
+			!Objects.equals(getArtifactId(), other.getArtifactId()) ||
+			!Objects.equals(getClassifier(), other.getClassifier())) {
 
-		if (!Objects.equals(getArtifactId(), other.getArtifactId())) {
-			return false;
-		}
-
-		if (!Objects.equals(getClassifier(), other.getClassifier())) {
 			return false;
 		}
 

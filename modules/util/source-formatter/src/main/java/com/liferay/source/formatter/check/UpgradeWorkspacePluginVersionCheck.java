@@ -14,19 +14,6 @@
 
 package com.liferay.source.formatter.check;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.osgi.framework.Version;
-
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.source.formatter.upgrade.BladeCLI;
 import com.liferay.source.formatter.upgrade.GradleBuildScript;
@@ -36,6 +23,23 @@ import com.liferay.source.formatter.upgrade.util.FileFunctions;
 import com.liferay.source.formatter.upgrade.util.GitFunctions;
 import com.liferay.source.formatter.upgrade.util.GradleFunctions;
 import com.liferay.source.formatter.util.SourceFormatterUtil;
+
+import java.io.IOException;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import java.text.MessageFormat;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import org.eclipse.jgit.api.errors.GitAPIException;
+
+import org.osgi.framework.Version;
 
 /**
  * @author Simon Jiang
@@ -105,13 +109,16 @@ public class UpgradeWorkspacePluginVersionCheck extends UpgradeAbstractCheck {
 							try {
 								GitFunctions.commitChanges(
 									repoPath,
-									"Upgrade workspace plugin version to " + latestWorkspacePluginDependency.getVersion(),
+									"Upgrade workspace plugin version to " +
+										latestWorkspacePluginDependency.
+											getVersion(),
 									lugbotConfig);
 							}
 							catch (GitAPIException | IOException e) {
 								e.printStackTrace();
 							}
 						}
+
 						return Optional.of(modifiedPaths);
 					}
 				);

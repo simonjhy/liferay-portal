@@ -245,7 +245,7 @@ public class LugbotConfig {
 
 			Tasks targetTasks = (Tasks)object;
 
-			if (saveCommit == targetTasks.saveCommit &&	
+			if ((saveCommit == targetTasks.saveCommit) &&
 				_isEqualIgnoreCase(mode, targetTasks.mode) &&
 				_isEqualIgnoreCase(
 					upgradeVersion, targetTasks.upgradeVersion) &&
@@ -287,7 +287,7 @@ public class LugbotConfig {
 					((workspacePath != null) ? workspacePath.hashCode() : 0);
 			hash = (31 * hash) + ((plugins != null) ? plugins.hashCode() : 0);
 			hash = (31 * hash) + Objects.hash(saveCommit);
-			
+
 			return hash;
 		}
 
@@ -297,10 +297,10 @@ public class LugbotConfig {
 		public List<String> plugins;
 		public String pluginsSDKPath;
 		public CodeQuality quality;
+		public boolean saveCommit;
 		public CodeUpgrade upgrade;
 		public String upgradeVersion;
 		public String workspacePath;
-		public boolean saveCommit;
 
 	}
 

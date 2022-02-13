@@ -17,6 +17,7 @@
 package com.liferay.source.formatter.upgrade;
 
 import java.text.MessageFormat;
+
 import java.util.Objects;
 import java.util.Optional;
 
@@ -44,12 +45,6 @@ public class GAV {
 		_artifactId = Optional.empty();
 		_version = Optional.empty();
 	}
-	
-	@Override
-	public int hashCode() {
-		return Objects.hash(getGroupId(), getArtifactId(), getVersion());
-	}
-
 
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -62,35 +57,16 @@ public class GAV {
 
 		GAV other = (GAV)obj;
 
-		if (!Objects.equals(getGroupId(), other.getGroupId())) {
-			return false;
-		}
+		if (!Objects.equals(getGroupId(), other.getGroupId()) ||
+			!Objects.equals(getArtifactId(), other.getArtifactId()) ||
+			!Objects.equals(getVersion(), other.getVersion())) {
 
-		if (!Objects.equals(getArtifactId(), other.getArtifactId())) {
-			return false;
-		}
-
-		if (!Objects.equals(getVersion(), other.getVersion())) {
 			return false;
 		}
 
 		return true;
 	}
 
-	public void setArtifactId(String artifactId) {
-		_artifactId = Optional.of(artifactId);
-	}
-
-	public void setGroupId(String groupId) {
-		_groupId = Optional.of(groupId);
-	}
-
-	
-	public void setVersion(String version) {
-		_version = Optional.of(version);
-	}
-
-	
 	public String getArtifactId() {
 		return _map(_artifactId);
 	}
@@ -107,29 +83,50 @@ public class GAV {
 		return _map(_version);
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(getGroupId(), getArtifactId(), getVersion());
+	}
+
 	public boolean isRemove() {
 		return _remove;
 	}
 
 	public boolean isUnknown() {
-		if (!_groupId.isPresent() || !_artifactId.isPresent() || !_version.isPresent()) {
+		if (!_groupId.isPresent() || !_artifactId.isPresent() ||
+			!_version.isPresent()) {
+
 			return true;
 		}
 
 		return false;
 	}
 
+	public void setArtifactId(String artifactId) {
+		_artifactId = Optional.of(artifactId);
+	}
+
+	public void setGroupId(String groupId) {
+		_groupId = Optional.of(groupId);
+	}
+
 	public void setRemove(boolean remove) {
 		_remove = remove;
 	}
 
+	public void setVersion(String version) {
+		_version = Optional.of(version);
+	}
+
 	public String toCompileDependency() {
 		if (isUnknown()) {
-			return MessageFormat.format("// Unknown dependency: {0}", getJarName());
+			return MessageFormat.format(
+				"// Unknown dependency: {0}", getJarName());
 		}
 
 		return MessageFormat.format(
-			"compile group: \"{0}\", name: \"{1}\", version: \"{2}\"", getGroupId(), getArtifactId(), getVersion());
+			"compile group: \"{0}\", name: \"{1}\", version: \"{2}\"",
+			getGroupId(), getArtifactId(), getVersion());
 	}
 
 	@Override
@@ -138,11 +135,14 @@ public class GAV {
 			return MessageFormat.format("JAR:{0}", getJarName());
 		}
 
-		return MessageFormat.format("GAV:{0}:{1}:{2}", getGroupId(), getArtifactId(), getVersion());
+		return MessageFormat.format(
+			"GAV:{0}:{1}:{2}", getGroupId(), getArtifactId(), getVersion());
 	}
 
 	public String toTPDependency(String configuration) {
-		return MessageFormat.format("{0} group: \"{1}\", name: \"{2}\"", configuration, getGroupId(), getArtifactId());
+		return MessageFormat.format(
+			"{0} group: \"{1}\", name: \"{2}\"", configuration, getGroupId(),
+			getArtifactId());
 	}
 
 	private String _map(Optional<Object> object) {
@@ -156,7 +156,7 @@ public class GAV {
 	private Optional<Object> _artifactId;
 	private Optional<Object> _groupId;
 	private String _jarName;
-	private boolean _remove = false;
+	private boolean _remove;
 	private Optional<Object> _version;
 
 }

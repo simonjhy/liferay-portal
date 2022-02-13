@@ -400,6 +400,8 @@ UnusedMethodCheck | [Performance](performance_checks.markdown#performance-checks
 UnusedParameterCheck | [Performance](performance_checks.markdown#performance-checks) | .java | Finds parameters in private methods that are not used. |
 UnusedVariableCheck | [Performance](performance_checks.markdown#performance-checks) | .java | Finds variables that are declared, but not used. |
 UnwrappedVariableInfoCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | .java | Finds cases where the variable should be wrapped into an inner class in order to defer array elements initialization. |
+UpgradeConvertMavenModuleCheck | [Upgrade](upgrade_checks.markdown#upgrade-checks) | .java | Performs upgrade and convert maven plugin project |
+UpgradeConvertPluginModuleCheck | [Upgrade](upgrade_checks.markdown#upgrade-checks) | .java | Performs upgrade and convert plugin project |
 UpgradeCreateMavenModuleCheck | [Upgrade](upgrade_checks.markdown#upgrade-checks) | .java | Performs creating module for maven plugin project |
 UpgradeCreatePluginModuleCheck | [Upgrade](upgrade_checks.markdown#upgrade-checks) | .java | Performs creating module for plugin project |
 UpgradeCreateWorkspaceCheck | [Upgrade](upgrade_checks.markdown#upgrade-checks) | .java | Performs creating workspace for upgrade |
