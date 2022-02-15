@@ -16,7 +16,10 @@ package com.liferay.source.formatter.check;
 
 import aQute.libg.tuple.Pair;
 
+import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.source.formatter.upgrade.GAV;
+import com.liferay.source.formatter.upgrade.GradleBuildScript;
 import com.liferay.source.formatter.upgrade.GradleDependency;
 import com.liferay.source.formatter.upgrade.LugbotConfig;
 import com.liferay.source.formatter.upgrade.util.FileFunctions;
@@ -159,8 +162,13 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 						}
 					}
 				}
+				catch (Exception exception) {
+					exception.printStackTrace();
+				}
 
-				if (!missingDependencyJars.isEmpty()) {
+				if (!missingDependencyJars.isEmpty() &&
+					Objects.nonNull(pluginsSdkPath)) {
+
 					LoadProperties loadProperties = new LoadProperties();
 
 					Project project = new Project();
@@ -208,7 +216,15 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 						).forEach(
 							gav -> {
 								if (gav.isUnknown()) {
-									//add log
+									SourceFormatterUtil.printError(
+										null,
+										MessageFormat.format(
+											StringBundler.concat(
+												"Found dependency {0} but ",
+												"unable to determine its ",
+												"artifactId. Please resolve ",
+												"manually."),
+											gav.getJarName()));
 								}
 
 								convertedDependencies.add(gav);
@@ -222,7 +238,15 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 						).forEach(
 							gav -> {
 								if (gav.isUnknown()) {
-									//add log
+									String errorMessage = StringBundler.concat(
+										"Found dependency {0} but unable to ",
+										"determine its artifactId. Please ",
+										"resolve manually.");
+
+									SourceFormatterUtil.printError(
+										null,
+										MessageFormat.format(
+											errorMessage, gav.getJarName()));
 								}
 
 								convertedDependencies.add(gav);
@@ -329,7 +353,7 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 						}
 					}
 					catch (Exception exception) {
-						//						logError(_logger, e);
+						//logError(_logger, e);
 					}
 				}
 			);
@@ -413,11 +437,15 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 							lugbotConfig.tasks.upgradeVersion);
 					}
 					catch (Exception exception) {
+						exception.printStackTrace();
+
 						SourceFormatterUtil.printError(
 							null,
 							MessageFormat.format(
 								"Failed to convert {0} project dependency {1}",
 								pluginPath, exception.getMessage()));
+
+						return dto;
 					}
 
 					if (convertedBuildPathOptional.isPresent()) {
@@ -428,6 +456,9 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 									lugbotConfig);
 							}
 							catch (Exception exception) {
+								exception.printStackTrace();
+
+								return dto;
 							}
 						}
 						else {
@@ -447,6 +478,7 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 			);
 		}
 		catch (IOException ioException) {
+			ioException.printStackTrace();
 		}
 	}
 
@@ -492,11 +524,47 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 			}
 		}
 		catch (IOException ioException) {
+			ioException.printStackTrace();
 		}
 
 		Path dependencyJarName = dependencyJarPath.getFileName();
 
 		return new GAV(dependencyJarName.toString());
+	}
+
+	protected Set<GradleDependency> getGradleDependencies(
+		Set<GradleDependency> convertGradleDependency, File buildGradleFile) {
+
+		try {
+			GradleBuildScript buildScript = new GradleBuildScript(
+				buildGradleFile);
+
+			List<GradleDependency> existedGrdleDependencies =
+				buildScript.getDependencies();
+
+			Stream<GradleDependency> convertGradleDependencyStream =
+				convertGradleDependency.stream();
+
+			return convertGradleDependencyStream.filter(
+				dependency ->
+					Objects.nonNull(dependency.getConfiguration()) &&
+					((Objects.nonNull(dependency.getGroup()) &&
+					  Objects.nonNull(dependency.getName())) ||
+					 Objects.nonNull(dependency.getReference()))
+			).filter(
+				dependency -> !existedGrdleDependencies.contains(dependency)
+			).filter(
+				dependency -> !StringUtil.startsWith(
+					dependency.toString(), "//")
+			).collect(
+				Collectors.toSet()
+			);
+		}
+		catch (Exception exception) {
+			exception.printStackTrace();
+		}
+
+		return Collections.emptySet();
 	}
 
 	protected Map<String, GAV> getMigratedDependencies(String liferayVersion) {
@@ -607,7 +675,7 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 						gav.setRemove(true);
 					}
 					else {
-						String[] coords = value.split(":");
+						String[] coords = StringUtil.split(value, ":");
 
 						gav = new GAV(coords[0], coords[1], coords[2]);
 					}
@@ -642,6 +710,19 @@ public abstract class UpgradeConvertModuleCheck extends UpgradeAbstractCheck {
 		_loadMigratedDependencies(
 			"/dependencies/upgrade/migrated-dependencies-7.3.properties",
 			_migratedDependencies73);
+
+		portalClasspathDependenciesMap.put(
+			"util-bridges.jar",
+			"compileOnly group: \"com.liferay.portal\", name: " +
+				"\"com.liferay.util.bridges\"");
+		portalClasspathDependenciesMap.put(
+			"util-java.jar",
+			"compileOnly group: \"com.liferay.portal\", name: " +
+				"\"com.liferay.util.java\"");
+		portalClasspathDependenciesMap.put(
+			"util-taglib.jar",
+			"compileOnly group: \"com.liferay.portal\", name: " +
+				"\"com.liferay.util.taglib\"");
 	}
 
 }

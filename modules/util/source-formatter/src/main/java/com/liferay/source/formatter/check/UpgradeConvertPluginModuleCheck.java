@@ -189,12 +189,19 @@ public class UpgradeConvertPluginModuleCheck extends UpgradeConvertModuleCheck {
 
 		Path buildGradlePath = modulePath.resolve("build.gradle");
 
+		if (!Files.exists(buildGradlePath)) {
+			return Optional.of(modulePath);
+		}
+
+		Set<GradleDependency> neededGradleDependencies = getGradleDependencies(
+			convertedGradleDependencies, buildGradlePath.toFile());
+
 		String existingContent = new String(
 			Files.readAllBytes(buildGradlePath));
 
 		StringBuilder dependenciesBlock = new StringBuilder();
 
-		convertedGradleDependencies.forEach(
+		neededGradleDependencies.forEach(
 			dep -> dependenciesBlock.append(
 				"\t" + dep.toString() + System.lineSeparator()));
 

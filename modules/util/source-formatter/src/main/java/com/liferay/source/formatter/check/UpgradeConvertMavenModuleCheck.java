@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -132,18 +131,20 @@ public class UpgradeConvertMavenModuleCheck extends UpgradeConvertModuleCheck {
 		Stream<GAV> gavStream = convertPortalDependencyJarToGavs.stream();
 
 		gavStream.forEach(
-			dep -> {
-				GAV gav = migratedDependencies.get(
-					dep.getArtifactId() + ".jar");
+			gav -> {
 				Dependency dependency = new Dependency();
 
-				if (gav != null) {
+				if (!gav.isUnknown()) {
 					dependency.setArtifactId(gav.getArtifactId());
 					dependency.setGroupId(gav.getGroupId());
 					dependency.setVersion(gav.getVersion());
 					dependency.setSystemPath(gav.getJarName());
-
-					dependencies.add(new UniqueDependency(dependency));
+				}
+				else {
+					dependency.setArtifactId(null);
+					dependency.setGroupId(null);
+					dependency.setVersion(null);
+					dependency.setSystemPath(gav.getJarName());
 				}
 
 				dependencies.add(new UniqueDependency(dependency));
@@ -153,7 +154,7 @@ public class UpgradeConvertMavenModuleCheck extends UpgradeConvertModuleCheck {
 		).map(
 			dep -> {
 				if (MavenFunctions.isUnknown(dep) &&
-					_contains(
+					contains(
 						portalClasspathDependenciesMap.keySet(),
 						dep.getSystemPath())) {
 
@@ -190,12 +191,19 @@ public class UpgradeConvertMavenModuleCheck extends UpgradeConvertModuleCheck {
 
 		Path buildGradlePath = modulePath.resolve("build.gradle");
 
+		if (!Files.exists(buildGradlePath)) {
+			return Optional.of(modulePath);
+		}
+
+		Set<GradleDependency> neededGradleDependencies = getGradleDependencies(
+			convertedGradleDependencies, buildGradlePath.toFile());
+
 		String existingContent = new String(
 			Files.readAllBytes(buildGradlePath));
 
 		StringBuilder dependenciesBlock = new StringBuilder();
 
-		convertedGradleDependencies.forEach(
+		neededGradleDependencies.forEach(
 			dep -> dependenciesBlock.append(
 				"\t" + dep.toString() + System.lineSeparator()));
 
@@ -228,14 +236,6 @@ public class UpgradeConvertMavenModuleCheck extends UpgradeConvertModuleCheck {
 	@Override
 	protected boolean isValidModulePath(Path path) {
 		return MavenFunctions.isValidMavenPath(path);
-	}
-
-	private boolean _contains(Collection<?> collections, Object object) {
-		if ((collections == null) || (object == null)) {
-			return false;
-		}
-
-		return collections.contains(object);
 	}
 
 	private static final String _WEB_INF_PATH = "src/main/webapp/WEB-INF";

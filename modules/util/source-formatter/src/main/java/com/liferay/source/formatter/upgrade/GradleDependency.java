@@ -48,44 +48,53 @@ public class GradleDependency implements Comparable<GradleDependency> {
 		String[] parts = singleLine.split("\\s+", 2);
 
 		_configuration = parts[0];
-		String reference = parts[1];
 
-		Matcher matcher;
+		if (!singleLine.startsWith("//")) {
+			Matcher matcher;
+			String reference = parts[1];
 
-		if (reference.startsWith("project(") ||
-			reference.startsWith("files(")) {
+			if (reference.startsWith("project(") ||
+				reference.startsWith("files(")) {
 
-			_group = null;
-			_name = null;
-			_reference = reference;
-			_version = null;
-		}
-		else {
-			Matcher gavShortMatcher =
-				matcher = gavShortPattern.matcher(reference);
-
-			if (gavShortMatcher.matches()) {
-				_group = matcher.group("group");
-				_name = matcher.group("name");
-				_reference = null;
-				_version = matcher.group("version");
+				_group = null;
+				_name = null;
+				_reference = reference;
+				_version = null;
 			}
 			else {
-				Matcher groupLongMatcher = groupLongPattern.matcher(reference);
-				Matcher nameLongMatcher = nameLongPattern.matcher(reference);
-				Matcher versionLongMatcher = versionLongPattern.matcher(
-					reference);
+				Matcher gavShortMatcher =
+					matcher = gavShortPattern.matcher(reference);
 
-				_group =
-					groupLongMatcher.matches() ?
+				if (gavShortMatcher.matches()) {
+					_group = matcher.group("group");
+					_name = matcher.group("name");
+					_reference = null;
+					_version = matcher.group("version");
+				}
+				else {
+					Matcher groupLongMatcher = groupLongPattern.matcher(
+						reference);
+					Matcher nameLongMatcher = nameLongPattern.matcher(
+						reference);
+					Matcher versionLongMatcher = versionLongPattern.matcher(
+						reference);
+
+					_group = groupLongMatcher.matches() ?
 						groupLongMatcher.group("group") : null;
-				_name =
-					nameLongMatcher.matches() ? nameLongMatcher.group("name") :
-						null;
-				_reference = null;
-				_version = versionLongMatcher.matches() ?
-					versionLongMatcher.group("version") : null;
+					_name =
+						nameLongMatcher.matches() ?
+							nameLongMatcher.group("name") : null;
+					_reference = null;
+					_version = versionLongMatcher.matches() ?
+						versionLongMatcher.group("version") : null;
+				}
 			}
+		}
+		else {
+			_reference = parts[1];
+			_group = null;
+			_name = null;
+			_version = null;
 		}
 
 		_lineNumber = -1;

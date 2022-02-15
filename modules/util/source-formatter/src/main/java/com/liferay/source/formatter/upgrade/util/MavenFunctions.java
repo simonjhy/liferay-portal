@@ -314,6 +314,23 @@ public class MavenFunctions {
 		return false;
 	}
 
+	public static boolean isUnknown(Dependency dep, boolean restrict) {
+		if (restrict) {
+			if ((dep.getGroupId() == null) && (dep.getArtifactId() == null) &&
+				(dep.getVersion() == null)) {
+
+				return true;
+			}
+		}
+		else if ((dep.getGroupId() == null) || (dep.getArtifactId() == null) ||
+				 (dep.getVersion() == null)) {
+
+			return true;
+		}
+
+		return false;
+	}
+
 	public static boolean isValidMavenPath(Path path) {
 		if (Files.exists(path)) {
 			Path pomXml = path.resolve("pom.xml");
@@ -353,36 +370,43 @@ public class MavenFunctions {
 			"compile"
 		);
 
-		String result;
+		String configuration = "";
+		String result = "";
 
 		if (StringUtil.equals(scope, "compile")) {
-			result = MessageFormat.format(
-				"compile group: \"{0}\", name: \"{1}\", version: \"{2}\"",
-				dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
+			configuration = "compile";
 		}
 		else if (StringUtil.equals(scope, "runtime")) {
-			result = MessageFormat.format(
-				"runtimeOnly group: \"{0}\", name: \"{1}\", version: \"{2}\"",
-				dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
+			configuration = "runtimeOnly";
 		}
 		else if (StringUtil.equals(scope, "test")) {
-			result = MessageFormat.format(
-				"testCompile group: \"{0}\", name: \"{1}\", version: \"{2}\"",
-				dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
+			configuration = "testCompile";
 		}
 		else if (StringUtil.equals(scope, "system")) {
-			result = MessageFormat.format(
-				"compile files(\"{0}\")", dep.getSystemPath());
+			configuration = "compile";
 		}
 		else if (StringUtil.equals(scope, "provided")) {
+			configuration = "compileOnly";
+		}
+		else {
+			configuration = "compile";
+		}
+
+		if (StringUtil.equals(scope, "system")) {
 			result = MessageFormat.format(
-				"compileOnly group: \"{0}\", name: \"{1}\", version: \"{2}\"",
-				dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
+				"{0} files(\"{1}\")", configuration, dep.getSystemPath());
 		}
 		else {
 			result = MessageFormat.format(
-				"compile group: \"{0}\", name: \"{1}\", version: \"{2}\"",
-				dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
+				"{0} group: \"{1}\", name: \"{2}\", version: \"{3}\"",
+				configuration, dep.getGroupId(), dep.getArtifactId(),
+				dep.getVersion());
+		}
+
+		if (isUnknown(dep, true)) {
+			result = MessageFormat.format(
+				"//{0} Unknown dependency: {1}", configuration,
+				dep.getSystemPath());
 		}
 
 		if (dep.getClassifier() != null) {

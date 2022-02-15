@@ -14,12 +14,14 @@
 
 package com.liferay.source.formatter.upgrade;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.codehaus.groovy.ast.CodeVisitorSupport;
@@ -192,8 +194,36 @@ public class BuildScriptVisitor extends CodeVisitorSupport {
 		if ((_inDependencies || _inBuildscriptDependencies) &&
 			(_blockStatements > 0)) {
 
-			_configurationName = method;
+			if (Objects.nonNull(_configurationName) &&
+				method.equals("project")) {
 
+				Expression expression = call.getArguments();
+
+				if (expression instanceof ArgumentListExpression) {
+					ArgumentListExpression argumentsExpression =
+						(ArgumentListExpression)expression;
+
+					List<Expression> expressions =
+						argumentsExpression.getExpressions();
+
+					if (!expressions.isEmpty()) {
+						ConstantExpression constantExpression =
+							(ConstantExpression)expressions.get(0);
+
+						String expressionText = constantExpression.getText();
+
+						_dependencies.add(
+							new GradleDependency(
+								StringBundler.concat(
+									_configurationName, " roject(\"",
+									expressionText, "\")")));
+					}
+				}
+
+				return;
+			}
+
+			_configurationName = method;
 			super.visitMethodCallExpression(call);
 
 			_configurationName = null;
