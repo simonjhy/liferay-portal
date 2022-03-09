@@ -25,25 +25,25 @@ public class DistBundleTask extends Copy {
 
 	@Input
 	@Optional
-	public String getWorkspacEnvironment() {
-		return _workspaceEnvironment;
+	public String getEnvironment() {
+		return _environment;
 	}
 
 	@Input
 	@Optional
-	public Boolean isBuildFileMetaData() {
-		return _buildFileMetaData;
+	public boolean isIncludeMetadata() {
+		return _includeMetadata;
 	}
 
-	public void setBuildFileMetaData(Boolean buildFileMetaData) {
-		_buildFileMetaData = buildFileMetaData;
+	public void setEnvironment(String environment) {
+		_environment = environment;
 	}
 
-	public void setWorkspaceEnvironmentl(String workspaceEnvironment) {
-		_workspaceEnvironment = workspaceEnvironment;
+	public void setIncludeMetadata(boolean includeMetadata) {
+		_includeMetadata = includeMetadata;
 	}
 
-	private Boolean _buildFileMetaData;
-	private String _workspaceEnvironment;
+	private String _environment;
+	private boolean _includeMetadata;
 
 }

@@ -747,10 +747,10 @@ public class RootProjectConfigurator implements Plugin<Project> {
 
 				@Override
 				public void execute(Project project) {
-					distBundleTask.setWorkspaceEnvironmentl(
+					distBundleTask.setEnvironment(
 						workspaceExtension.getEnvironment());
-					distBundleTask.setBuildFileMetaData(
-						workspaceExtension.isBuildFileMetaData());
+					distBundleTask.setIncludeMetadata(
+						workspaceExtension.isBundleDistIncludeMetadata());
 				}
 
 			});
@@ -1450,7 +1450,7 @@ public class RootProjectConfigurator implements Plugin<Project> {
 				@Override
 				public void execute(Project project) {
 					Boolean buildFileMetaData =
-						distBundleTask.isBuildFileMetaData();
+						distBundleTask.isIncludeMetadata();
 					Property<String> archiveBaseNameProperty =
 						task.getArchiveBaseName();
 
@@ -1459,7 +1459,7 @@ public class RootProjectConfigurator implements Plugin<Project> {
 
 						archiveBaseNameProperty.set(
 							project.getName() + "-" +
-								distBundleTask.getWorkspacEnvironment() + "-" +
+								distBundleTask.getEnvironment() + "-" +
 									calendarInstance.getTimeInMillis());
 					}
 					else {
@@ -1485,9 +1485,9 @@ public class RootProjectConfigurator implements Plugin<Project> {
 						workspaceExtension, envrionment,
 						providedModulesConfiguration);
 
-					dynamicDistBundleTask.setWorkspaceEnvironmentl(envrionment);
-					dynamicDistBundleTask.setBuildFileMetaData(
-						workspaceExtension.isBuildFileMetaData());
+					dynamicDistBundleTask.setEnvironment(envrionment);
+					dynamicDistBundleTask.setIncludeMetadata(
+						workspaceExtension.isBundleDistIncludeMetadata());
 				}
 
 			});

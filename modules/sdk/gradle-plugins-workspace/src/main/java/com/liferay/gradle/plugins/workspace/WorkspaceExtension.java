@@ -78,12 +78,13 @@ public class WorkspaceExtension {
 		_appServerTomcatVersion = GradleUtil.getProperty(
 			settings, "app.server.tomcat.version",
 			_getDefaultAppServerVersion());
-		_buildFileMetaData = _getProperty(
-			settings, "buildfile.metadata", _DEFAULT_BUILD_FILE_META_DATA);
 		_bundleCacheDir = _getProperty(
 			settings, "bundle.cache.dir", _BUNDLE_CACHE_DIR);
 		_bundleChecksumMD5 = _getProperty(
 			settings, "bundle.checksum.md5", getDefaultBundleChecksumMD5());
+		_bundleDistIncludeMetadata = _getProperty(
+			settings, "bundle.dist.include.metadata",
+			_BUNDLE_DIST_INCLUDE_METADATA);
 		_bundleDistRootDirName = _getProperty(
 			settings, "bundle.dist.root.dir", _BUNDLE_DIST_ROOT_DIR_NAME);
 		_bundleTokenDownload = _getProperty(
@@ -306,8 +307,8 @@ public class WorkspaceExtension {
 		return GradleUtil.toString(_targetPlatformVersion);
 	}
 
-	public Boolean isBuildFileMetaData() {
-		return GradleUtil.toBoolean(_buildFileMetaData);
+	public boolean isBundleDistIncludeMetadata() {
+		return GradleUtil.toBoolean(_bundleDistIncludeMetadata);
 	}
 
 	public boolean isBundleTokenDownload() {
@@ -328,16 +329,16 @@ public class WorkspaceExtension {
 		throw new MissingPropertyException(name, ProjectConfigurator.class);
 	}
 
-	public void setBuildFileMetaData(Object buildFileMetaData) {
-		_buildFileMetaData = buildFileMetaData;
-	}
-
 	public void setBundleCacheDir(Object bundleCacheDir) {
 		_bundleCacheDir = bundleCacheDir;
 	}
 
 	public void setBundleChecksumMD5(Object bundleChecksumMD5) {
 		_bundleChecksumMD5 = bundleChecksumMD5;
+	}
+
+	public void setBundleDistIncludeMetadata(Object bundleDistIncludeMetadata) {
+		_bundleDistIncludeMetadata = bundleDistIncludeMetadata;
 	}
 
 	public void setBundleDistRootDirName(Object bundleDistRootDirName) {
@@ -582,6 +583,8 @@ public class WorkspaceExtension {
 		System.getProperty("user.home"),
 		BundleSupportConstants.DEFAULT_BUNDLE_CACHE_DIR_NAME);
 
+	private static final boolean _BUNDLE_DIST_INCLUDE_METADATA = false;
+
 	private static final String _BUNDLE_DIST_ROOT_DIR_NAME = null;
 
 	private static final boolean _BUNDLE_TOKEN_DOWNLOAD = false;
@@ -593,8 +596,6 @@ public class WorkspaceExtension {
 	private static final String _BUNDLE_TOKEN_PASSWORD = null;
 
 	private static final String _BUNDLE_TOKEN_PASSWORD_FILE = null;
-
-	private static final String _DEFAULT_BUILD_FILE_META_DATA = "false";
 
 	private static final String _DEFAULT_WORKSPACE_CACHE_DIR_NAME =
 		".liferay/workspace";
@@ -608,9 +609,9 @@ public class WorkspaceExtension {
 		"https://releases.liferay.com/tools/workspace/.product_info.json";
 
 	private final Object _appServerTomcatVersion;
-	private Object _buildFileMetaData;
 	private Object _bundleCacheDir;
 	private Object _bundleChecksumMD5;
+	private Object _bundleDistIncludeMetadata;
 	private Object _bundleDistRootDirName;
 	private Object _bundleTokenDownload;
 	private Object _bundleTokenEmailAddress;
