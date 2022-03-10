@@ -127,7 +127,6 @@
 /portal/jackson-module-jaxb-annotations.jar
 /portal/jai-imageio-core.jar
 /portal/jai-imageio-jpeg2000.jar
-/portal/java-libpst.jar
 /portal/javassist.jar
 /portal/jaxb-api.jar
 /portal/jaxb-runtime.jar
@@ -153,15 +152,12 @@
 /portal/log4j-api.jar
 /portal/log4j-core.jar
 /portal/mchange-commons-java.jar
-/portal/metadata-extractor.jar
 /portal/mimepull.jar
-/portal/mp4parser.jar
 /portal/netcdf.jar
 /portal/pdfbox.jar
 /portal/persistence.jar
 /portal/portlet.jar
 /portal/portletmvc4spring-framework.jar
-/portal/rmi-api.jar
 /portal/rometools-utils.jar
 /portal/rometools.jar
 /portal/saaj-api.jar
@@ -198,5 +194,4 @@
 /portal/xercesImpl.jar
 /portal/xml-apis.jar
 /portal/xmlsec.jar
-/portal/xmpcore.jar
 /portal/xz.jar

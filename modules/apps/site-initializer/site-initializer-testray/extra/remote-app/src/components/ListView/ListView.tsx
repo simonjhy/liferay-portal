@@ -14,15 +14,16 @@
 
 import {TypedDocumentNode, useQuery} from '@apollo/client';
 import {ClayPaginationBarWithBasicItems} from '@clayui/pagination-bar';
-import {useContext, useMemo} from 'react';
+import {useCallback, useContext, useEffect, useMemo} from 'react';
 
 import ListViewContextProvider, {
 	ListViewContext,
+	ListViewContextProviderProps,
 } from '../../context/ListViewContext';
 import i18n from '../../i18n';
 import {PAGINATION} from '../../util/constants';
 import EmptyState from '../EmptyState';
-import ManagementToolbar from '../ManagementToolbar';
+import ManagementToolbar, {ManagementToolbarProps} from '../ManagementToolbar';
 import Table, {TableProps} from '../Table';
 
 type LiferayQueryResponse<T = any> = {
@@ -34,6 +35,10 @@ type LiferayQueryResponse<T = any> = {
 };
 
 type ListViewProps<T = any> = {
+	forceRefetch?: number;
+	managementToolbarProps?: {
+		visible?: boolean;
+	} & Omit<ManagementToolbarProps, 'tableProps' | 'totalItems'>;
 	query: TypedDocumentNode;
 	tableProps: Omit<TableProps, 'items'>;
 	transformData: (data: T) => LiferayQueryResponse<T>;
@@ -41,6 +46,11 @@ type ListViewProps<T = any> = {
 };
 
 const ListView: React.FC<ListViewProps> = ({
+	forceRefetch,
+	managementToolbarProps: {
+		visible: managementToolbarVisible = true,
+		...managementToolbarProps
+	} = {},
 	query,
 	tableProps,
 	transformData,
@@ -51,6 +61,19 @@ const ListView: React.FC<ListViewProps> = ({
 	const {data, error, loading, refetch} = useQuery(query, {
 		variables,
 	});
+
+	const onRefetch = useCallback(
+		(newVariables: any) => {
+			refetch({...variables, ...newVariables});
+		},
+		[refetch, variables]
+	);
+
+	useEffect(() => {
+		if (forceRefetch) {
+			onRefetch({});
+		}
+	}, [forceRefetch, onRefetch]);
 
 	const {items = [], page, pageSize, totalCount} = transformData(data) || {};
 
@@ -70,10 +93,6 @@ const ListView: React.FC<ListViewProps> = ({
 		[filters.columns, tableProps.columns]
 	);
 
-	const onRefetch = (newVariables: any) => {
-		refetch({...variables, ...newVariables});
-	};
-
 	if (error) {
 		return <span>{error.message}</span>;
 	}
@@ -88,10 +107,13 @@ const ListView: React.FC<ListViewProps> = ({
 
 	return (
 		<>
-			<ManagementToolbar
-				tableProps={tableProps}
-				totalItems={items.length}
-			/>
+			{managementToolbarVisible && (
+				<ManagementToolbar
+					{...managementToolbarProps}
+					tableProps={tableProps}
+					totalItems={items.length}
+				/>
+			)}
 
 			<Table {...tableProps} columns={columns} items={items} />
 
@@ -113,10 +135,14 @@ const ListView: React.FC<ListViewProps> = ({
 	);
 };
 
-const ListViewWithContext: React.FC<ListViewProps> = (props) => (
-	<ListViewContextProvider>
-		<ListView {...props} />
-	</ListViewContextProvider>
-);
+const ListViewWithContext: React.FC<
+	ListViewProps & {initialContext?: ListViewContextProviderProps}
+> = ({initialContext, ...otherProps}) => {
+	return (
+		<ListViewContextProvider {...initialContext}>
+			<ListView {...otherProps} />
+		</ListViewContextProvider>
+	);
+};
 
 export default ListViewWithContext;

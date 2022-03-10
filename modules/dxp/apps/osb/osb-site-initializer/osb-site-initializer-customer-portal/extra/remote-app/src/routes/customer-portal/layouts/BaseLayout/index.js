@@ -12,6 +12,7 @@
 import {useCallback} from 'react';
 import {Outlet, useLocation} from 'react-router-dom';
 import ProjectSupport from '../../components/ProjectSupport';
+import GenerateNewDXPKey from '../../containers/GenerateNewDXPKey';
 import QuickLinksPanel from '../../containers/QuickLinksPanel';
 import SideMenu from '../../containers/SideMenu';
 import {useCustomerPortal} from '../../context';
@@ -21,9 +22,11 @@ import {PAGE_TYPES} from '../../utils/constants';
 import LayoutSkeleton from './Skeleton';
 
 const PAGE_SKELETON_LAYOUT = {
+	[PAGE_TYPES.analyticsCloud]: <ActivationKeys.Skeleton />,
 	[PAGE_TYPES.commerce]: <ActivationKeys.Skeleton />,
 	[PAGE_TYPES.dxp]: <ActivationKeys.Skeleton />,
 	[PAGE_TYPES.dxpCloud]: <ActivationKeys.Skeleton />,
+	[PAGE_TYPES.dxpNew]: <GenerateNewDXPKey.Skeleton />,
 	[PAGE_TYPES.enterpriseSearch]: <ActivationKeys.Skeleton />,
 	[PAGE_TYPES.overview]: <Overview.Skeleton />,
 	[PAGE_TYPES.teamMembers]: <ActivationKeys.Skeleton />,
@@ -73,8 +76,9 @@ const Layout = () => {
 				hasQuickLinksPanel={hasQuickLinksPanel}
 				hasSideMenu={hasSideMenu}
 			>
-				{PAGE_SKELETON_LAYOUT[getCurrentPage()] ||
-					PAGE_SKELETON_LAYOUT.overview}
+				{PAGE_SKELETON_LAYOUT[
+					getCurrentProduct() || getCurrentPage()
+				] || PAGE_SKELETON_LAYOUT.overview}
 			</LayoutSkeleton>
 		);
 	}

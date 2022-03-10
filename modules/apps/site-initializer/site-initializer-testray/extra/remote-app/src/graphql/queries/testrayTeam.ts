@@ -14,17 +14,15 @@
 
 import {gql} from '@apollo/client';
 
-const testrayTeamFragment = gql`
-	fragment TestrayTeamFragment on C_TestrayTeam {
-		dateCreated
-		dateModified
-		externalReferenceCode
-		name
-		status
-		testrayProjectId
-		testrayTeamId
-	}
-`;
+import {testrayTeamFragment} from '../fragments';
+
+export type TestrayTeam = {
+	dateCreated: string;
+	dateModified: string;
+	externalReferenceCode: string;
+	id: number;
+	name: string;
+};
 
 export const getTestrayTeam = gql`
 	${testrayTeamFragment}

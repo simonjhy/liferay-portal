@@ -186,6 +186,10 @@ public class AssetVocabularyLocalServiceImpl
 
 		long vocabularyId = counterLocalService.increment();
 
+		if (Validator.isNull(externalReferenceCode)) {
+			externalReferenceCode = String.valueOf(vocabularyId);
+		}
+
 		_validateExternalReferenceCode(externalReferenceCode, groupId);
 
 		AssetVocabulary vocabulary = assetVocabularyPersistence.create(
@@ -650,10 +654,6 @@ public class AssetVocabularyLocalServiceImpl
 	private void _validateExternalReferenceCode(
 			String externalReferenceCode, long groupId)
 		throws PortalException {
-
-		if (Validator.isNull(externalReferenceCode)) {
-			return;
-		}
 
 		AssetVocabulary assetVocabulary =
 			assetVocabularyPersistence.fetchByG_ERC(

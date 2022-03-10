@@ -124,7 +124,7 @@ public class CommerceOrderImporterTypeTest {
 			_serviceContext);
 
 		_commerceOrder = CommerceTestUtil.addB2BCommerceOrder(
-			_group.getGroupId(), _user.getUserId(),
+			_group.getGroupId(), _commerceChannel.getUserId(),
 			_commerceAccount.getCommerceAccountId(),
 			_commerceCurrency.getCommerceCurrencyId());
 
@@ -199,7 +199,7 @@ public class CommerceOrderImporterTypeTest {
 				_serviceContext);
 
 		CPInstance cpInstance = CPTestUtil.addCPInstanceFromCatalogWithERC(
-			commerceCatalog.getGroupId(), "erc-test2", new BigDecimal(100),
+			commerceCatalog.getGroupId(), "erc-test", new BigDecimal(100),
 			CPInstanceConstants.DEFAULT_SKU);
 
 		CommerceInventoryWarehouse commerceInventoryWarehouse =
@@ -229,7 +229,7 @@ public class CommerceOrderImporterTypeTest {
 		String fileName = "test_successful_csv_import.csv";
 
 		String fileContent = StringBundler.concat(
-			"sku,quantity", StringPool.NEW_LINE, "erc-test2,1");
+			"sku,quantity", StringPool.NEW_LINE, "erc-test,1");
 
 		File file = FileUtil.createTempFile(fileContent.getBytes());
 

@@ -194,6 +194,16 @@ public class CommerceOrderItemLocalServiceWrapper
 			cpInstanceId);
 	}
 
+	@Override
+	public void deleteMissingCommerceOrderItems(
+			long commerceOrderId, Long[] commerceOrderItemIds,
+			String[] externalReferenceCodes)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_commerceOrderItemLocalService.deleteMissingCommerceOrderItems(
+			commerceOrderId, commerceOrderItemIds, externalReferenceCodes);
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -579,15 +589,17 @@ public class CommerceOrderItemLocalServiceWrapper
 
 	@Override
 	public com.liferay.commerce.model.CommerceOrderItem importCommerceOrderItem(
+			String externalReferenceCode, long commerceOrderItemId,
 			long commerceOrderId, long cpInstanceId,
 			String cpMeasurementUnitKey, java.math.BigDecimal decimalQuantity,
-			int shippedQuantity,
+			int quantity, int shippedQuantity,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _commerceOrderItemLocalService.importCommerceOrderItem(
-			commerceOrderId, cpInstanceId, cpMeasurementUnitKey,
-			decimalQuantity, shippedQuantity, serviceContext);
+			externalReferenceCode, commerceOrderItemId, commerceOrderId,
+			cpInstanceId, cpMeasurementUnitKey, decimalQuantity, quantity,
+			shippedQuantity, serviceContext);
 	}
 
 	@Override

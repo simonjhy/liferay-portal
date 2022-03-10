@@ -84,11 +84,11 @@ public class CSVUploadFileEntryHandler implements UploadFileEntryHandler {
 			uniqueFileName, inputStream, contentType);
 	}
 
-	private boolean _exists(String curFileName, ThemeDisplay themeDisplay) {
+	private boolean _exists(String fileName, ThemeDisplay themeDisplay) {
 		try {
 			FileEntry tempFileEntry = TempFileEntryUtil.getTempFileEntry(
 				themeDisplay.getScopeGroupId(), themeDisplay.getUserId(),
-				_TEMP_FOLDER_NAME, curFileName);
+				_TEMP_FOLDER_NAME, fileName);
 
 			if (tempFileEntry != null) {
 				return true;

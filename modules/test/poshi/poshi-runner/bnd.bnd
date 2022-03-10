@@ -1,4 +1,4 @@
 Bundle-Name: Liferay Poshi Runner
 Bundle-SymbolicName: com.liferay.poshi.runner
-Bundle-Version: 1.0.338
+Bundle-Version: 1.0.339
 -includeresource: @com.liferay.data.guard.connector-*.jar

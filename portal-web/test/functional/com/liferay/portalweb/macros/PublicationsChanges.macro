@@ -113,6 +113,24 @@ definition {
 			value1 = "${commentValueEdit}");
 	}
 
+	macro filterChangesByItem {
+		if (IsElementPresent(key_text = "Clear", locator1 = "Button#ANY")) {
+			Click(
+				key_text = "Clear",
+				locator1 = "Button#ANY");
+		}
+
+		Click(
+			key_name = "Filter By",
+			locator1 = "PublicationsChanges#SORT_BUTTON");
+
+		MenuItem.clickNoError(menuItem = "${menuItem}");
+
+		Check.checkNotVisible(
+			key_checkboxName = "${checkboxName}",
+			locator1 = "MenuItem#ANY_CHECKBOX");
+	}
+
 	macro gotoEditChanges {
 		if (isSet(changeOrder)) {
 			var changeOrder = "${changeOrder}";

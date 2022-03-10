@@ -427,6 +427,10 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 		long messageId = counterLocalService.increment();
 
+		if (Validator.isNull(externalReferenceCode)) {
+			externalReferenceCode = String.valueOf(messageId);
+		}
+
 		_validateExternalReferenceCode(externalReferenceCode, groupId);
 
 		subject = getSubject(subject, body);
@@ -2870,10 +2874,6 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 	private void _validateExternalReferenceCode(
 			String externalReferenceCode, long groupId)
 		throws PortalException {
-
-		if (Validator.isNull(externalReferenceCode)) {
-			return;
-		}
 
 		MBMessage message = mbMessagePersistence.fetchByG_ERC(
 			groupId, externalReferenceCode);

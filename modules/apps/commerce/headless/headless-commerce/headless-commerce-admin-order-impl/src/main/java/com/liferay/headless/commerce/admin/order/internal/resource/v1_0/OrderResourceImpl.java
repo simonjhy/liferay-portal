@@ -47,7 +47,6 @@ import com.liferay.headless.commerce.admin.order.resource.v1_0.OrderResource;
 import com.liferay.headless.commerce.core.util.DateConfig;
 import com.liferay.headless.commerce.core.util.ExpandoUtil;
 import com.liferay.headless.commerce.core.util.ServiceContextHelper;
-import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
@@ -70,10 +69,12 @@ import java.lang.reflect.Method;
 
 import java.math.BigDecimal;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MultivaluedMap;
@@ -302,8 +303,7 @@ public class OrderResourceImpl
 				order.getExternalReferenceCode(), commerceChannel.getGroupId(),
 				commerceAccount.getCommerceAccountId(),
 				commerceCurrency.getCommerceCurrencyId(),
-				_getCommerceOrderTypeId(
-					commerceChannel.getCommerceChannelId(), order),
+				_getCommerceOrderTypeId(order),
 				GetterUtil.getLong(order.getBillingAddressId()),
 				GetterUtil.getLong(order.getShippingAddressId()),
 				order.getPaymentMethod(), commerceShippingMethodId,
@@ -425,9 +425,7 @@ public class OrderResourceImpl
 		).build();
 	}
 
-	private long _getCommerceOrderTypeId(long commerceChannelId, Order order)
-		throws Exception {
-
+	private long _getCommerceOrderTypeId(Order order) throws Exception {
 		if (order.getOrderTypeId() != null) {
 			return order.getOrderTypeId();
 		}
@@ -438,21 +436,6 @@ public class OrderResourceImpl
 				contextCompany.getCompanyId());
 
 		if (commerceOrderType != null) {
-			return commerceOrderType.getCommerceOrderTypeId();
-		}
-
-		int commerceOrderTypesCount =
-			_commerceOrderTypeService.getCommerceOrderTypesCount(
-				CommerceChannel.class.getName(), commerceChannelId, true);
-
-		if (commerceOrderTypesCount == 1) {
-			List<CommerceOrderType> commerceOrderTypes =
-				_commerceOrderTypeService.getCommerceOrderTypes(
-					CommerceChannel.class.getName(), commerceChannelId, true,
-					QueryUtil.ALL_POS, QueryUtil.ALL_POS);
-
-			commerceOrderType = commerceOrderTypes.get(0);
-
 			return commerceOrderType.getCommerceOrderTypeId();
 		}
 
@@ -496,6 +479,30 @@ public class OrderResourceImpl
 		return null;
 	}
 
+	private String[] _getOrderItemExternalReferenceCodes(
+		OrderItem[] orderItems) {
+
+		Stream<OrderItem> stream = Arrays.stream(orderItems);
+
+		return stream.map(
+			OrderItem::getExternalReferenceCode
+		).distinct(
+		).toArray(
+			String[]::new
+		);
+	}
+
+	private Long[] _getOrderItemIds(OrderItem[] orderItems) {
+		Stream<OrderItem> stream = Arrays.stream(orderItems);
+
+		return stream.map(
+			OrderItem::getId
+		).distinct(
+		).toArray(
+			Long[]::new
+		);
+	}
+
 	private String _getVersion(UriInfo uriInfo) {
 		String version = "";
 
@@ -518,11 +525,13 @@ public class OrderResourceImpl
 		OrderItem[] orderItems = order.getOrderItems();
 
 		if (orderItems != null) {
-			_commerceOrderItemService.deleteCommerceOrderItems(
-				commerceOrder.getCommerceOrderId());
+			_commerceOrderItemService.deleteMissingCommerceOrderItems(
+				commerceOrder.getCommerceOrderId(),
+				_getOrderItemIds(orderItems),
+				_getOrderItemExternalReferenceCodes(orderItems));
 
 			for (OrderItem orderItem : orderItems) {
-				OrderItemUtil.addCommerceOrderItem(
+				OrderItemUtil.addOrUpdateCommerceOrderItem(
 					_cpInstanceService, _commerceOrderItemService,
 					_commerceOrderModelResourcePermission, orderItem,
 					commerceOrder,

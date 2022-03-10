@@ -183,6 +183,15 @@ public class CommerceOrderItemLocalServiceUtil {
 		getService().deleteCommerceOrderItemsByCPInstanceId(cpInstanceId);
 	}
 
+	public static void deleteMissingCommerceOrderItems(
+			long commerceOrderId, Long[] commerceOrderItemIds,
+			String[] externalReferenceCodes)
+		throws PortalException {
+
+		getService().deleteMissingCommerceOrderItems(
+			commerceOrderId, commerceOrderItemIds, externalReferenceCodes);
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -499,15 +508,17 @@ public class CommerceOrderItemLocalServiceUtil {
 	}
 
 	public static CommerceOrderItem importCommerceOrderItem(
+			String externalReferenceCode, long commerceOrderItemId,
 			long commerceOrderId, long cpInstanceId,
 			String cpMeasurementUnitKey, java.math.BigDecimal decimalQuantity,
-			int shippedQuantity,
+			int quantity, int shippedQuantity,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws PortalException {
 
 		return getService().importCommerceOrderItem(
-			commerceOrderId, cpInstanceId, cpMeasurementUnitKey,
-			decimalQuantity, shippedQuantity, serviceContext);
+			externalReferenceCode, commerceOrderItemId, commerceOrderId,
+			cpInstanceId, cpMeasurementUnitKey, decimalQuantity, quantity,
+			shippedQuantity, serviceContext);
 	}
 
 	public static CommerceOrderItem incrementShippedQuantity(

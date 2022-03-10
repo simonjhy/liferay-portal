@@ -139,9 +139,17 @@ public class CommerceAddressLocalServiceImpl
 				commerceAddress.getRegionId(), commerceAddress.getCountryId(),
 				commerceAddress.getPhoneNumber(), false, false, serviceContext);
 
-		return CommerceAddressImpl.fromAddress(
-			_addressLocalService.getAddress(
-				copiedCommerceAddress.getCommerceAddressId()));
+		Address copiedAddress = _addressLocalService.getAddress(
+			copiedCommerceAddress.getCommerceAddressId());
+
+		if (Validator.isNotNull(commerceAddress.getExternalReferenceCode())) {
+			copiedAddress.setExternalReferenceCode(
+				commerceAddress.getExternalReferenceCode());
+
+			copiedAddress = _addressLocalService.updateAddress(copiedAddress);
+		}
+
+		return CommerceAddressImpl.fromAddress(copiedAddress);
 	}
 
 	@Override

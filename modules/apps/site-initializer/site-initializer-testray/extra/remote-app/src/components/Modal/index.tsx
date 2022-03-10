@@ -24,7 +24,7 @@ type ModalProps = {
 	subtitle?: string;
 	title?: string;
 	visible: boolean;
-} & React.HTMLAttributes<HTMLElement>;
+};
 
 const Modal: React.FC<ModalProps> = ({
 	children,
@@ -41,14 +41,14 @@ const Modal: React.FC<ModalProps> = ({
 	}
 
 	return (
-		<ClayModal center observer={observer} size={size}>
+		<ClayModal observer={observer} size={size}>
 			<ClayModal.Header>
 				<ClayModal.Title>{title}</ClayModal.Title>
 			</ClayModal.Header>
 
 			{subtitle && (
 				<ClayModal.SubtitleSection>
-					<ClayModal.Subtitle className="legend-text mt-2 pl-4 pr-4">
+					<ClayModal.Subtitle className="legend-text">
 						{subtitle}
 					</ClayModal.Subtitle>
 				</ClayModal.SubtitleSection>

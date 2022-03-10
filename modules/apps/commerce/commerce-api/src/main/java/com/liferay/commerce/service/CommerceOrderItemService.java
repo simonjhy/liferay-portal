@@ -91,6 +91,11 @@ public interface CommerceOrderItemService extends BaseService {
 	public void deleteCommerceOrderItems(long commerceOrderId)
 		throws PortalException;
 
+	public void deleteMissingCommerceOrderItems(
+			long commerceOrderId, Long[] commerceOrderItemIds,
+			String[] externalReferenceCodes)
+		throws PortalException;
+
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public CommerceOrderItem fetchByExternalReferenceCode(
 			String externalReferenceCode, long companyId)
@@ -156,9 +161,10 @@ public interface CommerceOrderItemService extends BaseService {
 	public String getOSGiServiceIdentifier();
 
 	public CommerceOrderItem importCommerceOrderItem(
+			String externalReferenceCode, long commerceOrderItemId,
 			long commerceOrderId, long cpInstanceId,
 			String cpMeasurementUnitKey, BigDecimal decimalQuantity,
-			int shippedQuantity, ServiceContext serviceContext)
+			int quantity, int shippedQuantity, ServiceContext serviceContext)
 		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)

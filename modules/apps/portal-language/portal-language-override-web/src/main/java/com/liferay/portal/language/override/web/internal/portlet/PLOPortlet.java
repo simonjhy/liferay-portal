@@ -14,13 +14,21 @@
 
 package com.liferay.portal.language.override.web.internal.portlet;
 
+import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactory;
+import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.kernel.zip.ZipWriter;
+import com.liferay.portal.kernel.zip.ZipWriterFactoryUtil;
+import com.liferay.portal.language.override.model.PLOEntry;
 import com.liferay.portal.language.override.provider.PLOOriginalTranslationProvider;
 import com.liferay.portal.language.override.service.PLOEntryLocalService;
 import com.liferay.portal.language.override.service.PLOEntryService;
@@ -28,7 +36,13 @@ import com.liferay.portal.language.override.web.internal.constants.PLOPortletKey
 import com.liferay.portal.language.override.web.internal.display.context.EditDisplayContextFactory;
 import com.liferay.portal.language.override.web.internal.display.context.ViewDisplayContextFactory;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -36,6 +50,8 @@ import javax.portlet.Portlet;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -94,6 +110,18 @@ public class PLOPortlet extends MVCPortlet {
 			LocalizationUtil.getLocalizationMap(actionRequest, "value"));
 	}
 
+	@Override
+	public void serveResource(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+		throws PortletException {
+
+		String resourceID = resourceRequest.getResourceID();
+
+		if (resourceID.equals("exportPLOEntries")) {
+			_exportPLOEntries(resourceRequest, resourceResponse);
+		}
+	}
+
 	@Activate
 	protected void activate() {
 		_editDisplayContextFactory = new EditDisplayContextFactory(
@@ -110,6 +138,47 @@ public class PLOPortlet extends MVCPortlet {
 		_setAttributes(renderRequest, renderResponse);
 
 		super.doDispatch(renderRequest, renderResponse);
+	}
+
+	private void _exportPLOEntries(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+		throws PortletException {
+
+		try {
+			ZipWriter zipWriter = ZipWriterFactoryUtil.getZipWriter();
+
+			List<PLOEntry> ploEntries = _ploEntryService.getPLOEntries(
+				_portal.getCompanyId(resourceRequest));
+
+			Stream<PLOEntry> stream = ploEntries.stream();
+
+			Map<String, List<PLOEntry>> map = stream.collect(
+				Collectors.groupingBy(PLOEntry::getLanguageId));
+
+			for (Map.Entry<String, List<PLOEntry>> entry : map.entrySet()) {
+				StringBundler sb = new StringBundler();
+
+				for (PLOEntry ploEntry : entry.getValue()) {
+					sb.append(ploEntry.getKey());
+					sb.append(StringPool.EQUAL);
+					sb.append(ploEntry.getValue());
+					sb.append(StringPool.NEW_LINE);
+				}
+
+				zipWriter.addEntry(
+					"Language_" + entry.getKey() + ".properties",
+					sb.toString());
+			}
+
+			PortletResponseUtil.sendFile(
+				resourceRequest, resourceResponse,
+				StringUtil.randomString() + ".zip",
+				new FileInputStream(zipWriter.getFile()),
+				ContentTypes.APPLICATION_ZIP);
+		}
+		catch (IOException | PortalException exception) {
+			throw new PortletException(exception);
+		}
 	}
 
 	private Object _getPortletDisplayContext(

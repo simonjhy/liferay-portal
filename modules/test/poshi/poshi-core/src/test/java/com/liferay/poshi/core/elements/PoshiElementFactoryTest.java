@@ -17,6 +17,7 @@ package com.liferay.poshi.core.elements;
 import com.liferay.poshi.core.PoshiContext;
 import com.liferay.poshi.core.util.Dom4JUtil;
 import com.liferay.poshi.core.util.FileUtil;
+import com.liferay.poshi.core.util.PropsUtil;
 
 import java.io.File;
 
@@ -41,6 +42,10 @@ public class PoshiElementFactoryTest {
 		String poshiFileDir =
 			"../poshi-runner-resources/src/main/resources/default" +
 				"/testFunctional/functions";
+
+		PropsUtil.clear();
+
+		PropsUtil.set("test.base.dir.name", poshiFileDir);
 
 		PoshiContext.readFiles(poshiFileNames, poshiFileDir);
 
@@ -90,8 +95,10 @@ public class PoshiElementFactoryTest {
 
 	@Test
 	public void testPoshiScriptFunctionToXML() throws Exception {
-		PoshiElement actualElement = _getPoshiElement("PoshiScript.function");
-		Element expectedElement = _getDom4JElement("PoshiSyntax.function");
+		PoshiElement actualElement = _getPoshiElement(
+			"PoshiScriptFunction.function");
+		Element expectedElement = _getDom4JElement(
+			"PoshiSyntaxFunction.function");
 
 		_assertEqualElements(
 			actualElement, expectedElement,
@@ -100,7 +107,8 @@ public class PoshiElementFactoryTest {
 
 	@Test
 	public void testPoshiScriptLineNumbers() throws Exception {
-		PoshiElement rootPoshiElement = _getPoshiElement("PoshiScript.macro");
+		PoshiElement rootPoshiElement = _getPoshiElement(
+			"PoshiScriptMacro.macro");
 
 		int[] expectedLineNumbers = {
 			4, 9, 11, 17, 19, 28, 29, 30, 31, 33, 37, 41, 45, 49, 53, 57
@@ -130,8 +138,8 @@ public class PoshiElementFactoryTest {
 
 	@Test
 	public void testPoshiScriptMacroToXML() throws Exception {
-		PoshiElement actualElement = _getPoshiElement("PoshiScript.macro");
-		Element expectedElement = _getDom4JElement("PoshiSyntax.macro");
+		PoshiElement actualElement = _getPoshiElement("PoshiScriptMacro.macro");
+		Element expectedElement = _getDom4JElement("PoshiSyntaxMacro.macro");
 
 		_assertEqualElements(
 			actualElement, expectedElement,
@@ -150,9 +158,11 @@ public class PoshiElementFactoryTest {
 
 	@Test
 	public void testPoshiXMLFunctionToPoshiScript() throws Exception {
-		String expected = FileUtil.read(_getFile("PoshiScript.function"));
+		String expected = FileUtil.read(
+			_getFile("PoshiScriptFunction.function"));
 
-		PoshiElement poshiElement = _getPoshiElement("PoshiSyntax.function");
+		PoshiElement poshiElement = _getPoshiElement(
+			"PoshiSyntaxFunction.function");
 
 		String actual = poshiElement.toPoshiScript();
 
@@ -165,7 +175,7 @@ public class PoshiElementFactoryTest {
 	public void testPoshiXMLMacroAlternate() throws Exception {
 		PoshiElement actualElement = _getPoshiElement(
 			"AlternatePoshiScript.macro");
-		Element expectedElement = _getDom4JElement("PoshiSyntax.macro");
+		Element expectedElement = _getDom4JElement("PoshiSyntaxMacro.macro");
 
 		_assertEqualElements(
 			actualElement, expectedElement,
@@ -176,7 +186,7 @@ public class PoshiElementFactoryTest {
 	public void testPoshiXMLMacroFormat() throws Exception {
 		PoshiElement actualElement = _getPoshiElement(
 			"UnformattedPoshiScript.macro");
-		Element expectedElement = _getDom4JElement("PoshiSyntax.macro");
+		Element expectedElement = _getDom4JElement("PoshiSyntaxMacro.macro");
 
 		_assertEqualElements(
 			actualElement, expectedElement,
@@ -185,9 +195,9 @@ public class PoshiElementFactoryTest {
 
 	@Test
 	public void testPoshiXMLMacroToPoshiScript() throws Exception {
-		String expected = FileUtil.read(_getFile("PoshiScript.macro"));
+		String expected = FileUtil.read(_getFile("PoshiScriptMacro.macro"));
 
-		PoshiElement poshiElement = _getPoshiElement("PoshiSyntax.macro");
+		PoshiElement poshiElement = _getPoshiElement("PoshiSyntaxMacro.macro");
 
 		String actual = poshiElement.toPoshiScript();
 

@@ -1077,10 +1077,9 @@ definition {
 	@description = "This is a use case for LPS-131578. User can configure the portal to exclude displayed contents from publishing."
 	@priority = "4"
 	test PublishViaPortletWithoutContent {
-		ApplicationsMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Control Panel",
-			portlet = "System Settings");
+		property test.name.skip.portal.instance = "Staging#PublishViaPortletWithoutContent";
+
+		SystemSettings.openSystemSettingsAdmin();
 
 		SystemSettings.gotoConfiguration(
 			configurationCategory = "Infrastructure",
