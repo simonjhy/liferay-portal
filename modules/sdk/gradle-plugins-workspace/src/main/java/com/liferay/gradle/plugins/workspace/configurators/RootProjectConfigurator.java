@@ -36,7 +36,6 @@ import com.liferay.gradle.plugins.workspace.internal.util.FileUtil;
 import com.liferay.gradle.plugins.workspace.internal.util.GradleUtil;
 import com.liferay.gradle.plugins.workspace.internal.util.StringUtil;
 import com.liferay.gradle.plugins.workspace.tasks.CreateTokenTask;
-import com.liferay.gradle.plugins.workspace.tasks.DistBundleTask;
 import com.liferay.gradle.plugins.workspace.tasks.InitBundleTask;
 import com.liferay.gradle.plugins.workspace.tasks.VerifyProductTask;
 import com.liferay.gradle.util.OSDetector;
@@ -237,7 +236,7 @@ public class RootProjectConfigurator implements Plugin<Project> {
 		Verify verifyBundleTask = _addTaskVerifyBundle(
 			project, verifyProductTask, downloadBundleTask, workspaceExtension);
 
-		DistBundleTask distBundleTask = _addTaskDistBundle(
+		Copy distBundleTask = _addTaskDistBundle(
 			project, DIST_BUNDLE_TASK_NAME, downloadBundleTask,
 			workspaceExtension, providedModulesConfiguration);
 
@@ -250,7 +249,8 @@ public class RootProjectConfigurator implements Plugin<Project> {
 
 		archiveExtensionProperty.set("tar.gz");
 
-		_configureDistBundleTask(project, distBundleTask, distBundleTarTask);
+		_configureDistBundleTask(
+			project, workspaceExtension, distBundleTarTask);
 
 		distBundleTarTask.setCompression(Compression.GZIP);
 
@@ -258,7 +258,8 @@ public class RootProjectConfigurator implements Plugin<Project> {
 			project, DIST_BUNDLE_ZIP_TASK_NAME, Zip.class, distBundleTask,
 			workspaceExtension);
 
-		_configureDistBundleTask(project, distBundleTask, distBundleZipTask);
+		_configureDistBundleTask(
+			project, workspaceExtension, distBundleZipTask);
 
 		Copy distBundleTarAllTask = _addTaskDistBundleAll(
 			project, DIST_BUNDLE_TAR_TASK_ALL_NAME);
@@ -686,7 +687,7 @@ public class RootProjectConfigurator implements Plugin<Project> {
 	@SuppressWarnings("serial")
 	private <T extends AbstractArchiveTask> T _addTaskDistBundle(
 		Project project, String taskName, Class<T> clazz,
-		final DistBundleTask distBundleTask,
+		final Copy distBundleTask,
 		final WorkspaceExtension workspaceExtension) {
 
 		T task = GradleUtil.addTask(project, taskName, clazz);
@@ -730,27 +731,22 @@ public class RootProjectConfigurator implements Plugin<Project> {
 		return task;
 	}
 
-	private DistBundleTask _addTaskDistBundle(
+	private Copy _addTaskDistBundle(
 		Project project, String taskName, Download downloadBundleTask,
-		final WorkspaceExtension workspaceExtension,
+		WorkspaceExtension workspaceExtension,
 		Configuration providedModulesConfiguration) {
 
-		DistBundleTask distBundleTask = GradleUtil.addTask(
-			project, taskName, DistBundleTask.class);
-
-		_configureTaskDistBundle(
-			project, distBundleTask, downloadBundleTask, workspaceExtension,
-			workspaceExtension.getEnvironment(), providedModulesConfiguration);
+		Copy distBundleTask = GradleUtil.addTask(project, taskName, Copy.class);
 
 		project.afterEvaluate(
 			new Action<Project>() {
 
 				@Override
 				public void execute(Project project) {
-					distBundleTask.setEnvironment(
-						workspaceExtension.getEnvironment());
-					distBundleTask.setIncludeMetadata(
-						workspaceExtension.isBundleDistIncludeMetadata());
+					_configureTaskDistBundle(
+						project, distBundleTask, downloadBundleTask,
+						workspaceExtension, workspaceExtension.getEnvironment(),
+						providedModulesConfiguration);
 				}
 
 			});
@@ -1334,18 +1330,19 @@ public class RootProjectConfigurator implements Plugin<Project> {
 
 					for (File file : configsDir.listFiles()) {
 						if (file.isDirectory() &&
-							!Objects.equals(file.getName(), "common")) {
+							!Objects.equals(file.getName(), "common") &&
+							!Objects.equals(file.getName(), "docker")) {
 
 							environments.add(file.getName());
 						}
 					}
 
 					for (String env : environments) {
-						TaskProvider<DistBundleTask> distBundleTaskProvider =
+						TaskProvider<Copy> distBundleTaskProvider =
 							GradleUtil.addTaskProvider(
 								project,
 								"distBundle" + StringUtil.capitalize(env),
-								DistBundleTask.class);
+								Copy.class);
 
 						_configureDistBundleTaskProvider(
 							project, distBundleTaskProvider, downloadBundleTask,
@@ -1387,7 +1384,7 @@ public class RootProjectConfigurator implements Plugin<Project> {
 	private <T extends AbstractArchiveTask> void
 		_configureDistBundleArchiveTaskProvider(
 			Project project, TaskProvider<T> distBundleArchiveTaskProvider,
-			TaskProvider<DistBundleTask> distBundleTaskProvider,
+			TaskProvider<Copy> distBundleTaskProvider,
 			WorkspaceExtension workspaceExtension, String envrionment) {
 
 		distBundleArchiveTaskProvider.configure(
@@ -1442,7 +1439,7 @@ public class RootProjectConfigurator implements Plugin<Project> {
 	}
 
 	private <T extends AbstractArchiveTask> void _configureDistBundleTask(
-		Project project, DistBundleTask distBundleTask, T task) {
+		Project project, WorkspaceExtension workspaceExtension, T task) {
 
 		project.afterEvaluate(
 			new Action<Project>() {
@@ -1450,7 +1447,7 @@ public class RootProjectConfigurator implements Plugin<Project> {
 				@Override
 				public void execute(Project project) {
 					Boolean buildFileMetaData =
-						distBundleTask.isIncludeMetadata();
+						workspaceExtension.isBundleDistIncludeMetadata();
 					Property<String> archiveBaseNameProperty =
 						task.getArchiveBaseName();
 
@@ -1459,7 +1456,7 @@ public class RootProjectConfigurator implements Plugin<Project> {
 
 						archiveBaseNameProperty.set(
 							project.getName() + "-" +
-								distBundleTask.getEnvironment() + "-" +
+								workspaceExtension.getEnvironment() + "-" +
 									calendarInstance.getTimeInMillis());
 					}
 					else {
@@ -1471,23 +1468,19 @@ public class RootProjectConfigurator implements Plugin<Project> {
 	}
 
 	private void _configureDistBundleTaskProvider(
-		Project project, TaskProvider<DistBundleTask> distBundleTaskProvider,
+		Project project, TaskProvider<Copy> distBundleTaskProvider,
 		Download downloadBundleTask, WorkspaceExtension workspaceExtension,
 		String envrionment, Configuration providedModulesConfiguration) {
 
 		distBundleTaskProvider.configure(
-			new Action<DistBundleTask>() {
+			new Action<Copy>() {
 
 				@Override
-				public void execute(DistBundleTask dynamicDistBundleTask) {
+				public void execute(Copy dynamicDistBundleTask) {
 					_configureTaskDistBundle(
 						project, dynamicDistBundleTask, downloadBundleTask,
 						workspaceExtension, envrionment,
 						providedModulesConfiguration);
-
-					dynamicDistBundleTask.setEnvironment(envrionment);
-					dynamicDistBundleTask.setIncludeMetadata(
-						workspaceExtension.isBundleDistIncludeMetadata());
 				}
 
 			});
@@ -1685,9 +1678,8 @@ public class RootProjectConfigurator implements Plugin<Project> {
 
 	@SuppressWarnings("serial")
 	private void _configureTaskDistBundle(
-		final Project project, DistBundleTask distBundleTask,
-		Download downloadBundleTask, WorkspaceExtension workspaceExtension,
-		String bundleConfigEnvironment,
+		final Project project, Copy distBundleTask, Download downloadBundleTask,
+		WorkspaceExtension workspaceExtension, String bundleConfigEnvironment,
 		Configuration providedModulesConfiguration) {
 
 		_configureTaskCopyBundleFromConfig(
