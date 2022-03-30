@@ -28,10 +28,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import org.gradle.api.Action;
+import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
+import org.osgi.framework.Version;
 
 /**
  * @author David Truong
@@ -48,6 +50,8 @@ public class LiferayWorkspaceYarnPlugin extends YarnPlugin {
 
 		GradleUtil.applyPlugin(project, NodeDefaultsPlugin.class);
 
+		_configureNodeAndNpmVersion(project);
+		
 		TaskProvider<SetUpYarnTask> setUpYarnTaskProvider =
 			GradleUtil.addTaskProvider(
 				project, SET_UP_YARN_TASK_NAME, SetUpYarnTask.class);
@@ -69,6 +73,49 @@ public class LiferayWorkspaceYarnPlugin extends YarnPlugin {
 
 			});
 	}
+	
+	private static final Version _MINIMUM_NODE_VERSION = Version.parseVersion(
+			"10.15.3");
+
+		private static final Version _MINIMUM_NPM_VERSION = Version.parseVersion(
+			"6.4.1");
+	
+	private void _configureNodeAndNpmVersion(Project project) {
+		NodeExtension nodeExtension = GradleUtil.getExtension(
+			project, NodeExtension.class);
+
+		String nodeVersion = nodeExtension.getNodeVersion();
+
+		try {
+			Version version = Version.parseVersion(nodeVersion);
+
+			if (version.compareTo(_MINIMUM_NODE_VERSION) > 0) {
+				nodeVersion = _MINIMUM_NODE_VERSION.toString();
+
+				nodeExtension.setNodeVersion(nodeVersion);
+			}
+		}
+		catch (Exception exception) {
+			throw new GradleException(
+				"Unable to parse node version", exception);
+		}
+
+		String npmVersion = nodeExtension.getNpmVersion();
+
+		try {
+			Version version = Version.parseVersion(nodeVersion);
+
+			if (version.compareTo(_MINIMUM_NPM_VERSION) > 0) {
+				npmVersion = _MINIMUM_NPM_VERSION.toString();
+
+				nodeExtension.setNpmVersion(npmVersion);
+			}
+		}
+		catch (Exception exception) {
+			throw new GradleException("Unable to parse npm version", exception);
+		}
+	}
+
 
 	private void _configureNodeProject(
 		Project project,

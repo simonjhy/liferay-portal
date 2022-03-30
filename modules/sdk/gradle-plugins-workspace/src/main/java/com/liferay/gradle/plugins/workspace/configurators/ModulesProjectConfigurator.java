@@ -22,6 +22,7 @@ import com.liferay.gradle.plugins.extensions.LiferayOSGiExtension;
 import com.liferay.gradle.plugins.js.module.config.generator.JSModuleConfigGeneratorPlugin;
 import com.liferay.gradle.plugins.js.transpiler.JSTranspilerBasePlugin;
 import com.liferay.gradle.plugins.js.transpiler.JSTranspilerPlugin;
+import com.liferay.gradle.plugins.node.NodeExtension;
 import com.liferay.gradle.plugins.node.NodePlugin;
 import com.liferay.gradle.plugins.rest.builder.RESTBuilderPlugin;
 import com.liferay.gradle.plugins.service.builder.ServiceBuilderPlugin;
@@ -60,6 +61,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.gradle.api.Action;
+import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -80,6 +82,7 @@ import org.gradle.jvm.tasks.Jar;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
 import org.osgi.framework.Constants;
+import org.osgi.framework.Version;
 
 /**
  * @author Andrea Di Giorgi
@@ -113,7 +116,7 @@ public class ModulesProjectConfigurator extends BaseProjectConfigurator {
 		File bndBndFile = project.file("bnd.bnd");
 		File buildGradleFile = project.file("build.gradle");
 		File pomXmlFile = project.file("pom.xml");
-
+		
 		if (bndBndFile.exists() &&
 			(buildGradleFile.exists() || pomXmlFile.exists())) {
 
@@ -138,6 +141,13 @@ public class ModulesProjectConfigurator extends BaseProjectConfigurator {
 			GradleUtil.applyPlugin(project, UpgradeTableBuilderPlugin.class);
 			GradleUtil.applyPlugin(project, WSDDBuilderPlugin.class);
 
+			
+			File packageJson = project.file("package.json");
+
+			if (packageJson.exists() ) {
+				_configureNodeAndNpmVersion(project);
+			}
+			
 			if (GradleUtil.hasTask(
 					project, NodePlugin.PACKAGE_RUN_BUILD_TASK_NAME)) {
 
@@ -237,6 +247,50 @@ public class ModulesProjectConfigurator extends BaseProjectConfigurator {
 		addTaskDockerDeploy(project, jarSourcePath, workspaceExtension);
 	}
 
+	private static final Version _MINIMUM_NODE_VERSION = Version.parseVersion(
+			"10.15.3");
+
+		private static final Version _MINIMUM_NPM_VERSION = Version.parseVersion(
+			"6.4.1");
+	
+	private void _configureNodeAndNpmVersion(Project project) {
+		NodeExtension nodeExtension = GradleUtil.getExtension(
+			project, NodeExtension.class);
+
+		String nodeVersion = nodeExtension.getNodeVersion();
+
+		try {
+			Version version = Version.parseVersion(nodeVersion);
+
+			if (version.compareTo(_MINIMUM_NODE_VERSION) > 0) {
+				nodeVersion = _MINIMUM_NODE_VERSION.toString();
+
+				nodeExtension.setNodeVersion(nodeVersion);
+			}
+		}
+		catch (Exception exception) {
+			throw new GradleException(
+				"Unable to parse node version", exception);
+		}
+
+		String npmVersion = nodeExtension.getNpmVersion();
+
+		try {
+			Version version = Version.parseVersion(nodeVersion);
+
+			if (version.compareTo(_MINIMUM_NPM_VERSION) > 0) {
+				npmVersion = _MINIMUM_NPM_VERSION.toString();
+
+				nodeExtension.setNpmVersion(npmVersion);
+			}
+		}
+		catch (Exception exception) {
+			throw new GradleException("Unable to parse npm version", exception);
+		}
+	}
+
+	
+	
 	@Override
 	public String getName() {
 		return NAME;
