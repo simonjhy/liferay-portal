@@ -18,6 +18,7 @@ import com.liferay.gradle.plugins.LiferayBasePlugin;
 import com.liferay.gradle.plugins.extensions.AppServer;
 import com.liferay.gradle.plugins.extensions.LiferayExtension;
 import com.liferay.gradle.plugins.extensions.TomcatAppServer;
+import com.liferay.gradle.plugins.node.NodeExtension;
 import com.liferay.gradle.plugins.workspace.ProjectConfigurator;
 import com.liferay.gradle.plugins.workspace.WorkspaceExtension;
 import com.liferay.gradle.plugins.workspace.WorkspacePlugin;
@@ -37,6 +38,8 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.tasks.Copy;
+
+import org.osgi.framework.Version;
 
 /**
  * @author Andrea Di Giorgi
@@ -167,6 +170,46 @@ public abstract class BaseProjectConfigurator implements ProjectConfigurator {
 		}
 	}
 
+	protected void configureNodeAndNpmVersion(Project project) {
+		NodeExtension nodeExtension = GradleUtil.getExtension(
+			project, NodeExtension.class);
+
+		String nodeVersion = nodeExtension.getNodeVersion();
+
+		try {
+			Version version = Version.parseVersion(nodeVersion);
+
+			int compareResult = version.compareTo(_MAXIMUM_NODE_VERSION);
+
+			if (compareResult > 0) {
+				nodeVersion = _MAXIMUM_NODE_VERSION.toString();
+
+				nodeExtension.setNodeVersion(nodeVersion);
+			}
+		}
+		catch (Exception exception) {
+			throw new GradleException(
+				"Unable to parse node version", exception);
+		}
+
+		String npmVersion = nodeExtension.getNpmVersion();
+
+		try {
+			Version version = Version.parseVersion(npmVersion);
+
+			int compareResult = version.compareTo(_MAXIMUM_NPM_VERSION);
+
+			if (compareResult > 0) {
+				npmVersion = _MAXIMUM_NPM_VERSION.toString();
+
+				nodeExtension.setNpmVersion(npmVersion);
+			}
+		}
+		catch (Exception exception) {
+			throw new GradleException("Unable to parse npm version", exception);
+		}
+	}
+
 	protected abstract Iterable<File> doGetProjectDirs(File rootDir)
 		throws Exception;
 
@@ -193,6 +236,12 @@ public abstract class BaseProjectConfigurator implements ProjectConfigurator {
 
 		return false;
 	}
+
+	private static final Version _MAXIMUM_NODE_VERSION = Version.parseVersion(
+		"14.19.0");
+
+	private static final Version _MAXIMUM_NPM_VERSION = Version.parseVersion(
+		"6.14.16");
 
 	private final Set<File> _defaultRootDirs;
 
