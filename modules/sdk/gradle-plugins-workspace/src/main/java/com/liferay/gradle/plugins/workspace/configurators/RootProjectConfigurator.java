@@ -722,9 +722,8 @@ public class RootProjectConfigurator implements Plugin<Project> {
 						new ArrayList<>(instructions.get());
 
 					String dockerLocalRegistryAddress =
-							workspaceExtension.
-								getDockerLocalRegistryAddress();
-					
+						workspaceExtension.getDockerLocalRegistryAddress();
+
 					if (Objects.nonNull(workspaceExtension.getProduct())) {
 						WorkspaceExtension.ProductInfo productInfo =
 							workspaceExtension.getProductInfo();
@@ -757,14 +756,14 @@ public class RootProjectConfigurator implements Plugin<Project> {
 						}
 					}
 					else {
-						String dockerImageLiferay = workspaceExtension.
-								getDockerImageLiferay();
-						
+						String dockerImageLiferay =
+							workspaceExtension.getDockerImageLiferay();
+
 						if (Objects.nonNull(dockerLocalRegistryAddress)) {
 							dockerImageLiferay = dockerImageLiferay.replace(
 								"liferay", dockerLocalRegistryAddress);
 						}
-						
+
 						Dockerfile.FromInstruction baseImage =
 							new Dockerfile.FromInstruction(
 								new Dockerfile.From(dockerImageLiferay));
