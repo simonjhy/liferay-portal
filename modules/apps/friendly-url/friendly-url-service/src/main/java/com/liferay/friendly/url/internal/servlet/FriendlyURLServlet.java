@@ -22,6 +22,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.encryptor.Encryptor;
 import com.liferay.portal.kernel.encryptor.EncryptorException;
+import com.liferay.portal.kernel.exception.LayoutPermissionException;
 import com.liferay.portal.kernel.exception.NoSuchGroupException;
 import com.liferay.portal.kernel.exception.NoSuchLayoutException;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -241,7 +242,7 @@ public class FriendlyURLServlet extends HttpServlet {
 				if (!LayoutPermissionUtil.contains(
 						permissionChecker, layout, ActionKeys.VIEW)) {
 
-					throw new NoSuchLayoutException();
+					throw new LayoutPermissionException();
 				}
 			}
 
@@ -329,7 +330,7 @@ public class FriendlyURLServlet extends HttpServlet {
 				}
 			}
 		}
-		catch (NoSuchLayoutException noSuchLayoutException) {
+		catch (LayoutPermissionException | NoSuchLayoutException exception) {
 			Layout redirectLayout = null;
 
 			if (layoutFriendlyURL == null) {
@@ -361,16 +362,18 @@ public class FriendlyURLServlet extends HttpServlet {
 					group, _normalizeFriendlyURL(layoutFriendlyURL));
 			}
 
-			if (Validator.isNotNull(
-					PropsValues.LAYOUT_FRIENDLY_URL_PAGE_NOT_FOUND)) {
+			if (exception instanceof NoSuchLayoutException) {
+				if (Validator.isNotNull(
+						PropsValues.LAYOUT_FRIENDLY_URL_PAGE_NOT_FOUND)) {
 
-				throw noSuchLayoutException;
+					throw exception;
+				}
+
+				httpServletResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);
+
+				httpServletRequest.setAttribute(
+					NoSuchLayoutException.class.getName(), Boolean.TRUE);
 			}
-
-			httpServletResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);
-
-			httpServletRequest.setAttribute(
-				NoSuchLayoutException.class.getName(), Boolean.TRUE);
 
 			layoutFriendlyURL = null;
 		}

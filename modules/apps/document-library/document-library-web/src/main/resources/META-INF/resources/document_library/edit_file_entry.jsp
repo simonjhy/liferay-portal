@@ -462,6 +462,7 @@ renderResponse.setTitle(headerTitle);
 												containerId='<%= liferayPortletResponse.getNamespace() + "dataEngineLayoutRenderer" + ddmStructure.getStructureId() %>'
 												dataDefinitionId="<%= ddmStructure.getStructureId() %>"
 												dataRecordValues="<%= ddmFormValuesToMapConverter.convert(ddmFormValues, DDMStructureLocalServiceUtil.getStructure(ddmStructure.getStructureId())) %>"
+												languageId="<%= dlEditFileEntryDisplayContext.getDocumentTypeLanguageId(ddmStructure, PortalUtil.getLocale(request)) %>"
 												namespace="<%= liferayPortletResponse.getNamespace() + ddmStructure.getStructureId() + StringPool.UNDERLINE %>"
 												persistDefaultValues="<%= true %>"
 												persisted="<%= fileEntry != null %>"
@@ -584,20 +585,18 @@ renderResponse.setTitle(headerTitle);
 					</aui:fieldset>
 				</c:if>
 
-				<c:if test="<%= FFFriendlyURLEntryFileEntryConfigurationUtil.enabled() %>">
-					<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="friendly-url">
-						<liferay-friendly-url:input
-							className="<%= FileEntry.class.getName() %>"
-							classPK="<%= fileEntryId %>"
-							inputAddon="<%= dlEditFileEntryDisplayContext.getFriendlyURLBase() %>"
-							localizable="<%= false %>"
-							name="urlTitle"
-							showHistory="<%= true %>"
-						/>
+				<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="friendly-url">
+					<liferay-friendly-url:input
+						className="<%= FileEntry.class.getName() %>"
+						classPK="<%= fileEntryId %>"
+						inputAddon="<%= dlEditFileEntryDisplayContext.getFriendlyURLBase() %>"
+						localizable="<%= false %>"
+						name="urlTitle"
+						showHistory="<%= true %>"
+					/>
 
-						<p class="text-secondary"><liferay-ui:message key="the-friendly-url-may-be-modified-to-ensure-uniqueness" /></p>
-					</aui:fieldset>
-				</c:if>
+					<p class="text-secondary"><liferay-ui:message key="the-friendly-url-may-be-modified-to-ensure-uniqueness" /></p>
+				</aui:fieldset>
 
 				<c:if test="<%= (folder == null) || folder.isSupportsSocial() %>">
 					<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="related-assets">

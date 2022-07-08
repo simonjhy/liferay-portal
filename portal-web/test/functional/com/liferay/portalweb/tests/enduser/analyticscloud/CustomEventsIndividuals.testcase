@@ -250,9 +250,7 @@ definition {
 				customEventName = "${customEventName1}",
 				timeToSendCustomEvent = "1");
 
-			// Pause is necessary because poshi logs in from one user to another very quickly.
-
-			Pause(locator1 = "5000");
+			ACUtils.logInPause();
 		}
 
 		task ("Sign in as new user") {

@@ -692,9 +692,6 @@ definition {
 	@description = "This ensures that an image in the MB content field can be rendered correctly after it to a folder."
 	@priority = "4"
 	test CanViewImageInThreadAfterMovingToFolder {
-		property osgi.module.configuration.file.names = "com.liferay.document.library.configuration.FFFriendlyURLEntryFileEntryConfiguration.config";
-		property osgi.module.configurations = "enabled=B&quot;true&quot;";
-
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "DM Document Title",
@@ -742,8 +739,8 @@ definition {
 	@description = "This ensures that an image in the MB content field can be rendered correctly when publication is enabled."
 	@priority = "5"
 	test CanViewImageInThreadWithPublication {
-		property osgi.module.configuration.file.names = "com.liferay.change.tracking.configuration.CTSettingsConfiguration.config:com.liferay.document.library.configuration.FFFriendlyURLEntryFileEntryConfiguration.config";
-		property osgi.module.configurations = "enabled=B&quot;true&quot;:enabled=B&quot;true&quot;";
+		property osgi.module.configuration.file.names = "com.liferay.change.tracking.configuration.CTSettingsConfiguration.config";
+		property osgi.module.configurations = "enabled=B&quot;true&quot;";
 
 		JSONPublications.addPublication(publicationName = "Publication Name");
 

@@ -23,9 +23,12 @@ public class UpgradeMVCCVersion
 	@Override
 	protected String[] getExcludedTableNames() {
 		return new String[] {
-			"BackgroundTask", "ExportImportConfiguration", "LayoutFriendlyURL",
+			"BackgroundTask", "CompanyInfo", "CountryLocalization",
+			"ExportImportConfiguration", "LayoutFriendlyURL",
+			"PortalPreferenceValue", "PortletPreferenceValue",
 			"RecentLayoutBranch", "RecentLayoutRevision",
-			"RecentLayoutSetBranch", "SystemEvent", "UserNotificationDelivery"
+			"RecentLayoutSetBranch", "RegionLocalization", "SystemEvent",
+			"UserNotificationDelivery"
 		};
 	}
 

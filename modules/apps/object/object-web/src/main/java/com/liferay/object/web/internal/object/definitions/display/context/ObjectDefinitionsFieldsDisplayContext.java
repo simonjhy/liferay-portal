@@ -171,6 +171,8 @@ public class ObjectDefinitionsFieldsDisplayContext
 		).put(
 			"DBType", objectField.getDBType()
 		).put(
+			"defaultValue", objectField.getDefaultValue()
+		).put(
 			"externalReferenceCode", objectField.getExternalReferenceCode()
 		).put(
 			"id", Long.valueOf(objectField.getObjectFieldId())

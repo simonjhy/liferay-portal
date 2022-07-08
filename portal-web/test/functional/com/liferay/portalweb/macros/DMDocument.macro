@@ -1043,6 +1043,8 @@ definition {
 			locator1 = "DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_TITLE",
 			value1 = "${dmDocumentTitle}");
 
+		WaitForPageLoad();
+
 		AssertTextEquals(
 			locator1 = "Message#CHECKOUT_SUCCESS",
 			value1 = "You now have a lock on this document. No one else can edit this document until you unlock it. This lock will automatically expire in 1 day.");
@@ -1139,6 +1141,8 @@ definition {
 		else {
 			DMNavigator.openToConfigInInstanceSettings(portlet = "Cache Control");
 		}
+
+		WaitForPageLoad();
 
 		if (isSet(cacheControl)) {
 			AssertTextEquals(
@@ -1775,6 +1779,8 @@ definition {
 
 			Click(locator1 = "Button#EDIT");
 		}
+
+		WaitForPageLoad();
 
 		DMDocument.editCmd(
 			dmDocumentDescriptionEdit = "${dmDocumentDescriptionEdit}",
@@ -2819,6 +2825,8 @@ definition {
 	}
 
 	macro viewCacheControlConfigurationInConsole {
+		echo("${responseHeader}");
+
 		if (isSet(uncacheableMimeType)) {
 			if (contains("${responseHeader}", "Cache-Control: private, no-cache, no-store, must-revalidate")) {
 				echo("This file can not be cached");
@@ -3342,6 +3350,15 @@ definition {
 				locator1 = "TextInput#GENERIC_TEXT_INPUT",
 				value1 = "${dmDocumentFileName}");
 		}
+
+		if (isSet(friendlyURL)) {
+			Panel.expandPanel(panel = "Friendly URL");
+
+			AssertTextEquals.assertValue(
+				key_fieldLabel = "Friendly URL",
+				locator1 = "TextInput#GENERIC_TEXT_INPUT",
+				value1 = "${friendlyURL}");
+		}
 	}
 
 	macro viewFieldLabels {
@@ -3422,7 +3439,7 @@ definition {
 			var portalURL = StringUtil.replace("${portalURL}", ":8080", ":9080");
 		}
 
-		var latestVersionURL = "${portalURL}/documents/${siteId}/0/${dmDocumentFileName}";
+		var latestVersionURL = "${portalURL}/documents/d/${siteName}/${dmDocumentFileName}";
 
 		AssertElementPresent(
 			key_latestVersionURL = "${latestVersionURL}",

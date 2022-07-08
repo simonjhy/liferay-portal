@@ -114,7 +114,7 @@ definition {
 				}
 
 				task ("Wait for sending requests") {
-					Pause(locator1 = "5000");
+					ACUtils.waitForSendingRequest();
 				}
 
 				task ("View the fieldName of fieldFocused event") {
@@ -142,7 +142,7 @@ definition {
 				}
 
 				task ("Wait for sending requests") {
-					Pause(locator1 = "5000");
+					ACUtils.waitForSendingRequest();
 				}
 
 				task ("View the fieldName of fieldBlurred event") {
@@ -182,7 +182,7 @@ definition {
 				}
 
 				task ("Wait for sending requests") {
-					Pause(locator1 = "5000");
+					ACUtils.waitForSendingRequest();
 				}
 
 				task ("View the fieldName of fieldFocused event") {
@@ -216,7 +216,7 @@ definition {
 				}
 
 				task ("Wait for sending requests") {
-					Pause(locator1 = "5000");
+					ACUtils.waitForSendingRequest();
 				}
 
 				task ("View the fieldName of fieldBlurred event") {
@@ -291,8 +291,8 @@ definition {
 				locator1 = "FormFields#TEXT_FIELD");
 		}
 
-		task ("Stay 2 seconds") {
-			Pause(locator1 = "2000");
+		task ("Wait for sending requests") {
+			ACUtils.waitForSendingRequest();
 		}
 
 		task ("Navigate to the Submit button via Tab key") {
@@ -303,7 +303,7 @@ definition {
 		}
 
 		task ("Wait for sending requests") {
-			Pause(locator1 = "5000");
+			ACUtils.waitForSendingRequest();
 		}
 
 		task ("View the formId of fieldBlurred event") {
@@ -399,8 +399,8 @@ definition {
 				locator1 = "FormFields#TEXT_FIELD");
 		}
 
-		task ("Stay 2 seconds") {
-			Pause(locator1 = "2000");
+		task ("Wait for sending requests") {
+			ACUtils.waitForSendingRequest();
 		}
 
 		task ("Click the header title") {
@@ -410,7 +410,7 @@ definition {
 		}
 
 		task ("Wait for sending requests") {
-			Pause(locator1 = "5000");
+			ACUtils.waitForSendingRequest();
 		}
 
 		task ("View the formId of fieldBlurred event") {
@@ -507,7 +507,7 @@ definition {
 		}
 
 		task ("Wait for sending requests") {
-			Pause(locator1 = "5000");
+			ACUtils.waitForSendingRequest();
 		}
 
 		task ("View the formId of fieldFocused event") {
@@ -608,7 +608,7 @@ definition {
 		}
 
 		task ("Wait for sending requests") {
-			Pause(locator1 = "5000");
+			ACUtils.waitForSendingRequest();
 		}
 
 		task ("View the formId of fieldFocused event") {
@@ -690,7 +690,7 @@ definition {
 		}
 
 		task ("Wait for sending requests") {
-			Pause(locator1 = "10000");
+			ACUtils.waitForSendingRequest();
 		}
 
 		task ("View the formId of formSubmitted event") {
@@ -762,7 +762,7 @@ definition {
 		}
 
 		task ("Wait for sending requests") {
-			Pause(locator1 = "10000");
+			ACUtils.waitForSendingRequest();
 		}
 
 		task ("View the formId of formViewed event") {
@@ -839,10 +839,6 @@ definition {
 				siteName = "Site Name");
 		}
 
-		task ("Wait for sending requests") {
-			Pause(locator1 = "5000");
-		}
-
 		task ("Start Har recording") {
 			ProxyUtil.startHarRecording("pageViewed");
 		}
@@ -852,7 +848,7 @@ definition {
 		}
 
 		task ("Wait for sending requests") {
-			Pause(locator1 = "5000");
+			ACUtils.waitForSendingRequest();
 		}
 
 		task ("View the formId of formViewed event") {

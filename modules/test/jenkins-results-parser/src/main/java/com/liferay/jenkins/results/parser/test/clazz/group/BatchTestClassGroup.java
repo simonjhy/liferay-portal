@@ -208,6 +208,13 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 
 		jsonObject = new JSONObject();
 
+		jsonObject.put("average_duration", getAverageDuration());
+		jsonObject.put(
+			"average_overhead_duration", getAverageOverheadDuration());
+		jsonObject.put("batch_name", getBatchName());
+		jsonObject.put("include_stable_test_suite", includeStableTestSuite);
+		jsonObject.put("job_properties", _getJobPropertiesMap());
+
 		JSONArray segmentJSONArray = new JSONArray();
 
 		for (SegmentTestClassGroup segmentTestClassGroup :
@@ -218,9 +225,6 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 
 		jsonObject.put("segments", segmentJSONArray);
 
-		jsonObject.put("batch_name", getBatchName());
-		jsonObject.put("include_stable_test_suite", includeStableTestSuite);
-		jsonObject.put("job_properties", _getJobPropertiesMap());
 		jsonObject.put("test_release_bundle", testReleaseBundle);
 		jsonObject.put("test_relevant_changes", testRelevantChanges);
 		jsonObject.put(
@@ -386,7 +390,7 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 			return Integer.parseInt(jobPropertyValue);
 		}
 
-		return _AXES_SIZE_MAX_DEFAULT;
+		return AXES_SIZE_MAX_DEFAULT;
 	}
 
 	protected List<String> getGlobs(List<JobProperty> jobProperties) {
@@ -597,6 +601,21 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 		return _SEGMENT_MAX_CHILDREN_DEFAULT;
 	}
 
+	protected long getTargetAxisDuration() {
+		JobProperty jobProperty = getJobProperty(
+			"test.batch.target.axis.duration");
+
+		String jobPropertyValue = jobProperty.getValue();
+
+		if ((jobPropertyValue == null) || !jobPropertyValue.matches("\\d+")) {
+			return 0L;
+		}
+
+		recordJobProperty(jobProperty);
+
+		return Long.parseLong(jobPropertyValue);
+	}
+
 	protected String getTestSuiteName() {
 		return testSuiteName;
 	}
@@ -725,6 +744,8 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 		}
 	}
 
+	protected static final int AXES_SIZE_MAX_DEFAULT = 5000;
+
 	protected static final String NAME_STABLE_TEST_SUITE = "stable";
 
 	protected static final String SLAVE_LABEL_DEFAULT = "!master";
@@ -802,18 +823,18 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 
 	}
 
-	private Long _getDefaultTestDuration() {
+	private long _getDefaultTestDuration() {
 		JobProperty jobProperty = getJobProperty(
 			"test.batch.default.test.duration");
 
 		if (jobProperty == null) {
-			return null;
+			return 0L;
 		}
 
 		String jobPropertyValue = jobProperty.getValue();
 
 		if (JenkinsResultsParserUtil.isNullOrEmpty(jobPropertyValue)) {
-			return null;
+			return 0L;
 		}
 
 		recordJobProperty(jobProperty);
@@ -1043,8 +1064,6 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 
 		testRelevantIntegrationUnitOnly = false;
 	}
-
-	private static final int _AXES_SIZE_MAX_DEFAULT = 5000;
 
 	private static final int _SEGMENT_MAX_CHILDREN_DEFAULT = 25;
 

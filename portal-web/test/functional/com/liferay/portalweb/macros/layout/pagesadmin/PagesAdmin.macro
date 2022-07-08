@@ -66,6 +66,8 @@ definition {
 			PagesAdmin.togglePageTemplateInheritChanges(toggleValue = "${inheritChanges}");
 		}
 
+		Navigator.gotoNavUnderline(navUnderline = "General");
+
 		AssertVisible(locator1 = "TextInput#NAME");
 
 		if (isSet(openGraph)) {
@@ -584,6 +586,24 @@ definition {
 		Button.click(button = "Save");
 
 		WaitForSPARefresh();
+	}
+
+	macro addThemeCSSExtension {
+		WaitForEditable(
+			key_text = "Extension",
+			locator1 = "TextInput#ANY");
+
+		Click(
+			key_text = "Extension",
+			locator1 = "TextInput#ANY");
+
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+		Click(
+			key_listEntry = "${extensionName}",
+			locator1 = "LexiconList#LIST_ENTRY_TITLE");
+
+		SelectFrameTop();
 	}
 
 	macro cannotDeletePagesAssociatedWithSiteTemplate {

@@ -93,6 +93,10 @@ definition {
 				value1 = "${defaultLanguageLocalizationMessage}");
 		}
 
+		if (IsElementNotPresent(locator1 = "Home#PORTAL_LOCALIZATION_PREFERRED_LANGUAGE_MESSAGE")) {
+			Refresh();
+		}
+
 		AssertTextEquals(
 			locator1 = "Home#PORTAL_LOCALIZATION_PREFERRED_LANGUAGE_MESSAGE",
 			value1 = "${preferredLanguageLocalizationMessage}");

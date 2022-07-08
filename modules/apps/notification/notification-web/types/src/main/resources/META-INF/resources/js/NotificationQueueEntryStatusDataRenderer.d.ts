@@ -12,22 +12,12 @@
  * details.
  */
 
-package com.liferay.document.library.configuration;
+/// <reference types="react" />
 
-import aQute.bnd.annotation.metatype.Meta;
-
-import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
-
-/**
- * @author Alicia García
- */
-@ExtendedObjectClassDefinition(generateUI = false)
-@Meta.OCD(
-	id = "com.liferay.document.library.configuration.FFFriendlyURLEntryFileEntryConfiguration"
-)
-public interface FFFriendlyURLEntryFileEntryConfiguration {
-
-	@Meta.AD(deflt = "false", required = false)
-	public boolean enabled();
-
+export declare function NotificationQueueEntryStatusDataRenderer({
+	value,
+}: IProps): JSX.Element;
+interface IProps {
+	value: boolean;
 }
+export {};

@@ -941,11 +941,8 @@
 					"type": "string"
 				},
 				"name": {
-					"items": {
-						"type": "string"
-					},
 					"title": "The name Schema",
-					"type": "array"
+					"type": "string"
 				},
 				"numberOfColumns": {
 					"minimum": 0,
@@ -1351,12 +1348,66 @@
 					"title": "The indexed Schema",
 					"type": "boolean"
 				},
-				"name": {
-					"items": {
-						"type": "string"
+				"layout": {
+					"additionalProperties": false,
+					"properties": {
+						"align": {
+							"enum": [
+								"Baseline",
+								"Center",
+								"End",
+								"None",
+								"Start",
+								"Stretch"
+							],
+							"title": "The align Schema",
+							"type": "string"
+						},
+						"contentDisplay": {
+							"enum": [
+								"Block",
+								"FlexColumn",
+								"FlexRow"
+							],
+							"title": "The contentDisplay Schema",
+							"type": "string"
+						},
+						"flexWrap": {
+							"enum": [
+								"NoWrap",
+								"Wrap",
+								"WrapReverse"
+							],
+							"title": "The flexWrap Schema",
+							"type": "string"
+						},
+						"justify": {
+							"enum": [
+								"Center",
+								"End",
+								"None",
+								"SpaceAround",
+								"SpaceBetween",
+								"Start"
+							],
+							"title": "The justify Schema",
+							"type": "string"
+						},
+						"widthType": {
+							"enum": [
+								"Fixed",
+								"Fluid"
+							],
+							"title": "The widthType Schema",
+							"type": "string"
+						}
 					},
+					"title": "The layout Schema",
+					"type": "object"
+				},
+				"name": {
 					"title": "The name Schema",
-					"type": "array"
+					"type": "string"
 				}
 			},
 			"title": "The PageFormDefinition Schema",
@@ -1425,11 +1476,8 @@
 					"type": "boolean"
 				},
 				"name": {
-					"items": {
-						"type": "string"
-					},
 					"title": "The name Schema",
-					"type": "array"
+					"type": "string"
 				},
 				"widgetInstances": {
 					"items": {
@@ -1491,11 +1539,8 @@
 					"type": "integer"
 				},
 				"name": {
-					"items": {
-						"type": "string"
-					},
 					"title": "The name Schema",
-					"type": "array"
+					"type": "string"
 				},
 				"numberOfColumns": {
 					"maximum": 6,
@@ -1913,11 +1958,8 @@
 					"type": "object"
 				},
 				"name": {
-					"items": {
-						"type": "string"
-					},
 					"title": "The name Schema",
-					"type": "array"
+					"type": "string"
 				}
 			},
 			"title": "The PageSectionDefinition Schema",
