@@ -92,7 +92,7 @@ public class InitBundleMojo extends AbstractLiferayMojo {
 			initBundleCommand.setStripComponents(stripComponents);
 			initBundleCommand.setToken(token);
 			initBundleCommand.setTokenFile(tokenFile);
-			initBundleCommand.setUrl(productInfo.getBundleUrl());
+			initBundleCommand.setUrl(new URL(_decodeBundleUrl(productInfo)));
 			initBundleCommand.setUserName(userName);
 
 			initBundleCommand.execute();
