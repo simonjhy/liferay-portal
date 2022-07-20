@@ -28,6 +28,7 @@ import com.liferay.portal.tools.bundle.support.commands.InitBundleCommand;
 import com.liferay.portal.tools.bundle.support.constants.BundleSupportConstants;
 import com.liferay.portal.tools.bundle.support.internal.util.BundleSupportUtil;
 import com.liferay.portal.tools.bundle.support.internal.util.MavenUtil;
+import com.liferay.workspace.bundle.url.codec.BundleURLCodec;
 
 /**
  * @author David Truong
@@ -36,15 +37,9 @@ import com.liferay.portal.tools.bundle.support.internal.util.MavenUtil;
 @Mojo(inheritByDefault = false, name = "init")
 public class InitBundleMojo extends AbstractLiferayMojo {
 
-	private String _decodeBundleUrl(ProductInfo productInfo) {
-		try {
+	private String _decodeBundleUrl(ProductInfo productInfo) throws Exception {
 			return BundleURLCodec.decode(
 				productInfo.getBundleUrl(), productInfo.getReleaseDate());
-		}
-		catch (Exception exception) {
-			throw new GradleException(
-				"Unable to determine bundle URL", exception);
-		}
 	}
 	
 	@Override
