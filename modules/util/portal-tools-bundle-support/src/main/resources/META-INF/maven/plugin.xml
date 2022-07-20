@@ -7,7 +7,7 @@
 	<description/>
 	<groupId>com.liferay</groupId>
 	<artifactId>com.liferay.portal.tools.bundle.support</artifactId>
-	<version>3.7.3</version>
+	<version>3.7.4</version>
 	<goalPrefix>bundle-support</goalPrefix>
 	<isolatedRealm>false</isolatedRealm>
 	<inheritedByDefault>true</inheritedByDefault>
@@ -323,6 +323,13 @@
 					<description/>
 				</parameter>
 				<parameter>
+					<name>product</name>
+					<type>java.lang.String</type>
+					<required>false</required>
+					<editable>true</editable>
+					<description/>
+				</parameter>
+				<parameter>
 					<name>project</name>
 					<type>org.apache.maven.project.MavenProject</type>
 					<required>true</required>
@@ -382,6 +389,7 @@
 				<format implementation="java.lang.String" default-value="tar.gz"/>
 				<includeFolder implementation="boolean" default-value="true"/>
 				<outputFileName implementation="java.lang.String" default-value="${project.artifactId}.${project.packaging}"/>
+				<product implementation="java.lang.String" default-value="${liferay.workspace.product}"/>
 				<project implementation="org.apache.maven.project.MavenProject" default-value="${project}"/>
 				<reactorProjects implementation="java.util.List">${reactorProjects}</reactorProjects>
 				<stripComponents implementation="int" default-value="1"/>
@@ -447,6 +455,13 @@
 					<description/>
 				</parameter>
 				<parameter>
+					<name>product</name>
+					<type>java.lang.String</type>
+					<required>false</required>
+					<editable>true</editable>
+					<description/>
+				</parameter>
+				<parameter>
 					<name>project</name>
 					<type>org.apache.maven.project.MavenProject</type>
 					<required>true</required>
@@ -495,6 +510,7 @@
 				<cacheDir implementation="java.io.File" default-value="${user.home}/.liferay/bundles"/>
 				<configs implementation="java.lang.String" default-value="configs"/>
 				<environment implementation="java.lang.String" default-value="${liferay.workspace.environment}"/>
+				<product implementation="java.lang.String" default-value="${liferay.workspace.product}"/>
 				<project implementation="org.apache.maven.project.MavenProject" default-value="${project}"/>
 				<stripComponents implementation="int" default-value="1"/>
 				<tokenFile implementation="java.io.File" default-value="${user.home}/.liferay/token"/>
@@ -502,5 +518,12 @@
 			</configuration>
 		</mojo>
 	</mojos>
-	<dependencies/>
+	<dependencies>
+		<dependency>
+			<groupId>org.codehaus.groovy</groupId>
+			<artifactId>groovy-all</artifactId>
+			<type>jar</type>
+			<version>2.4.9</version>
+		</dependency>
+	</dependencies>
 </plugin>

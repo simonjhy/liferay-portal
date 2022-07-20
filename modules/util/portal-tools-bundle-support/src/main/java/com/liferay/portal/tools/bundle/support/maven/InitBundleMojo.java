@@ -14,13 +14,7 @@
 
 package com.liferay.portal.tools.bundle.support.maven;
 
-import com.liferay.portal.tools.bundle.support.commands.InitBundleCommand;
-import com.liferay.portal.tools.bundle.support.constants.BundleSupportConstants;
-import com.liferay.portal.tools.bundle.support.internal.util.BundleSupportUtil;
-import com.liferay.portal.tools.bundle.support.internal.util.MavenUtil;
-
 import java.io.File;
-
 import java.net.URL;
 
 import org.apache.maven.execution.MavenSession;
@@ -29,6 +23,12 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.settings.Proxy;
 
+import com.liferay.portal.tools.bundle.support.ProductInfo;
+import com.liferay.portal.tools.bundle.support.commands.InitBundleCommand;
+import com.liferay.portal.tools.bundle.support.constants.BundleSupportConstants;
+import com.liferay.portal.tools.bundle.support.internal.util.BundleSupportUtil;
+import com.liferay.portal.tools.bundle.support.internal.util.MavenUtil;
+
 /**
  * @author David Truong
  * @author Andrea Di Giorgi
@@ -36,6 +36,17 @@ import org.apache.maven.settings.Proxy;
 @Mojo(inheritByDefault = false, name = "init")
 public class InitBundleMojo extends AbstractLiferayMojo {
 
+	private String _decodeBundleUrl(ProductInfo productInfo) {
+		try {
+			return BundleURLCodec.decode(
+				productInfo.getBundleUrl(), productInfo.getReleaseDate());
+		}
+		catch (Exception exception) {
+			throw new GradleException(
+				"Unable to determine bundle URL", exception);
+		}
+	}
+	
 	@Override
 	public void execute() throws MojoExecutionException {
 		if (project.hasParent()) {
@@ -73,6 +84,8 @@ public class InitBundleMojo extends AbstractLiferayMojo {
 		}
 
 		try {
+			ProductInfo productInfo = BundleSupportUtil.getProductInfo(product);
+
 			InitBundleCommand initBundleCommand = new InitBundleCommand();
 
 			initBundleCommand.setCacheDir(cacheDir);
@@ -84,7 +97,7 @@ public class InitBundleMojo extends AbstractLiferayMojo {
 			initBundleCommand.setStripComponents(stripComponents);
 			initBundleCommand.setToken(token);
 			initBundleCommand.setTokenFile(tokenFile);
-			initBundleCommand.setUrl(url);
+			initBundleCommand.setUrl(productInfo.getBundleUrl());
 			initBundleCommand.setUserName(userName);
 
 			initBundleCommand.execute();
@@ -122,6 +135,9 @@ public class InitBundleMojo extends AbstractLiferayMojo {
 
 	@Parameter
 	protected String password;
+
+	@Parameter(defaultValue = "${liferay.workspace.product}")
+	protected String product;
 
 	@Parameter(
 		defaultValue = "" + BundleSupportConstants.DEFAULT_STRIP_COMPONENTS
