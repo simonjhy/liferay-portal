@@ -14,21 +14,38 @@
 
 package com.liferay.portal.tools.bundle.support.maven;
 
-import java.io.File;
-import java.net.URL;
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.settings.Proxy;
-
-import com.liferay.portal.tools.bundle.support.ProductInfo;
+import com.liferay.portal.tools.bundle.support.commands.DownloadCommand;
 import com.liferay.portal.tools.bundle.support.commands.InitBundleCommand;
 import com.liferay.portal.tools.bundle.support.constants.BundleSupportConstants;
 import com.liferay.portal.tools.bundle.support.internal.util.BundleSupportUtil;
 import com.liferay.portal.tools.bundle.support.internal.util.MavenUtil;
 import com.liferay.workspace.bundle.url.codec.BundleURLCodec;
+
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import java.net.URL;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.DependencyManagement;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.settings.Proxy;
 
 /**
  * @author David Truong
@@ -37,13 +54,11 @@ import com.liferay.workspace.bundle.url.codec.BundleURLCodec;
 @Mojo(inheritByDefault = false, name = "init")
 public class InitBundleMojo extends AbstractLiferayMojo {
 
-	private String _decodeBundleUrl(ProductInfo productInfo) throws Exception {
-			return BundleURLCodec.decode(
-				productInfo.getBundleUrl(), productInfo.getReleaseDate());
-	}
-	
 	@Override
 	public void execute() throws MojoExecutionException {
+		
+		DependencyManagement dependencyManagement = project.getDependencyManagement();
+		
 		if (project.hasParent()) {
 			return;
 		}
@@ -79,8 +94,6 @@ public class InitBundleMojo extends AbstractLiferayMojo {
 		}
 
 		try {
-			ProductInfo productInfo = BundleSupportUtil.getProductInfo(product);
-
 			InitBundleCommand initBundleCommand = new InitBundleCommand();
 
 			initBundleCommand.setCacheDir(cacheDir);
@@ -92,7 +105,12 @@ public class InitBundleMojo extends AbstractLiferayMojo {
 			initBundleCommand.setStripComponents(stripComponents);
 			initBundleCommand.setToken(token);
 			initBundleCommand.setTokenFile(tokenFile);
-			initBundleCommand.setUrl(new URL(_decodeBundleUrl(productInfo)));
+
+			if (Objects.isNull(url)) {
+				url = _getBundleUrl(product);
+			}
+
+			initBundleCommand.setUrl(url);
 			initBundleCommand.setUserName(userName);
 
 			initBundleCommand.execute();
@@ -115,6 +133,59 @@ public class InitBundleMojo extends AbstractLiferayMojo {
 					proxyProtocol + ".nonProxyHosts", nonProxyHosts);
 			}
 		}
+	}
+
+	public class ProductInfo {
+
+		public String getAppServerTomcatVersion() {
+			return _appServerTomcatVersion;
+		}
+
+		public String getBundleChecksumMD5() {
+			return _bundleChecksumMD5;
+		}
+
+		public String getBundleUrl() {
+			return _bundleUrl;
+		}
+
+		public String getLiferayDockerImage() {
+			return _liferayDockerImage;
+		}
+
+		public String getLiferayProductVersion() {
+			return _liferayProductVersion;
+		}
+
+		public String getReleaseDate() {
+			return _releaseDate;
+		}
+
+		public String getTargetPlatformVersion() {
+			return _targetPlatformVersion;
+		}
+
+		@SerializedName("appServerTomcatVersion")
+		private String _appServerTomcatVersion;
+
+		@SerializedName("bundleChecksumMD5")
+		private String _bundleChecksumMD5;
+
+		@SerializedName("bundleUrl")
+		private String _bundleUrl;
+
+		@SerializedName("liferayDockerImage")
+		private String _liferayDockerImage;
+
+		@SerializedName("liferayProductVersion")
+		private String _liferayProductVersion;
+
+		@SerializedName("releaseDate")
+		private String _releaseDate;
+
+		@SerializedName("targetPlatformVersion")
+		private String _targetPlatformVersion;
+
 	}
 
 	@Parameter(
@@ -152,6 +223,117 @@ public class InitBundleMojo extends AbstractLiferayMojo {
 
 	@Parameter
 	protected String userName;
+
+	private URL _getBundleUrl(String product) throws Exception {
+		return Optional.ofNullable(
+			_getProductInfo(product)
+		).map(
+			productInfo -> {
+				try {
+					return new URL(
+						BundleURLCodec.decode(
+							productInfo.getBundleUrl(),
+							productInfo.getReleaseDate()));
+				}
+				catch (Exception exception) {
+					return null;
+				}
+			}
+		).orElse(
+			null
+		);
+	}
+
+	private ProductInfo _getProductInfo(Path downloadPath, String product)
+		throws Exception {
+
+		try (JsonReader jsonReader = new JsonReader(
+				Files.newBufferedReader(downloadPath))) {
+
+			Map<String, ProductInfo> productInfos = _getProductInfos(
+				jsonReader);
+
+			return productInfos.get(product);
+		}
+	}
+
+	private ProductInfo _getProductInfo(String product) {
+		if (product == null) {
+			return null;
+		}
+
+		return _productInfos.computeIfAbsent(
+			product,
+			key -> {
+				DownloadCommand downloadCommand = new DownloadCommand();
+
+				downloadCommand.setCacheDir(_workspaceCacheDir);
+				downloadCommand.setConnectionTimeout(5 * 1000);
+				downloadCommand.setPassword(null);
+				downloadCommand.setQuiet(true);
+				downloadCommand.setToken(false);
+				downloadCommand.setUserName(null);
+
+				try {
+					downloadCommand.setUrl(new URL(_PRODUCT_INFO_URL));
+
+					downloadCommand.execute();
+
+					return _getProductInfo(
+						downloadCommand.getDownloadPath(), product);
+				}
+				catch (Exception exception1) {
+					try {
+						downloadCommand.setUrl(new URL(_CDN_PRODUCT_INFO_URL));
+
+						downloadCommand.execute();
+
+						return _getProductInfo(
+							downloadCommand.getDownloadPath(), product);
+					}
+					catch (Exception exception2) {
+						try (InputStream inputStream =
+								InitBundleMojo.class.getResourceAsStream(
+									"/.product_info.json");
+							JsonReader jsonReader = new JsonReader(
+								new InputStreamReader(inputStream))) {
+
+							Map<String, ProductInfo> productInfos =
+								_getProductInfos(jsonReader);
+
+							return productInfos.get(product);
+						}
+						catch (Exception exception3) {
+							return null;
+						}
+					}
+				}
+			});
+	}
+
+	private Map<String, ProductInfo> _getProductInfos(JsonReader jsonReader) {
+		Gson gson = new Gson();
+
+		TypeToken<Map<String, ProductInfo>> typeToken =
+			new TypeToken<Map<String, ProductInfo>>() {
+			};
+
+		return gson.fromJson(jsonReader, typeToken.getType());
+	}
+
+	private static final String _CDN_PRODUCT_INFO_URL =
+		"https://releases-cdn.liferay.com/tools/workspace/.product_info.json";
+
+	private static final String _DEFAULT_WORKSPACE_CACHE_DIR_NAME =
+		".liferay/workspace";
+
+	private static final String _PRODUCT_INFO_URL =
+		"https://releases.liferay.com/tools/workspace/.product_info.json";
+
+	private static final Map<String, ProductInfo> _productInfos =
+		new HashMap<>();
+	private static final File _workspaceCacheDir = new File(
+		System.getProperty("user.home"), _DEFAULT_WORKSPACE_CACHE_DIR_NAME);
 
 	@Parameter(property = "session", readonly = true)
 	private MavenSession _mavenSession;
