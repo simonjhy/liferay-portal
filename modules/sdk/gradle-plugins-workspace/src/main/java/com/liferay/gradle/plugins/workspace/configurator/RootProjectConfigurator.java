@@ -242,26 +242,37 @@ public class RootProjectConfigurator implements Plugin<Project> {
 		VerifyProductTask verifyProductTask = _addTaskVerifyProduct(
 			project, workspaceExtension);
 
-		Download downloadBundleTask = _addTaskDownloadBundle(
-			project, verifyProductTask, workspaceExtension);
+		project.afterEvaluate(
+			new Action<Project>() {
 
-		Verify verifyBundleTask = _addTaskVerifyBundle(
-			project, verifyProductTask, downloadBundleTask, workspaceExtension);
+				@Override
+				public void execute(Project project) {
+					Download downloadBundleTask = _addTaskDownloadBundle(
+						project, verifyProductTask, workspaceExtension);
 
-		Copy distBundleTask = _addTaskDistBundle(
-			project, downloadBundleTask, DIST_BUNDLE_TASK_NAME,
-			workspaceExtension, null, providedModulesConfiguration);
+					Verify verifyBundleTask = _addTaskVerifyBundle(
+						project, verifyProductTask, downloadBundleTask,
+						workspaceExtension);
 
-		_addTasksDistBundleArchive(project, distBundleTask, workspaceExtension);
+					Copy distBundleTask = _addTaskDistBundle(
+						project, downloadBundleTask, DIST_BUNDLE_TASK_NAME,
+						workspaceExtension, null, providedModulesConfiguration);
 
-		_addTasksDistBundleEnvironments(
-			project, downloadBundleTask, workspaceExtension,
-			providedModulesConfiguration);
+					_addTasksDistBundleArchive(
+						project, distBundleTask, workspaceExtension);
 
-		_addTaskInitBundle(
-			project, verifyProductTask, downloadBundleTask, verifyBundleTask,
-			workspaceExtension, bundleSupportConfiguration,
-			providedModulesConfiguration);
+					_addTasksDistBundleEnvironments(
+						project, downloadBundleTask, workspaceExtension,
+						providedModulesConfiguration);
+
+					_addTaskInitBundle(
+						project, verifyProductTask, downloadBundleTask,
+						verifyBundleTask, workspaceExtension,
+						bundleSupportConfiguration,
+						providedModulesConfiguration);
+				}
+
+			});
 
 		_addDockerTasks(
 			project, workspaceExtension, providedModulesConfiguration,
