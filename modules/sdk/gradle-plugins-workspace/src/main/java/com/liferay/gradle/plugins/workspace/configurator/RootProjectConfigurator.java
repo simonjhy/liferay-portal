@@ -242,37 +242,26 @@ public class RootProjectConfigurator implements Plugin<Project> {
 		VerifyProductTask verifyProductTask = _addTaskVerifyProduct(
 			project, workspaceExtension);
 
-		project.afterEvaluate(
-			new Action<Project>() {
+		Download downloadBundleTask = _addTaskDownloadBundle(
+			project, verifyProductTask, workspaceExtension);
 
-				@Override
-				public void execute(Project project) {
-					Download downloadBundleTask = _addTaskDownloadBundle(
-						project, verifyProductTask, workspaceExtension);
+		Verify verifyBundleTask = _addTaskVerifyBundle(
+			project, verifyProductTask, downloadBundleTask, workspaceExtension);
 
-					Verify verifyBundleTask = _addTaskVerifyBundle(
-						project, verifyProductTask, downloadBundleTask,
-						workspaceExtension);
+		Copy distBundleTask = _addTaskDistBundle(
+			project, downloadBundleTask, DIST_BUNDLE_TASK_NAME,
+			workspaceExtension, null, providedModulesConfiguration);
 
-					Copy distBundleTask = _addTaskDistBundle(
-						project, downloadBundleTask, DIST_BUNDLE_TASK_NAME,
-						workspaceExtension, null, providedModulesConfiguration);
+		_addTasksDistBundleArchive(project, distBundleTask, workspaceExtension);
 
-					_addTasksDistBundleArchive(
-						project, distBundleTask, workspaceExtension);
+		_addTasksDistBundleEnvironments(
+			project, downloadBundleTask, workspaceExtension,
+			providedModulesConfiguration);
 
-					_addTasksDistBundleEnvironments(
-						project, downloadBundleTask, workspaceExtension,
-						providedModulesConfiguration);
-
-					_addTaskInitBundle(
-						project, verifyProductTask, downloadBundleTask,
-						verifyBundleTask, workspaceExtension,
-						bundleSupportConfiguration,
-						providedModulesConfiguration);
-				}
-
-			});
+		_addTaskInitBundle(
+			project, verifyProductTask, downloadBundleTask, verifyBundleTask,
+			workspaceExtension, bundleSupportConfiguration,
+			providedModulesConfiguration);
 
 		_addDockerTasks(
 			project, workspaceExtension, providedModulesConfiguration,
@@ -1058,9 +1047,13 @@ public class RootProjectConfigurator implements Plugin<Project> {
 						File file = null;
 
 						try {
-							URI uri = project.uri(src);
+							URL srcURL = (URL)src;
 
-							file = project.file(uri);
+							if (Objects.equals("file", srcURL.getProtocol())) {
+								URI uri = project.uri(src);
+
+								file = project.file(uri);
+							}
 						}
 						catch (Exception exception) {
 							if (logger.isDebugEnabled()) {
@@ -1098,48 +1091,7 @@ public class RootProjectConfigurator implements Plugin<Project> {
 
 				@Override
 				public void execute(Project project) {
-					File destinationDir =
-						workspaceExtension.getBundleCacheDir();
-
-					destinationDir.mkdirs();
-
-					download.dest(destinationDir);
-
-					List<?> srcList = _getSrcList(download);
-
-					if (!srcList.isEmpty()) {
-						return;
-					}
-
-					String bundleUrl = workspaceExtension.getBundleUrl();
-
-					if (Objects.isNull(bundleUrl)) {
-						return;
-					}
-
-					try {
-						if (bundleUrl.startsWith("file:")) {
-							URL url = new URL(bundleUrl);
-
-							File file = new File(url.getFile());
-
-							file = file.getAbsoluteFile();
-
-							URI uri = file.toURI();
-
-							bundleUrl = uri.toASCIIString();
-						}
-						else {
-							bundleUrl = bundleUrl.replace(" ", "%20");
-						}
-
-						download.src(bundleUrl);
-					}
-					catch (MalformedURLException malformedURLException) {
-						throw new GradleException(
-							malformedURLException.getMessage(),
-							malformedURLException);
-					}
+					_configureDownloadTask(download, workspaceExtension);
 				}
 
 			});
@@ -1734,6 +1686,45 @@ public class RootProjectConfigurator implements Plugin<Project> {
 					}
 
 				}));
+	}
+
+	private void _configureDownloadTask(
+		Download download, WorkspaceExtension workspaceExtension) {
+
+		File destinationDir = workspaceExtension.getBundleCacheDir();
+
+		destinationDir.mkdirs();
+
+		download.dest(destinationDir);
+
+		String bundleUrl = workspaceExtension.getBundleUrl();
+
+		if (Objects.isNull(bundleUrl)) {
+			return;
+		}
+
+		try {
+			if (bundleUrl.startsWith("file:")) {
+				URL url = new URL(bundleUrl);
+
+				File file = new File(url.getFile());
+
+				file = file.getAbsoluteFile();
+
+				URI uri = file.toURI();
+
+				bundleUrl = uri.toASCIIString();
+			}
+			else {
+				bundleUrl = bundleUrl.replace(" ", "%20");
+			}
+
+			download.src(bundleUrl);
+		}
+		catch (MalformedURLException malformedURLException) {
+			throw new GradleException(
+				malformedURLException.getMessage(), malformedURLException);
+		}
 	}
 
 	private void _configureNpmProject(Project project) {
