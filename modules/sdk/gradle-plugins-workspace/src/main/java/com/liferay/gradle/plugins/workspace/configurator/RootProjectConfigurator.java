@@ -40,6 +40,7 @@ import com.liferay.gradle.plugins.workspace.internal.util.GradleUtil;
 import com.liferay.gradle.plugins.workspace.internal.util.StringUtil;
 import com.liferay.gradle.plugins.workspace.task.CreateTokenTask;
 import com.liferay.gradle.plugins.workspace.task.InitBundleTask;
+import com.liferay.gradle.plugins.workspace.task.VerifyBundleTask;
 import com.liferay.gradle.plugins.workspace.task.VerifyProductTask;
 import com.liferay.gradle.util.OSDetector;
 import com.liferay.gradle.util.Validator;
@@ -1556,8 +1557,8 @@ public class RootProjectConfigurator implements Plugin<Project> {
 		Project project, VerifyProductTask verifyProductTask,
 		Download downloadBundleTask, WorkspaceExtension workspaceExtension) {
 
-		Verify verify = GradleUtil.addTask(
-			project, VERIFY_BUNDLE_TASK_NAME, Verify.class);
+		VerifyBundleTask verify = GradleUtil.addTask(
+			project, VERIFY_BUNDLE_TASK_NAME, VerifyBundleTask.class);
 
 		verify.algorithm("MD5");
 		verify.dependsOn(verifyProductTask, downloadBundleTask);
