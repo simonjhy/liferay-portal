@@ -103,6 +103,7 @@ public class JspAnalyzerPluginTest {
 			referredPackages.containsFQN("javax.portlet.tck.constants"));
 		Assert.assertTrue(referredPackages.containsFQN("javax.servlet"));
 		Assert.assertTrue(referredPackages.containsFQN("javax.servlet.http"));
+		Assert.assertFalse(referredPackages.containsFQN("java.util.Map"));
 	}
 
 	@Test
