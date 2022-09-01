@@ -41,6 +41,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.jar.Manifest;
@@ -157,17 +158,66 @@ public class JspAnalyzerPlugin implements AnalyzerPlugin {
 					}
 
 					if (index != -1) {
-						Packages packages = analyzer.getReferred();
+						String packageName = null;
 
-						String packageName = packageFragment.substring(
+						String localPackageFragment = packageFragment.substring(
 							0, index);
 
-						Descriptors.PackageRef packageRef =
-							analyzer.getPackageRef(packageName);
+						int lastDotIndex = localPackageFragment.lastIndexOf(
+							'.');
 
-						packages.put(packageRef, new Attrs());
+						while (lastDotIndex != -1) {
+							String lastSectionOfPackageName =
+								localPackageFragment.substring(
+									lastDotIndex + 1);
 
-						addApiUses(analyzer, packageFragment, packageRef);
+							char firstLetterOfLastSection =
+								lastSectionOfPackageName.charAt(0);
+
+							if (Character.isUpperCase(
+									firstLetterOfLastSection) &&
+								Character.isLetter(firstLetterOfLastSection)) {
+
+								try {
+									Thread thread = Thread.currentThread();
+
+									ClassLoader contextClassLoader =
+										thread.getContextClassLoader();
+
+									contextClassLoader.loadClass(
+										localPackageFragment);
+
+									packageName =
+										localPackageFragment.substring(
+											0, lastDotIndex);
+
+									localPackageFragment = packageName;
+
+									lastDotIndex =
+										localPackageFragment.lastIndexOf('.');
+								}
+								catch (ClassNotFoundException
+											classNotFoundException) {
+
+									lastDotIndex = -1;
+								}
+							}
+							else {
+								lastDotIndex = -1;
+								packageName = localPackageFragment;
+							}
+						}
+
+						if (Objects.nonNull(packageName)) {
+							Packages packages = analyzer.getReferred();
+
+							Descriptors.PackageRef packageRef =
+								analyzer.getPackageRef(packageName);
+
+							packages.put(packageRef, new Attrs());
+
+							addApiUses(analyzer, packageFragment, packageRef);
+						}
 					}
 				}
 			}
