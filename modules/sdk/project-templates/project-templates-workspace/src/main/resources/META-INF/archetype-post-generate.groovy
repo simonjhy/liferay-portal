@@ -63,17 +63,17 @@ _workspaceCacheDir = new File(System.getProperty("user.home"), _DEFAULT_WORKSPAC
 class ProductInfo {
 
 ProductInfo(Map<String, String> productMap) {
-	  _appServerTomcatVersion = _safeGet(
-	productMap, "appServerTomcatVersion", "");
-	  _bundleUrl = _safeGet(productMap, "bundleUrl", "");
-	  _liferayDockerImage = _safeGet(
-	productMap, "liferayDockerImage", "");
-	  _liferayProductVersion = _safeGet(
-	productMap, "liferayProductVersion", "");
-	  _releaseDate = _safeGet(productMap, "releaseDate", "");
-	  _targetPlatformVersion = _safeGet(
-	productMap, "targetPlatformVersion", "");
-	  _promoted = Boolean.parseBoolean(
+	_appServerTomcatVersion = _safeGet(
+		productMap, "appServerTomcatVersion", "");
+	_bundleUrl = _safeGet(productMap, "bundleUrl", "");
+	_liferayDockerImage = _safeGet(
+		productMap, "liferayDockerImage", "");
+	_liferayProductVersion = _safeGet(
+		productMap, "liferayProductVersion", "");
+	_releaseDate = _safeGet(productMap, "releaseDate", "");
+	_targetPlatformVersion = _safeGet(
+		productMap, "targetPlatformVersion", "");
+	_promoted = Boolean.parseBoolean(
 		_safeGet(productMap, "promoted", "false"));
 }
 
@@ -328,9 +328,24 @@ synchronized Map<String, Object> _getProductInfos() {
 
 		return jsonSlurper.parse(productInfoJsonPath.toFile());
 	}
-	catch (Exception exception) {
-		throw new RuntimeException(
-			"Unable download product info", exception);
+	catch (Exception exception1) {
+		if (_workspaceCacheDir.exists()){
+			try{
+				localProductInfoJson = new File(_workspaceCacheDir, ".product_info.json");
+
+				if (localProductInfoJson.exists()){
+					return jsonSlurper.parse(localProductInfoJson);
+				}
+			}
+			catch (Exception exception2) {
+				throw new RuntimeException(
+					"Unable download product info", exception2);
+			}
+		}
+		else{
+			throw new RuntimeException(
+				"Unable download product info", exception1);
+		}
 	}
 
 	return null;
