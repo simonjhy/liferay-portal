@@ -367,13 +367,19 @@ public class ProjectTemplatesWorkspaceTest
 
 		String liferayVersion = "7.2.10.4";
 
-		File mavenWorkspaceDir = buildWorkspace(
-			temporaryFolder, "maven", "mavenWS", liferayVersion, mavenExecutor);
+		File destinationDir = temporaryFolder.newFolder("mavenWorkspace");
 
-		Assume.assumeTrue(mavenWorkspaceDir.exists());
+		String groupId = "com.test";
+
+		File workspaceDir = buildTemplateWithMaven(
+			destinationDir, destinationDir, "workspace", "mavenWS", groupId,
+			mavenExecutor, "-DliferayVersion=" + liferayVersion,
+			"-Dpackage=com.test", "-Dproduct=dxp");
+
+		Assume.assumeTrue(workspaceDir.exists());
 
 		testContains(
-			mavenWorkspaceDir, "pom.xml",
+				workspaceDir, "pom.xml",
 			"<liferay.workspace.bundle.url>https://releases-cdn.liferay.com" +
 				"/dxp/7.2.10.4/liferay-dxp-tomcat-7.2.10.4-sp4-slim-" +
 					"20210302130725158.tar.gz</liferay.workspace.bundle.url>");
