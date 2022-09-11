@@ -18,7 +18,29 @@
 @Grab('org.json:json:20190722')
 
 import com.liferay.portal.tools.bundle.support.commands.DownloadCommand
+
+import groovy.json.JsonSlurper
+
+import java.io.File
+
+import java.math.BigInteger
+
+import java.net.URI
+import java.net.URL
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+
+import java.text.ParseException
+import java.text.SimpleDateFormat
+
+import java.util.Base64
+import java.util.Calendar
+import java.util.Date
+import java.util.GregorianCalendar
 import java.util.Map
+import java.util.Objects
+
 import javax.xml.XMLConstants
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
@@ -27,25 +49,11 @@ import javax.xml.transform.Transformer
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
+
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
-import groovy.json.JsonSlurper
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.io.File
-import java.util.Objects
-import java.math.BigInteger
-import java.net.URI
-import java.net.URL
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.Base64
-import java.util.Calendar
-import java.util.Date
-import java.util.GregorianCalendar
 
 _DEFAULT_WORKSPACE_CACHE_DIR_NAME = ".liferay/workspace"
 _POM_XML_FILE_NAME = "pom.xml"
@@ -113,149 +121,6 @@ String _liferayProductVersion;
 Boolean _promoted = false;
 String _releaseDate;
 String _targetPlatformVersion;
-}
-
-File _getpomXMLFile(File dir) {
-
-	File workspaceDir = _getWorkspaceDir(dir);
-
-	if (Objects.nonNull(workspaceDir)){
-		return new File(workspaceDir, "pom.xml");
-	}
-
-	return null;
-}
-
-File _findWorkspacePomFile(File dir) {
-	if (dir == null) {
-		return null;
-	}
-	else if (Objects.equals(".", dir.toString()) || !dir.isAbsolute()) {
-		try {
-			dir = dir.getCanonicalFile();
-		}
-		catch (Exception exception) {
-			dir = dir.getAbsoluteFile();
-		}
-	}
-
-	File file = new File(dir, "pom.xml");
-
-	if (file.exists() && _isWorkspacePomFile(file)) {
-		return dir;
-	}
-
-	return _findWorkspacePomFile(dir.getParentFile());
-}
-
-boolean _isWorkspacePomFile(File pomFile) {
-	boolean pom = false;
-
-	if (Objects.equals("pom.xml", pomFile.getName()) &&
-		pomFile.exists()) {
-
-		pom = true;
-	}
-
-	if (pom) {
-		try {
-			String content = pomFile.getText("UTF-8");
-
-			if (content.contains("portal.tools.bundle.support")) {
-				return true;
-			}
-		}
-		catch (Exception exception) {
-			exception.printStackTrace();
-		}
-	}
-
-	return false;
-}
-
-String _getBundleURLFromProduct(String liferayBomVersion) {
-	try {
-		Map<String, Object> productInfos = _getProductInfos();
-
-		if (Objects.isNull(productInfos)) {
-			return null;
-		}
-
-		for (Map.Entry<String, Object> entryKey :
-				productInfos.entrySet()) {
-
-			ProductInfo productInfo = new ProductInfo(
-				(Map<String, String>)entryKey.getValue());
-
-			if (Objects.isNull(productInfo)) {
-				return null;
-			}
-
-			if (Objects.equals(
-					liferayBomVersion,
-					productInfo.getTargetPlatformVersion())) {
-
-				return _decodeBundleUrl(productInfo);
-			}
-		}
-	}
-	catch (Exception exception) {
-		throw new RuntimeException(
-			"Unable to get bundle url from productInfo", exception);
-	}
-
-	return null;
-}
-
-synchronized Map<String, Object> _getProductInfos() {
-
-	Map<String, Object> productInfoMap = null;
-
-	JsonSlurper jsonSlurper = new JsonSlurper();
-
-	try {
-		DownloadCommand downloadCommand = new DownloadCommand();
-
-		downloadCommand.setCacheDir(_workspaceCacheDir);
-		downloadCommand.setConnectionTimeout(5000);
-		downloadCommand.setPassword(null);
-		downloadCommand.setToken(false);
-		downloadCommand.setUrl(new URL(_PRODUCT_INFO_URL));
-		downloadCommand.setUserName(null);
-		downloadCommand.setQuiet(true);
-
-		downloadCommand.execute();
-
-		productInfoJsonPath = downloadCommand.getDownloadPath();
-
-		return jsonSlurper.parse(productInfoJsonPath.toFile());
-	}
-	catch (Exception exception) {
-		throw new RuntimeException(
-			"Unable download product info", exception);
-	}
-
-	return null;
-}
-
-File _getWorkspaceDir(File dir) {
-	File mavenParent = _findWorkspacePomFile(dir);
-
-	if (Objects.isNull(mavenParent)){
-		return null;
-	}
-
-	if (_isWorkspacePomFile(new File(mavenParent, "pom.xml"))) {
-		return mavenParent;
-	}
-
-	File mavenPom = new File(dir, "pom.xml");
-
-	if (mavenPom.exists() && _isWorkspacePomFile(mavenPom)) {
-		return dir;
-	}
-
-	return null;
 }
 
 void _addBundleUrlProperties(File baseDir) {
@@ -357,17 +222,6 @@ void _addBundleUrlProperties(File baseDir) {
 	}
 }
 
-Date _parseDate(String releaseDate) throws ParseException {
-	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-
-	try {
-		return simpleDateFormat.parse(releaseDate);
-	} catch (ParseException parseException) {
-		throw new RuntimeException(
-			"Unable to read release_date", excepparseExceptiontion);
-	}
-}
-
 String _decodeBundleUrl(ProductInfo productInfo) {
 	Base64.Decoder decoder = Base64.getUrlDecoder();
 
@@ -382,6 +236,160 @@ String _decodeBundleUrl(ProductInfo productInfo) {
 	bigInteger = bigInteger.shiftRight(calendar.get(5));
 
 	return new String(bigInteger.toByteArray());
+}
+
+File _findWorkspacePomFile(File dir) {
+	if (dir == null) {
+		return null;
+	}
+	else if (Objects.equals(".", dir.toString()) || !dir.isAbsolute()) {
+		try {
+			dir = dir.getCanonicalFile();
+		}
+		catch (Exception exception) {
+			dir = dir.getAbsoluteFile();
+		}
+	}
+
+	File file = new File(dir, "pom.xml");
+
+	if (file.exists() && _isWorkspacePomFile(file)) {
+		return dir;
+	}
+
+	return _findWorkspacePomFile(dir.getParentFile());
+}
+
+String _getBundleURLFromProduct(String liferayBomVersion) {
+	try {
+		Map<String, Object> productInfos = _getProductInfos();
+
+		if (Objects.isNull(productInfos)) {
+			return null;
+		}
+
+		for (Map.Entry<String, Object> entryKey :
+				productInfos.entrySet()) {
+
+			ProductInfo productInfo = new ProductInfo(
+				(Map<String, String>)entryKey.getValue());
+
+			if (Objects.isNull(productInfo)) {
+				return null;
+			}
+
+			if (Objects.equals(
+					liferayBomVersion,
+					productInfo.getTargetPlatformVersion())) {
+
+				return _decodeBundleUrl(productInfo);
+			}
+		}
+	}
+	catch (Exception exception) {
+		throw new RuntimeException(
+			"Unable to get bundle url from productInfo", exception);
+	}
+
+	return null;
+}
+
+File _getpomXMLFile(File dir) {
+
+	File workspaceDir = _getWorkspaceDir(dir);
+
+	if (Objects.nonNull(workspaceDir)){
+		return new File(workspaceDir, "pom.xml");
+	}
+
+	return null;
+}
+
+synchronized Map<String, Object> _getProductInfos() {
+
+	Map<String, Object> productInfoMap = null;
+
+	JsonSlurper jsonSlurper = new JsonSlurper();
+
+	try {
+		DownloadCommand downloadCommand = new DownloadCommand();
+
+		downloadCommand.setCacheDir(_workspaceCacheDir);
+		downloadCommand.setConnectionTimeout(5000);
+		downloadCommand.setPassword(null);
+		downloadCommand.setToken(false);
+		downloadCommand.setUrl(new URL(_PRODUCT_INFO_URL));
+		downloadCommand.setUserName(null);
+		downloadCommand.setQuiet(true);
+
+		downloadCommand.execute();
+
+		productInfoJsonPath = downloadCommand.getDownloadPath();
+
+		return jsonSlurper.parse(productInfoJsonPath.toFile());
+	}
+	catch (Exception exception) {
+		throw new RuntimeException(
+			"Unable download product info", exception);
+	}
+
+	return null;
+}
+
+File _getWorkspaceDir(File dir) {
+	File mavenParent = _findWorkspacePomFile(dir);
+
+	if (Objects.isNull(mavenParent)){
+		return null;
+	}
+
+	if (_isWorkspacePomFile(new File(mavenParent, "pom.xml"))) {
+		return mavenParent;
+	}
+
+	File mavenPom = new File(dir, "pom.xml");
+
+	if (mavenPom.exists() && _isWorkspacePomFile(mavenPom)) {
+		return dir;
+	}
+
+	return null;
+}
+
+boolean _isWorkspacePomFile(File pomFile) {
+	boolean pom = false;
+
+	if (Objects.equals("pom.xml", pomFile.getName()) &&
+		pomFile.exists()) {
+
+		pom = true;
+	}
+
+	if (pom) {
+		try {
+			String content = pomFile.getText("UTF-8");
+
+			if (content.contains("portal.tools.bundle.support")) {
+				return true;
+			}
+		}
+		catch (Exception exception) {
+			exception.printStackTrace();
+		}
+	}
+
+	return false;
+}
+
+Date _parseDate(String releaseDate) throws ParseException {
+	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+
+	try {
+		return simpleDateFormat.parse(releaseDate);
+	} catch (ParseException parseException) {
+		throw new RuntimeException(
+			"Unable to read release_date", excepparseExceptiontion);
+	}
 }
 
 Path projectPath = Paths.get(request.outputDirectory, request.artifactId)
