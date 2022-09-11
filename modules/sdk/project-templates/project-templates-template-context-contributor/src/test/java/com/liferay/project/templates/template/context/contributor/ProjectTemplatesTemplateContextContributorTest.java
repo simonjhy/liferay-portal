@@ -129,15 +129,15 @@ public class ProjectTemplatesTemplateContextContributorTest
 			mavenProjectDir, "bnd.bnd",
 			"-plugin.metatype: com.liferay.ant.bnd.metatype.MetatypePlugin");
 
-//		if (isBuildProjects()) {
-			File gradleOutputDir = new File(gradleProjectDir, "build/libs");
-			File mavenOutputDir = new File(mavenProjectDir, "target");
+		//		if (isBuildProjects()) {
+		File gradleOutputDir = new File(gradleProjectDir, "build/libs");
+		File mavenOutputDir = new File(mavenProjectDir, "target");
 
-			buildProjects(
-				_gradleDistribution, mavenExecutor, gradleWorkspaceDir,
-				mavenProjectDir, gradleOutputDir, mavenOutputDir,
-				":modules:" + name + GRADLE_TASK_PATH_BUILD);
-//		}
+		buildProjects(
+			_gradleDistribution, mavenExecutor, gradleWorkspaceDir,
+			mavenProjectDir, gradleOutputDir, mavenOutputDir,
+			":modules:" + name + GRADLE_TASK_PATH_BUILD);
+		//		}
 	}
 
 	@Rule
