@@ -58,6 +58,8 @@ import org.w3c.dom.NodeList
 _DEFAULT_WORKSPACE_CACHE_DIR_NAME = ".liferay/workspace"
 _POM_XML_FILE_NAME = "pom.xml"
 _PRODUCT_INFO_URL = "https://releases.liferay.com/tools/workspace/.product_info.json"
+_CDN_PRODUCT_INFO_URL =
+	"https://releases-cdn.liferay.com/tools/workspace/.product_info.json";
 _workspaceCacheDir = new File(System.getProperty("user.home"), _DEFAULT_WORKSPACE_CACHE_DIR_NAME)
 
 class ProductInfo {
@@ -311,17 +313,17 @@ synchronized Map<String, Object> _getProductInfos() {
 
 	JsonSlurper jsonSlurper = new JsonSlurper();
 
+	DownloadCommand downloadCommand = new DownloadCommand();
+
+	downloadCommand.setCacheDir(_workspaceCacheDir);
+	downloadCommand.setConnectionTimeout(5000);
+	downloadCommand.setPassword(null);
+	downloadCommand.setToken(false);
+	downloadCommand.setUserName(null);
+	downloadCommand.setQuiet(true);
+
 	try {
-		DownloadCommand downloadCommand = new DownloadCommand();
-
-		downloadCommand.setCacheDir(_workspaceCacheDir);
-		downloadCommand.setConnectionTimeout(5000);
-		downloadCommand.setPassword(null);
-		downloadCommand.setToken(false);
 		downloadCommand.setUrl(new URL(_PRODUCT_INFO_URL));
-		downloadCommand.setUserName(null);
-		downloadCommand.setQuiet(true);
-
 		downloadCommand.execute();
 
 		productInfoJsonPath = downloadCommand.getDownloadPath();
@@ -329,22 +331,32 @@ synchronized Map<String, Object> _getProductInfos() {
 		return jsonSlurper.parse(productInfoJsonPath.toFile());
 	}
 	catch (Exception exception1) {
-		if (_workspaceCacheDir.exists()){
-			try{
-				localProductInfoJson = new File(_workspaceCacheDir, ".product_info.json");
+		try {
+			downloadCommand.setUrl(new URL(_CDN_PRODUCT_INFO_URL));
+			downloadCommand.execute();
 
-				if (localProductInfoJson.exists()){
-					return jsonSlurper.parse(localProductInfoJson);
+			productInfoJsonPath = downloadCommand.getDownloadPath();
+
+			return jsonSlurper.parse(productInfoJsonPath.toFile());
+		}
+		catch (Exception exception2) {
+			if (_workspaceCacheDir.exists()){
+				try{
+					localProductInfoJson = new File(_workspaceCacheDir, ".product_info.json");
+
+					if (localProductInfoJson.exists()){
+						return jsonSlurper.parse(localProductInfoJson);
+					}
+				}
+				catch (Exception exception3) {
+					throw new RuntimeException(
+						"Unable read product info", exception3);
 				}
 			}
-			catch (Exception exception2) {
+			else{
 				throw new RuntimeException(
 					"Unable download product info", exception2);
 			}
-		}
-		else{
-			throw new RuntimeException(
-				"Unable download product info", exception1);
 		}
 	}
 
