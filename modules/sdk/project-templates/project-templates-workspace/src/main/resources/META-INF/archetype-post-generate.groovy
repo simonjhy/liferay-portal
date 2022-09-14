@@ -203,9 +203,7 @@ void _addBundleUrlProperties(File baseDir) {
 				Transformer transformer =
 					transformerFactory.newTransformer();
 
-				Path projectPath = Paths.get(request.outputDirectory, request.artifactId)
-
-				StreamResult result = new StreamResult(new File(projectPath.toFile(), "pom.xml"));
+				StreamResult result = new StreamResult(new File(baseDir, "pom.xml"));
 
 				transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
