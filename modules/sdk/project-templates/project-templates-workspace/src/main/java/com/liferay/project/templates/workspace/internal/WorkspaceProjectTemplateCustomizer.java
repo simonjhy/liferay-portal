@@ -22,12 +22,13 @@ import com.liferay.project.templates.extensions.util.FileUtil;
 import groovy.json.JsonSlurper;
 
 import java.io.File;
+import java.io.Reader;
 
 import java.math.BigInteger;
 
 import java.net.URL;
 
-import java.nio.file.Path;
+import java.nio.file.Files;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -353,26 +354,26 @@ public class WorkspaceProjectTemplateCustomizer
 		downloadCommand.setUserName(null);
 		downloadCommand.setQuiet(true);
 
-		Path productInfoJsonPath = null;
-
 		try {
 			downloadCommand.setUrl(new URL(_PRODUCT_INFO_URL));
 			downloadCommand.execute();
 
-			productInfoJsonPath = downloadCommand.getDownloadPath();
+			try (Reader reader = Files.newBufferedReader(
+					downloadCommand.getDownloadPath())) {
 
-			return (Map<String, Object>)jsonSlurper.parse(
-				productInfoJsonPath.toFile());
+				return (Map<String, Object>)jsonSlurper.parse(reader);
+			}
 		}
 		catch (Exception exception1) {
 			try {
 				downloadCommand.setUrl(new URL(_CDN_PRODUCT_INFO_URL));
 				downloadCommand.execute();
 
-				productInfoJsonPath = downloadCommand.getDownloadPath();
+				try (Reader reader = Files.newBufferedReader(
+						downloadCommand.getDownloadPath())) {
 
-				return (Map<String, Object>)jsonSlurper.parse(
-					productInfoJsonPath.toFile());
+					return (Map<String, Object>)jsonSlurper.parse(reader);
+				}
 			}
 			catch (Exception exception2) {
 				if (_workspaceCacheDir.exists()) {
@@ -381,8 +382,12 @@ public class WorkspaceProjectTemplateCustomizer
 							_workspaceCacheDir, ".product_info.json");
 
 						if (localProductInfoFile.exists()) {
-							return (Map<String, Object>)jsonSlurper.parse(
-								localProductInfoFile);
+							try (Reader reader = Files.newBufferedReader(
+									localProductInfoFile.toPath())) {
+
+								return (Map<String, Object>)jsonSlurper.parse(
+									reader);
+							}
 						}
 					}
 					catch (Exception exception3) {
