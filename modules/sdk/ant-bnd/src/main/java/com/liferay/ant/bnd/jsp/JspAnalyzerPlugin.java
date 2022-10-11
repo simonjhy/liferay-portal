@@ -163,19 +163,15 @@ public class JspAnalyzerPlugin implements AnalyzerPlugin {
 						String curPackageName = packageFragment.substring(
 							0, index);
 
-						int pos = curPackageName.lastIndexOf(
-							'.');
+						int pos = curPackageName.lastIndexOf('.');
 
 						while (pos != -1) {
-							String nestedClassName =
-								curPackageName.substring(
-									pos + 1);
+							String nestedClassName = curPackageName.substring(
+								pos + 1);
 
-							char firstChar =
-								nestedClassName.charAt(0);
+							char firstChar = nestedClassName.charAt(0);
 
-							if (Character.isUpperCase(
-									firstChar) &&
+							if (Character.isUpperCase(firstChar) &&
 								Character.isLetter(firstChar)) {
 
 								try {
@@ -187,14 +183,12 @@ public class JspAnalyzerPlugin implements AnalyzerPlugin {
 									contextClassLoader.loadClass(
 										curPackageName);
 
-									packageName =
-										curPackageName.substring(
-											0, pos);
+									packageName = curPackageName.substring(
+										0, pos);
 
 									curPackageName = packageName;
 
-									pos =
-										curPackageName.lastIndexOf('.');
+									pos = curPackageName.lastIndexOf('.');
 								}
 								catch (ClassNotFoundException
 											classNotFoundException) {
