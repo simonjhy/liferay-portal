@@ -160,23 +160,23 @@ public class JspAnalyzerPlugin implements AnalyzerPlugin {
 					if (index != -1) {
 						String packageName = null;
 
-						String localPackageFragment = packageFragment.substring(
+						String curPackageName = packageFragment.substring(
 							0, index);
 
-						int lastDotIndex = localPackageFragment.lastIndexOf(
+						int pos = curPackageName.lastIndexOf(
 							'.');
 
-						while (lastDotIndex != -1) {
-							String lastSectionOfPackageName =
-								localPackageFragment.substring(
-									lastDotIndex + 1);
+						while (pos != -1) {
+							String nestedClassName =
+								curPackageName.substring(
+									pos + 1);
 
-							char firstLetterOfLastSection =
-								lastSectionOfPackageName.charAt(0);
+							char firstChar =
+								nestedClassName.charAt(0);
 
 							if (Character.isUpperCase(
-									firstLetterOfLastSection) &&
-								Character.isLetter(firstLetterOfLastSection)) {
+									firstChar) &&
+								Character.isLetter(firstChar)) {
 
 								try {
 									Thread thread = Thread.currentThread();
@@ -185,26 +185,26 @@ public class JspAnalyzerPlugin implements AnalyzerPlugin {
 										thread.getContextClassLoader();
 
 									contextClassLoader.loadClass(
-										localPackageFragment);
+										curPackageName);
 
 									packageName =
-										localPackageFragment.substring(
-											0, lastDotIndex);
+										curPackageName.substring(
+											0, pos);
 
-									localPackageFragment = packageName;
+									curPackageName = packageName;
 
-									lastDotIndex =
-										localPackageFragment.lastIndexOf('.');
+									pos =
+										curPackageName.lastIndexOf('.');
 								}
 								catch (ClassNotFoundException
 											classNotFoundException) {
 
-									lastDotIndex = -1;
+									pos = -1;
 								}
 							}
 							else {
-								lastDotIndex = -1;
-								packageName = localPackageFragment;
+								pos = -1;
+								packageName = curPackageName;
 							}
 						}
 
