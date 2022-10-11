@@ -197,8 +197,8 @@ public class JspAnalyzerPlugin implements AnalyzerPlugin {
 								}
 							}
 							else {
-								pos = -1;
 								packageName = curPackageName;
+								pos = -1;
 							}
 						}
 
