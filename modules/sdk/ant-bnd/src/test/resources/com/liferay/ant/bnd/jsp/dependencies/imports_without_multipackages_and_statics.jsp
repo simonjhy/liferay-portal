@@ -1,5 +1,4 @@
 <%@ page import="java.io.*,java.util.*,static java.util.logging.Logger.*" %>
-<%@ page import="java.util.logging.Logger.*"%>
 <%@ page import="java.util.Map.Entry"%>
 <%@ page import="javax.portlet.*,javax.portlet.filter.*" %>
 <%@ page import="javax.servlet.http.*,javax.servlet.*" %>
