@@ -59,9 +59,11 @@ function refresh_sample_default_workspace {
 
 	echo -e "\n**/dist\n**/node_modules_cache\n.DS_Store" >> .gitignore
 
-	echo -e "\n\nfeature.flag.LPS-153457=true" >> configs/local/portal-ext.properties
+	echo -ne "\n\nfeature.flag.LPS-153457=true" >> configs/local/portal-ext.properties
 
 	echo -e "\nliferay.workspace.docker.image.liferay=liferay/7.4.13.nightly-d4.1.4-20220707214146" >> gradle.properties
+
+	export LC_ALL=C
 
 	sort -o gradle.properties gradle.properties
 
