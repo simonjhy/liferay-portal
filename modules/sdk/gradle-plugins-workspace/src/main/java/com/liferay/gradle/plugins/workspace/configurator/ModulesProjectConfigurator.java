@@ -253,22 +253,14 @@ public class ModulesProjectConfigurator extends BaseProjectConfigurator {
 						_configureTaskSetUpTestableTomcat(
 							setUpTestableTomcatTask, workspaceExtension);
 					}
-				}
 
-			});
-
-		addTaskDockerDeploy(project, jarSourcePath, workspaceExtension);
-
-		project.afterEvaluate(
-			new Action<Project>() {
-
-				@Override
-				public void execute(Project project) {
 					_disableModuleExcludeProjectTasks(
 						project, _moduleExcludeProjectPathMap);
 				}
 
 			});
+
+		addTaskDockerDeploy(project, jarSourcePath, workspaceExtension);
 	}
 
 	@Override
@@ -650,31 +642,31 @@ public class ModulesProjectConfigurator extends BaseProjectConfigurator {
 		for (Map.Entry<String, Path> modulesExcludeEntry :
 				moduleExcludeProjectPathEntrySet) {
 
-			String excludeMoudleName = modulesExcludeEntry.getKey();
+			String excludeModuleName = modulesExcludeEntry.getKey();
 
-			Path excludeMoudlePath = modulesExcludeEntry.getValue();
+			Path excludeModulePath = modulesExcludeEntry.getValue();
 
 			for (String moduleDirString : modulesDirList) {
 				File moduleDirFile = new File(
 					settings.getRootDir(), moduleDirString);
 
-				Path excludeParentMoudlePath = excludeMoudlePath.getParent();
+				Path excludeParentModulePath = excludeModulePath.getParent();
 
 				boolean findParentModule = false;
 
 				while (!Objects.equals(
-							excludeParentMoudlePath, moduleDirFile.toPath())) {
+							excludeParentModulePath, moduleDirFile.toPath())) {
 
-					excludeMoudlePath = excludeParentMoudlePath;
+					excludeModulePath = excludeParentModulePath;
 
-					excludeParentMoudlePath = excludeMoudlePath.getParent();
+					excludeParentModulePath = excludeModulePath.getParent();
 
 					findParentModule = true;
 				}
 
 				if (findParentModule) {
 					moduleExcludeProjectPathMap.put(
-						excludeMoudleName, excludeMoudlePath);
+						excludeModuleName, excludeModulePath);
 				}
 			}
 		}
