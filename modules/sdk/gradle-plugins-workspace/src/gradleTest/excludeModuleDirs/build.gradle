@@ -1,43 +1,43 @@
 task runGradleTest
 
 runGradleTest {
-	dependsOn ":modules:testApi:jar"
 	dependsOn ":modules:sample:sample-service:buildService"
 	dependsOn ":modules:sample:sample-service:jar"
 	dependsOn ":modules:sample:sample-api:jar"
-	dependsOn ":modules:sample2:sample2-service:buildService"
-	dependsOn ":modules:sample2:sample2-service:jar"
-	dependsOn ":modules:sample2:sample2-api:jar"
+	dependsOn ":modules:example:example-service:buildService"
+	dependsOn ":modules:example:example-service:jar"
+	dependsOn ":modules:example:example-api:jar"
+	dependsOn ":modules:test-api:jar"
 
 	doLast {
+		Project exampleAPIProject = project(":modules:example:example-api")
+
+		File exampleAPIJarFile = exampleAPIProject.file("build/libs/example.api-1.0.0.jar")
+
+		assert !exampleAPIJarFile.exists()
+
+		Project exampleServiceProject = project(":modules:example:example-service")
+
+		File exampleServiceJarFile = exampleServiceProject.file("build/libs/example.service-1.0.0.jar")
+
+		assert !exampleServiceJarFile.exists()
+
+		Project sampleAPIProject = project(":modules:sample:sample-api")
+
+		File sampleAPIJarFile = sampleAPIProject.file("build/libs/sample.api-1.0.0.jar")
+
+		assert !sampleAPIJarFile.exists()
+
 		Project sampleServiceProject = project(":modules:sample:sample-service")
 
 		File sampleServiceJarFile = sampleServiceProject.file("build/libs/sample.service-1.0.0.jar")
 
 		assert !sampleServiceJarFile.exists()
 
-		Project sampleApiProject = project(":modules:sample:sample-api")
+		Project testAPIProject = project(":modules:test-api")
 
-		File sampleApiJarFile = sampleApiProject.file("build/libs/sample.api-1.0.0.jar")
+		File testAPIJarFile = testAPIProject.file("build/libs/com.example.test-1.0.0.jar")
 
-		assert !sampleApiJarFile.exists()
-
-		Project testApiProject = project(":modules:testApi")
-
-		File testApiJarFile = testApiProject.file("build/libs/testapi-1.0.0.jar")
-
-		assert testApiJarFile.exists()
-
-		Project sample2ServiceProject = project(":modules:sample2:sample2-service")
-
-		File sample2ServiceJarFile = sample2ServiceProject.file("build/libs/sample2.service-1.0.0.jar")
-
-		assert !sample2ServiceJarFile.exists()
-
-		Project sample2ApiProject = project(":modules:sample2:sample2-api")
-
-		File sample2ApiJarFile = sample2ApiProject.file("build/libs/sample2.api-1.0.0.jar")
-
-		assert !sample2ApiJarFile.exists()
+		assert testAPIJarFile.exists()
 	}
 }
