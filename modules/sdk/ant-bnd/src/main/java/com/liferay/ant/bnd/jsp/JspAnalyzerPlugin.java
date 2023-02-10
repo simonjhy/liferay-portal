@@ -41,6 +41,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.jar.Manifest;
@@ -157,17 +158,60 @@ public class JspAnalyzerPlugin implements AnalyzerPlugin {
 					}
 
 					if (index != -1) {
-						Packages packages = analyzer.getReferred();
+						String packageName = null;
 
-						String packageName = packageFragment.substring(
+						String curPackageName = packageFragment.substring(
 							0, index);
 
-						Descriptors.PackageRef packageRef =
-							analyzer.getPackageRef(packageName);
+						int pos = curPackageName.lastIndexOf('.');
 
-						packages.put(packageRef, new Attrs());
+						while (pos != -1) {
+							String nestedClassName = curPackageName.substring(
+								pos + 1);
 
-						addApiUses(analyzer, packageFragment, packageRef);
+							char firstChar = nestedClassName.charAt(0);
+
+							if (Character.isUpperCase(firstChar) &&
+								Character.isLetter(firstChar)) {
+
+								try {
+									Thread thread = Thread.currentThread();
+
+									ClassLoader contextClassLoader =
+										thread.getContextClassLoader();
+
+									contextClassLoader.loadClass(
+										curPackageName);
+
+									packageName = curPackageName.substring(
+										0, pos);
+
+									curPackageName = packageName;
+
+									pos = curPackageName.lastIndexOf('.');
+								}
+								catch (ClassNotFoundException
+											classNotFoundException) {
+
+									pos = -1;
+								}
+							}
+							else {
+								packageName = curPackageName;
+								pos = -1;
+							}
+						}
+
+						if (Objects.nonNull(packageName)) {
+							Packages packages = analyzer.getReferred();
+
+							Descriptors.PackageRef packageRef =
+								analyzer.getPackageRef(packageName);
+
+							packages.put(packageRef, new Attrs());
+
+							addApiUses(analyzer, packageFragment, packageRef);
+						}
 					}
 				}
 			}

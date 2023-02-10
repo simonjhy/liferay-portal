@@ -95,6 +95,7 @@ public class JspAnalyzerPluginTest {
 		Assert.assertTrue(referredPackages.containsFQN("java.io"));
 		Assert.assertTrue(referredPackages.containsFQN("java.util"));
 		Assert.assertTrue(referredPackages.containsFQN("java.util.logging"));
+		Assert.assertFalse(referredPackages.containsFQN("java.util.Map"));
 		Assert.assertTrue(referredPackages.containsFQN("javax.portlet"));
 		Assert.assertTrue(referredPackages.containsFQN("javax.portlet.filter"));
 		Assert.assertTrue(
