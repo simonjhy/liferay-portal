@@ -8,6 +8,9 @@ runGradleTest {
 	dependsOn ":modules:example:example-service:jar"
 	dependsOn ":modules:example:example-api:jar"
 	dependsOn ":modules:test-api:jar"
+	dependsOn ":modules:sample1:sample1-service:buildService"
+	dependsOn ":modules:sample1:sample1-service:jar"
+	dependsOn ":modules:sample1:sample1-api:jar"
 
 	doLast {
 		Project exampleAPIProject = project(":modules:example:example-api")
@@ -36,8 +39,21 @@ runGradleTest {
 
 		Project testAPIProject = project(":modules:test-api")
 
-		File testAPIJarFile = testAPIProject.file("build/libs/com.example.test-1.0.0.jar")
+		File testAPIJarFile = testAPIProject.file("build/libs/com.example.test.api-1.0.0.jar")
 
 		assert testAPIJarFile.exists()
+		
+		Project sample1APIProject = project(":modules:sample1:sample1-api")
+
+		File sample1APIJarFile = sample1APIProject.file("build/libs/sample1.api-1.0.0.jar")
+
+		assert !sample1APIJarFile.exists()
+
+		Project sample1ServiceProject = project(":modules:sample-1:sample1-service")
+
+		File sample1ServiceJarFile = sample1ServiceProject.file("build/libs/sample1.service-1.0.0.jar")
+
+		assert !sample1ServiceJarFile.exists()
+		
 	}
 }
