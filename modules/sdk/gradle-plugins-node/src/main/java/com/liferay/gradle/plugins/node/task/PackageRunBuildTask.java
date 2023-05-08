@@ -36,6 +36,9 @@ public class PackageRunBuildTask extends PackageRunTask {
 		setScriptName("build");
 	}
 
+	@InputFile
+	@PathSensitive(PathSensitivity.RELATIVE)
+	@Optional
 	public File getDestinationDir() {
 		return GradleUtil.toFile(getProject(), _destinationDir);
 	}
@@ -122,6 +125,9 @@ public class PackageRunBuildTask extends PackageRunTask {
 		return _getExistentFile("node_modules");
 	}
 
+	@InputFile
+	@PathSensitive(PathSensitivity.RELATIVE)
+	@Optional
 	public File getYarnWorkingDir() {
 		return GradleUtil.toFile(getProject(), _yarnWorkingDir);
 	}

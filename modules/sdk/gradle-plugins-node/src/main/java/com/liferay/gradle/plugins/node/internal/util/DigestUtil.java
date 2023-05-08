@@ -14,18 +14,18 @@
 
 package com.liferay.gradle.plugins.node.internal.util;
 
-import com.liferay.gradle.util.Validator;
-
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.SortedSet;
@@ -33,8 +33,8 @@ import java.util.TreeSet;
 
 import org.gradle.api.GradleException;
 import org.gradle.api.UncheckedIOException;
-import org.gradle.internal.hash.HashUtil;
-import org.gradle.internal.hash.HashValue;
+
+import com.liferay.gradle.util.Validator;
 
 /**
  * @author Hugo Huijser
@@ -83,9 +83,19 @@ public class DigestUtil {
 				sb.append(Integer.toHexString(lines.hashCode()));
 			}
 			catch (IOException ioException) {
-				HashValue hashValue = HashUtil.sha1(file);
-
-				sb.append(hashValue.asHexString());
+				final int BUFFER_SIZE = 8192;
+		        try (FileInputStream fis = new FileInputStream(file);
+		                BufferedInputStream bis = new BufferedInputStream(fis)) {
+		               MessageDigest digest = MessageDigest.getInstance("SHA-2");
+		               byte[] buffer = new byte[BUFFER_SIZE];
+		               int bytesRead;
+		               while ((bytesRead = bis.read(buffer)) != -1) {
+		                   digest.update(buffer, 0, bytesRead);
+		               }
+		               sb.append(asHexString(digest.digest()));
+		           } catch (NoSuchAlgorithmException | IOException e) {
+		               throw new RuntimeException("SHA-2 algorithm not found", e);
+		           }				
 			}
 
 			sb.append('-');
@@ -98,6 +108,18 @@ public class DigestUtil {
 		return sb.toString();
 	}
 
+    private static String asHexString(byte[] bytes) {
+        StringBuilder hexString = new StringBuilder(bytes.length * 2);
+        for (byte b : bytes) {
+            String hex = Integer.toHexString(0xFF & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+	
 	public static String getDigest(String... array) {
 		StringBuilder sb = new StringBuilder();
 

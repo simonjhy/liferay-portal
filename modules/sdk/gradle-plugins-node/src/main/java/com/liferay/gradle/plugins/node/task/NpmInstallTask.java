@@ -14,22 +14,13 @@
 
 package com.liferay.gradle.plugins.node.task;
 
-import com.liferay.gradle.plugins.node.internal.util.FileUtil;
-import com.liferay.gradle.plugins.node.internal.util.GradleUtil;
-import com.liferay.gradle.util.OSDetector;
-import com.liferay.gradle.util.Validator;
-
-import groovy.json.JsonSlurper;
-
 import java.io.File;
 import java.io.IOException;
-
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -42,11 +33,19 @@ import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
+
+import com.liferay.gradle.plugins.node.internal.util.FileUtil;
+import com.liferay.gradle.plugins.node.internal.util.GradleUtil;
+import com.liferay.gradle.util.OSDetector;
+import com.liferay.gradle.util.Validator;
+
+import groovy.json.JsonSlurper;
 
 /**
  * @author Andrea Di Giorgi
@@ -103,10 +102,16 @@ public class NpmInstallTask extends ExecutePackageManagerTask {
 		executeNpmInstall(false);
 	}
 
+	@InputDirectory
+	@PathSensitive(PathSensitivity.RELATIVE)
+	@Optional
 	public File getNodeModulesCacheDir() {
 		return GradleUtil.toFile(getProject(), _nodeModulesCacheDir);
 	}
 
+	@InputFile
+	@Optional
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getNodeModulesDigestFile() {
 		return GradleUtil.toFile(getProject(), _nodeModulesDigestFile);
 	}
@@ -151,6 +156,7 @@ public class NpmInstallTask extends ExecutePackageManagerTask {
 		return _getExistentFile("npm-shrinkwrap.json");
 	}
 
+	@Input
 	public boolean isCheckDigest() {
 		if (_isCacheEnabled()) {
 			return false;
@@ -169,14 +175,17 @@ public class NpmInstallTask extends ExecutePackageManagerTask {
 		return false;
 	}
 
+	@Input
 	public boolean isNodeModulesCacheNativeSync() {
 		return _nodeModulesCacheNativeSync;
 	}
-
+	
+	@Input
 	public boolean isRemoveShrinkwrappedUrls() {
 		return GradleUtil.toBoolean(_removeShrinkwrappedUrls);
 	}
 
+	@Input
 	public boolean isUseNpmCI() {
 		return GradleUtil.toBoolean(_useNpmCI);
 	}
