@@ -31,6 +31,7 @@ import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.CacheableTask;
+import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.PathSensitive;
@@ -94,6 +95,7 @@ public class CompileJSPTask extends DefaultTask {
 		return project.fileTree(args);
 	}
 
+	@InputFile
 	public File getWebAppDir() {
 		return GradleUtil.toFile(getProject(), _webAppDir);
 	}
