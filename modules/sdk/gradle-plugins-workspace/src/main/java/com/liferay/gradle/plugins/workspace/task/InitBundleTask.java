@@ -92,7 +92,6 @@ public class InitBundleTask extends JavaExec {
 	}
 
 	@Input
-	@Optional
 	public int getStripComponents() {
 		return GradleUtil.toInteger(_stripComponents);
 	}
