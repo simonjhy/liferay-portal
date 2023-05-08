@@ -14,20 +14,11 @@
 
 package com.liferay.gradle.plugins.workspace.task;
 
-import com.liferay.gradle.plugins.workspace.internal.util.FileUtil;
-import com.liferay.gradle.plugins.workspace.internal.util.GradleUtil;
-import com.liferay.gradle.util.GUtil;
-
-import groovy.json.JsonOutput;
-import groovy.json.JsonSlurper;
-
 import java.io.File;
 import java.io.IOException;
-
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -37,9 +28,14 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputFile;
-import org.gradle.api.tasks.PathSensitive;
-import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+
+import com.liferay.gradle.plugins.workspace.internal.util.FileUtil;
+import com.liferay.gradle.plugins.workspace.internal.util.GradleUtil;
+import com.liferay.gradle.util.GUtil;
+
+import groovy.json.JsonOutput;
+import groovy.json.JsonSlurper;
 
 /**
  * @author David Truong
