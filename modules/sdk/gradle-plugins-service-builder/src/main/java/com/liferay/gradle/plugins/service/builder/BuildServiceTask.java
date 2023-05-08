@@ -14,16 +14,8 @@
 
 package com.liferay.gradle.plugins.service.builder;
 
-import com.liferay.gradle.util.FileUtil;
-import com.liferay.gradle.util.GUtil;
-import com.liferay.gradle.util.GradleUtil;
-import com.liferay.gradle.util.Validator;
-import com.liferay.portal.tools.service.builder.ServiceBuilderArgs;
-
 import java.io.File;
-
 import java.nio.charset.StandardCharsets;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -42,6 +34,12 @@ import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.util.CollectionUtils;
 
+import com.liferay.gradle.util.FileUtil;
+import com.liferay.gradle.util.GUtil;
+import com.liferay.gradle.util.GradleUtil;
+import com.liferay.gradle.util.Validator;
+import com.liferay.portal.tools.service.builder.ServiceBuilderArgs;
+
 /**
  * @author Andrea Di Giorgi
  */
@@ -53,7 +51,7 @@ public class BuildServiceTask extends JavaExec {
 		readOnlyPrefixes((Object[])ServiceBuilderArgs.READ_ONLY_PREFIXES);
 		resourceActionsConfigs(
 			(Object[])ServiceBuilderArgs.RESOURCE_ACTION_CONFIGS);
-		setMain("com.liferay.portal.tools.service.builder.ServiceBuilder");
+		getMainClass().set("com.liferay.portal.tools.service.builder.ServiceBuilder");
 		springNamespaces("beans");
 		systemProperty("file.encoding", StandardCharsets.UTF_8.name());
 	}
@@ -86,7 +84,7 @@ public class BuildServiceTask extends JavaExec {
 		return _databaseNameMaxLength;
 	}
 
-	@Input
+	@InputFile
 	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getHbmFile() {
 		return GradleUtil.toFile(getProject(), _hbmFile);
@@ -451,6 +449,7 @@ public class BuildServiceTask extends JavaExec {
 		return springNamespaces(Arrays.asList(springNamespaces));
 	}
 
+	@Input
 	protected List<String> getCompleteArgs() {
 		List<String> args = new ArrayList<>(getArgs());
 
@@ -525,6 +524,7 @@ public class BuildServiceTask extends JavaExec {
 		return args;
 	}
 
+	@Input
 	protected List<String> getCompleteModelHintsConfigs() {
 		List<String> modelHintsConfigs = getModelHintsConfigs();
 
