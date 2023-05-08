@@ -37,8 +37,8 @@ public class PackageRunBuildTask extends PackageRunTask {
 	}
 
 	@InputFile
-	@PathSensitive(PathSensitivity.RELATIVE)
 	@Optional
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getDestinationDir() {
 		return GradleUtil.toFile(getProject(), _destinationDir);
 	}
@@ -126,8 +126,8 @@ public class PackageRunBuildTask extends PackageRunTask {
 	}
 
 	@InputFile
-	@PathSensitive(PathSensitivity.RELATIVE)
 	@Optional
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getYarnWorkingDir() {
 		return GradleUtil.toFile(getProject(), _yarnWorkingDir);
 	}

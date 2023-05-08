@@ -14,13 +14,22 @@
 
 package com.liferay.gradle.plugins.node.task;
 
+import com.liferay.gradle.plugins.node.internal.util.FileUtil;
+import com.liferay.gradle.plugins.node.internal.util.GradleUtil;
+import com.liferay.gradle.util.OSDetector;
+import com.liferay.gradle.util.Validator;
+
+import groovy.json.JsonSlurper;
+
 import java.io.File;
 import java.io.IOException;
+
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -39,13 +48,6 @@ import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
-
-import com.liferay.gradle.plugins.node.internal.util.FileUtil;
-import com.liferay.gradle.plugins.node.internal.util.GradleUtil;
-import com.liferay.gradle.util.OSDetector;
-import com.liferay.gradle.util.Validator;
-
-import groovy.json.JsonSlurper;
 
 /**
  * @author Andrea Di Giorgi
@@ -103,8 +105,8 @@ public class NpmInstallTask extends ExecutePackageManagerTask {
 	}
 
 	@InputDirectory
-	@PathSensitive(PathSensitivity.RELATIVE)
 	@Optional
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getNodeModulesCacheDir() {
 		return GradleUtil.toFile(getProject(), _nodeModulesCacheDir);
 	}
@@ -179,7 +181,7 @@ public class NpmInstallTask extends ExecutePackageManagerTask {
 	public boolean isNodeModulesCacheNativeSync() {
 		return _nodeModulesCacheNativeSync;
 	}
-	
+
 	@Input
 	public boolean isRemoveShrinkwrappedUrls() {
 		return GradleUtil.toBoolean(_removeShrinkwrappedUrls);

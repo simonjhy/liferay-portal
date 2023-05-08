@@ -50,8 +50,8 @@ public class PackageRunTestTask
 		}
 	}
 
-	@Override
 	@Internal
+	@Override
 	public boolean getIgnoreFailures() {
 		return _ignoreFailures;
 	}
