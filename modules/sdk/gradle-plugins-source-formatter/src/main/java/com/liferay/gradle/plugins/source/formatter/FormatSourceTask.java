@@ -14,11 +14,7 @@
 
 package com.liferay.gradle.plugins.source.formatter;
 
-import com.liferay.gradle.util.GradleUtil;
-import com.liferay.source.formatter.SourceFormatterArgs;
-
 import java.io.File;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,8 +23,13 @@ import java.util.List;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.CacheableTask;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.util.CollectionUtils;
+
+import com.liferay.gradle.util.GradleUtil;
+import com.liferay.source.formatter.SourceFormatterArgs;
 
 /**
  * @author Raymond Augé
@@ -38,7 +39,7 @@ import org.gradle.util.CollectionUtils;
 public class FormatSourceTask extends JavaExec {
 
 	public FormatSourceTask() {
-		setMain("com.liferay.source.formatter.SourceFormatter");
+		getMainClass().set("com.liferay.source.formatter.SourceFormatter");
 	}
 
 	@Override
@@ -48,6 +49,7 @@ public class FormatSourceTask extends JavaExec {
 		super.exec();
 	}
 
+	@InputFile
 	public File getBaseDir() {
 		return GradleUtil.toFile(
 			getProject(), _sourceFormatterArgs.getBaseDirName());
@@ -57,18 +59,22 @@ public class FormatSourceTask extends JavaExec {
 		return _sourceFormatterArgs.getBaseDirName();
 	}
 
+	@Input
 	public List<String> getCheckCategoryNames() {
 		return _sourceFormatterArgs.getCheckCategoryNames();
 	}
 
+	@Input
 	public List<String> getCheckNames() {
 		return _sourceFormatterArgs.getCheckNames();
 	}
 
+	@Input
 	public List<String> getFileExtensions() {
 		return _sourceFormatterArgs.getFileExtensions();
 	}
 
+	@Input
 	public List<String> getFileNames() {
 		return _sourceFormatterArgs.getFileNames();
 	}
