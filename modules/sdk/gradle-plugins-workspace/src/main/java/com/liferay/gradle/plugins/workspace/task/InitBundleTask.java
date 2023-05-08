@@ -85,7 +85,6 @@ public class InitBundleTask extends JavaExec {
 		return GradleUtil.toFile(getProject(), _file);
 	}
 
-	@Input
 	@Optional
 	@InputFiles
 	public FileCollection getProvidedModules() {
