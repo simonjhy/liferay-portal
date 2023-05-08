@@ -14,16 +14,8 @@
 
 package com.liferay.gradle.plugins.css.builder;
 
-import com.liferay.css.builder.CSSBuilderArgs;
-import com.liferay.gradle.util.FileUtil;
-import com.liferay.gradle.util.GUtil;
-import com.liferay.gradle.util.GradleUtil;
-import com.liferay.gradle.util.Validator;
-
 import java.io.File;
-
 import java.nio.charset.StandardCharsets;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,9 +32,16 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectories;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.OutputFiles;
 import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.util.CollectionUtils;
+
+import com.liferay.css.builder.CSSBuilderArgs;
+import com.liferay.gradle.util.FileUtil;
+import com.liferay.gradle.util.GUtil;
+import com.liferay.gradle.util.GradleUtil;
+import com.liferay.gradle.util.Validator;
 
 /**
  * @author Andrea Di Giorgi
@@ -53,7 +52,7 @@ public class BuildCSSTask extends JavaExec {
 	public BuildCSSTask() {
 		setDefaultCharacterEncoding(StandardCharsets.UTF_8.toString());
 		setDirNames("/");
-		setMain("com.liferay.css.builder.CSSBuilder");
+		getMainClass().set("com.liferay.css.builder.CSSBuilder");
 		systemProperty("sass.compiler.jni.clean.temp.dir", true);
 	}
 
@@ -84,6 +83,7 @@ public class BuildCSSTask extends JavaExec {
 		super.exec();
 	}
 
+	@OutputFile
 	public File getBaseDir() {
 		return GradleUtil.toFile(getProject(), _baseDir);
 	}
@@ -129,6 +129,7 @@ public class BuildCSSTask extends JavaExec {
 		return project.fileTree(args);
 	}
 
+	@Input
 	public List<String> getDirNames() {
 		return GradleUtil.toStringList(_dirNames);
 	}
