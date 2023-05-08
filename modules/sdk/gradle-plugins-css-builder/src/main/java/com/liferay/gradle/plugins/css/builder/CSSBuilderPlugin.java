@@ -29,6 +29,7 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.DependencySet;
+import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileCopyDetails;
 import org.gradle.api.file.SourceDirectorySet;
@@ -211,6 +212,8 @@ public class CSSBuilderPlugin implements Plugin<Project> {
 		final Sync copyCSSTask = GradleUtil.addTask(
 			project, COPY_CSS_TASK_NAME, Sync.class);
 
+		copyCSSTask.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
+
 		copyCSSTask.setDescription("Copies CSS files to a temp directory.");
 
 		copyCSSTask.include("**/*.css", "**/*.scss");
@@ -326,6 +329,8 @@ public class CSSBuilderPlugin implements Plugin<Project> {
 
 		processResourcesTask.dependsOn(buildCSSTask);
 
+		processResourcesTask.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
+
 		processResourcesTask.from(
 			new Callable<File>() {
 
@@ -403,6 +408,8 @@ public class CSSBuilderPlugin implements Plugin<Project> {
 			});
 
 		war.exclude("**/*.scss");
+
+		war.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
 
 		war.from(
 			new Callable<File>() {
