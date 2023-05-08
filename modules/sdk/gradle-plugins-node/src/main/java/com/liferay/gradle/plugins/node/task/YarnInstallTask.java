@@ -14,13 +14,14 @@
 
 package com.liferay.gradle.plugins.node.task;
 
-import com.liferay.gradle.plugins.node.internal.util.FileUtil;
-import com.liferay.gradle.plugins.node.internal.util.GradleUtil;
-
 import java.io.File;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.gradle.api.tasks.Input;
+
+import com.liferay.gradle.plugins.node.internal.util.FileUtil;
+import com.liferay.gradle.plugins.node.internal.util.GradleUtil;
 
 /**
  * @author Peter Shin
@@ -39,6 +40,7 @@ public class YarnInstallTask extends ExecutePackageManagerTask {
 		super.executeNode();
 	}
 
+	@Input
 	public boolean isFrozenLockFile() {
 		return GradleUtil.toBoolean(_frozenLockFile);
 	}
