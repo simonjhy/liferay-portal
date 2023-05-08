@@ -39,7 +39,7 @@ import org.gradle.api.tasks.PathSensitivity;
 public class BuildThemeTask extends JavaExec {
 
 	public BuildThemeTask() {
-		setMain("com.liferay.portal.tools.theme.builder.ThemeBuilder");
+		getMainClass().set("com.liferay.portal.tools.theme.builder.ThemeBuilder");
 	}
 
 	@Override
