@@ -26,10 +26,13 @@ import java.io.IOException;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
+
+import org.apache.commons.codec.digest.DigestUtils;
 
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
@@ -44,8 +47,6 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.internal.hash.HashUtil;
-import org.gradle.internal.hash.HashValue;
 
 /**
  * @author Andrea Di Giorgi
@@ -199,11 +200,10 @@ public class InstallCacheTask extends DefaultTask {
 		CacheFormat cacheFormat = getCacheFormat();
 
 		if (cacheFormat == CacheFormat.GRADLE) {
-			HashValue hashValue = HashUtil.sha1(file);
+			String sha256Hex = DigestUtils.sha256Hex(
+				Files.readAllBytes(file.toPath()));
 
-			String hash = hashValue.asHexString();
-
-			hash = hash.replaceFirst("^0*", "");
+			String hash = sha256Hex.replaceFirst("^0*", "");
 
 			destinationDir = new File(destinationDir, hash);
 		}

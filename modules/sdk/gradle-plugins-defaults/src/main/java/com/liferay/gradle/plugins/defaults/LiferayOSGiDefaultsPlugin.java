@@ -912,7 +912,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		task.setDescription(
 			"Installs and commits the project to the local Gradle cache for " +
 				"testing.");
-		task.setGroup(BasePlugin.UPLOAD_GROUP);
+		task.setGroup(BasePlugin.BUILD_GROUP);
 
 		return task;
 	}
@@ -1100,47 +1100,6 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		return copy;
 	}
 
-	private void _configureTaskGeneratePomFileForMavenPublication(
-		Project project, GenerateMavenPom generateMavenPom) {
-
-		final String artifactId = GradleUtil.getArchivesBaseName(project);
-		final String groupId = String.valueOf(project.getGroup());
-
-		StringBuilder sb = new StringBuilder();
-
-		sb.append(
-			FileUtil.getJavaClassesDir(
-				GradleUtil.getSourceSet(
-					project, SourceSet.MAIN_SOURCE_SET_NAME)));
-		sb.append("/META-INF/maven/");
-		sb.append(groupId);
-		sb.append('/');
-		sb.append(artifactId);
-
-		final String dirName = sb.toString();
-
-		generateMavenPom.setDestination(new File(dirName, "pom.xml"));
-
-		generateMavenPom.doLast(
-			new Action<Task>() {
-
-				@Override
-				public void execute(Task task) {
-					File file = new File(dirName, "pom.properties");
-
-					Properties properties = new Properties();
-
-					properties.setProperty("artifactId", artifactId);
-					properties.setProperty("groupId", groupId);
-					properties.setProperty(
-						"version", String.valueOf(project.getVersion()));
-
-					FileUtil.writeProperties(file, properties);
-				}
-
-			});
-	}
-
 	private InstallCacheTask _addTaskInstallCache(
 		final Project project, File portalRootDir) {
 
@@ -1209,7 +1168,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 
 		installCacheTask.setDescription(
 			"Installs the project to the local Gradle cache for testing.");
-		installCacheTask.setGroup(BasePlugin.UPLOAD_GROUP);
+		installCacheTask.setGroup(BasePlugin.BUILD_GROUP);
 
 		GradleUtil.setProperty(
 			installCacheTask, LiferayOSGiPlugin.AUTO_CLEAN_PROPERTY_NAME,
@@ -1981,135 +1940,6 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 					});
 			}
 		}
-	}
-
-	private void _configurePublishing(
-		final Project project, Jar jarJSDocTask, Jar jarJSPTask,
-		Jar jarJavadocTask, Jar jarSourcesTask, Jar jarSourcesCommercialTask,
-		Jar jarTLDDocTask) {
-
-		PublishingExtension publishingExtension = GradleUtil.getExtension(
-			project, PublishingExtension.class);
-
-		publishingExtension.publications(
-			new Action<PublicationContainer>() {
-
-				@Override
-				public void execute(PublicationContainer publicationContainer) {
-					MavenPublication mavenPublication =
-						publicationContainer.maybeCreate(
-							"maven", MavenPublication.class);
-
-					SoftwareComponentContainer softwareComponentContainer =
-						project.getComponents();
-
-					SoftwareComponent softwareComponent =
-						softwareComponentContainer.findByName("java");
-
-					mavenPublication.from(softwareComponent);
-
-					mavenPublication.setArtifactId(
-						GradleUtil.getArchivesBaseName(project));
-					mavenPublication.setGroupId(
-						String.valueOf(project.getGroup()));
-
-					if (!GradlePluginsDefaultsUtil.isSnapshot(
-							project, _SNAPSHOT_PROPERTY_NAMES)) {
-
-						SourceSet sourceSet = GradleUtil.getSourceSet(
-							project, SourceSet.MAIN_SOURCE_SET_NAME);
-
-						if (FileUtil.hasFiles(
-								sourceSet.getResources(), _jspSpec)) {
-
-							mavenPublication.artifact(jarJSPTask);
-						}
-					}
-
-					Spec<File> spec = new Spec<File>() {
-
-						@Override
-						public boolean isSatisfiedBy(File file) {
-							String fileName = file.getName();
-
-							if (fileName.equals("MANIFEST.MF")) {
-								return false;
-							}
-
-							return true;
-						}
-
-					};
-
-					if (FileUtil.hasSourceFiles(jarSourcesTask, spec)) {
-						mavenPublication.artifact(jarSourcesTask);
-					}
-
-					if (!GradleUtil.hasPlugin(project, PublishPlugin.class) &&
-						FileUtil.hasSourceFiles(
-							jarSourcesCommercialTask, spec)) {
-
-						mavenPublication.artifact(jarSourcesCommercialTask);
-					}
-
-					Task javadocTask = GradleUtil.getTask(
-						project, JavaPlugin.JAVADOC_TASK_NAME);
-
-					if (FileUtil.hasSourceFiles(javadocTask, _javaSpec)) {
-						mavenPublication.artifact(jarJavadocTask);
-					}
-
-					Task jsDocTask = GradleUtil.getTask(
-						project, JSDocPlugin.JSDOC_TASK_NAME);
-
-					TaskInputs taskInputs = jsDocTask.getInputs();
-
-					FileCollection fileCollection = taskInputs.getFiles();
-
-					FileTree fileTree = fileCollection.getAsFileTree();
-
-					fileCollection = fileTree.filter(_jsdocSpec);
-
-					if (!fileCollection.isEmpty()) {
-						mavenPublication.artifact(jarJSDocTask);
-					}
-
-					Task tldDocTask = GradleUtil.getTask(
-						project, TLDDocBuilderPlugin.TLDDOC_TASK_NAME);
-
-					if (FileUtil.hasSourceFiles(tldDocTask, _tldSpec)) {
-						mavenPublication.artifact(jarTLDDocTask);
-					}
-
-					if (GradleUtil.hasPlugin(
-							project, WSDDBuilderPlugin.class)) {
-
-						BuildWSDDTask buildWSDDTask =
-							(BuildWSDDTask)GradleUtil.getTask(
-								project,
-								WSDDBuilderPlugin.BUILD_WSDD_TASK_NAME);
-
-						if (buildWSDDTask.getEnabled()) {
-							Task buildWSDDJarTask = GradleUtil.getTask(
-								project, buildWSDDTask.getName() + "Jar");
-
-							mavenPublication.artifact(
-								buildWSDDJarTask,
-								new Action<MavenArtifact>() {
-
-									@Override
-									public void execute(
-										MavenArtifact mavenArtifact) {
-
-										mavenArtifact.setClassifier("wsdd");
-									}
-
-								});
-						}
-					}
-				}
-
-			});
 	}
 
 	private void _configureBasePlugin(Project project, File portalRootDir) {
@@ -3107,6 +2937,135 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 			project.relativePath(appServerLibPortalDir));
 	}
 
+	private void _configurePublishing(
+		final Project project, Jar jarJSDocTask, Jar jarJSPTask,
+		Jar jarJavadocTask, Jar jarSourcesTask, Jar jarSourcesCommercialTask,
+		Jar jarTLDDocTask) {
+
+		PublishingExtension publishingExtension = GradleUtil.getExtension(
+			project, PublishingExtension.class);
+
+		publishingExtension.publications(
+			new Action<PublicationContainer>() {
+
+				@Override
+				public void execute(PublicationContainer publicationContainer) {
+					MavenPublication mavenPublication =
+						publicationContainer.maybeCreate(
+							"maven", MavenPublication.class);
+
+					SoftwareComponentContainer softwareComponentContainer =
+						project.getComponents();
+
+					SoftwareComponent softwareComponent =
+						softwareComponentContainer.findByName("java");
+
+					mavenPublication.from(softwareComponent);
+
+					mavenPublication.setArtifactId(
+						GradleUtil.getArchivesBaseName(project));
+					mavenPublication.setGroupId(
+						String.valueOf(project.getGroup()));
+
+					if (!GradlePluginsDefaultsUtil.isSnapshot(
+							project, _SNAPSHOT_PROPERTY_NAMES)) {
+
+						SourceSet sourceSet = GradleUtil.getSourceSet(
+							project, SourceSet.MAIN_SOURCE_SET_NAME);
+
+						if (FileUtil.hasFiles(
+								sourceSet.getResources(), _jspSpec)) {
+
+							mavenPublication.artifact(jarJSPTask);
+						}
+					}
+
+					Spec<File> spec = new Spec<File>() {
+
+						@Override
+						public boolean isSatisfiedBy(File file) {
+							String fileName = file.getName();
+
+							if (fileName.equals("MANIFEST.MF")) {
+								return false;
+							}
+
+							return true;
+						}
+
+					};
+
+					if (FileUtil.hasSourceFiles(jarSourcesTask, spec)) {
+						mavenPublication.artifact(jarSourcesTask);
+					}
+
+					if (!GradleUtil.hasPlugin(project, PublishPlugin.class) &&
+						FileUtil.hasSourceFiles(
+							jarSourcesCommercialTask, spec)) {
+
+						mavenPublication.artifact(jarSourcesCommercialTask);
+					}
+
+					Task javadocTask = GradleUtil.getTask(
+						project, JavaPlugin.JAVADOC_TASK_NAME);
+
+					if (FileUtil.hasSourceFiles(javadocTask, _javaSpec)) {
+						mavenPublication.artifact(jarJavadocTask);
+					}
+
+					Task jsDocTask = GradleUtil.getTask(
+						project, JSDocPlugin.JSDOC_TASK_NAME);
+
+					TaskInputs taskInputs = jsDocTask.getInputs();
+
+					FileCollection fileCollection = taskInputs.getFiles();
+
+					FileTree fileTree = fileCollection.getAsFileTree();
+
+					fileCollection = fileTree.filter(_jsdocSpec);
+
+					if (!fileCollection.isEmpty()) {
+						mavenPublication.artifact(jarJSDocTask);
+					}
+
+					Task tldDocTask = GradleUtil.getTask(
+						project, TLDDocBuilderPlugin.TLDDOC_TASK_NAME);
+
+					if (FileUtil.hasSourceFiles(tldDocTask, _tldSpec)) {
+						mavenPublication.artifact(jarTLDDocTask);
+					}
+
+					if (GradleUtil.hasPlugin(
+							project, WSDDBuilderPlugin.class)) {
+
+						BuildWSDDTask buildWSDDTask =
+							(BuildWSDDTask)GradleUtil.getTask(
+								project,
+								WSDDBuilderPlugin.BUILD_WSDD_TASK_NAME);
+
+						if (buildWSDDTask.getEnabled()) {
+							Task buildWSDDJarTask = GradleUtil.getTask(
+								project, buildWSDDTask.getName() + "Jar");
+
+							mavenPublication.artifact(
+								buildWSDDJarTask,
+								new Action<MavenArtifact>() {
+
+									@Override
+									public void execute(
+										MavenArtifact mavenArtifact) {
+
+										mavenArtifact.setClassifier("wsdd");
+									}
+
+								});
+						}
+					}
+				}
+
+			});
+	}
+
 	private void _configureSourceSetClassesDir(
 		Project project, SourceSet sourceSet, String classesDirName) {
 
@@ -3639,6 +3598,47 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		generateJSPJavaTask.doLast(taskAction);
 	}
 
+	private void _configureTaskGeneratePomFileForMavenPublication(
+		Project project, GenerateMavenPom generateMavenPom) {
+
+		final String artifactId = GradleUtil.getArchivesBaseName(project);
+		final String groupId = String.valueOf(project.getGroup());
+
+		StringBuilder sb = new StringBuilder();
+
+		sb.append(
+			FileUtil.getJavaClassesDir(
+				GradleUtil.getSourceSet(
+					project, SourceSet.MAIN_SOURCE_SET_NAME)));
+		sb.append("/META-INF/maven/");
+		sb.append(groupId);
+		sb.append('/');
+		sb.append(artifactId);
+
+		final String dirName = sb.toString();
+
+		generateMavenPom.setDestination(new File(dirName, "pom.xml"));
+
+		generateMavenPom.doLast(
+			new Action<Task>() {
+
+				@Override
+				public void execute(Task task) {
+					File file = new File(dirName, "pom.properties");
+
+					Properties properties = new Properties();
+
+					properties.setProperty("artifactId", artifactId);
+					properties.setProperty("groupId", groupId);
+					properties.setProperty(
+						"version", String.valueOf(project.getVersion()));
+
+					FileUtil.writeProperties(file, properties);
+				}
+
+			});
+	}
+
 	private void _configureTaskJar(Jar jar, boolean testProject) {
 		if (testProject) {
 			jar.dependsOn(JavaPlugin.TEST_CLASSES_TASK_NAME);
@@ -3878,6 +3878,40 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 
 	private void _configureTaskPmd(Pmd pmd) {
 		pmd.setClasspath(null);
+	}
+
+	private void _configureTaskPublish(
+		Project project, boolean testProject,
+		ReplaceRegexTask updateFileVersionsTask,
+		ReplaceRegexTask updateVersionTask) {
+
+		Task publishTask = GradleUtil.getTask(
+			project, PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME);
+
+		if (testProject) {
+			publishTask.setDependsOn(Collections.emptySet());
+			publishTask.setEnabled(false);
+			publishTask.setFinalizedBy(Collections.emptySet());
+
+			return;
+		}
+
+		TaskContainer taskContainer = project.getTasks();
+
+		TaskCollection<PublishNodeModuleTask> publishNodeModuleTasks =
+			taskContainer.withType(PublishNodeModuleTask.class);
+
+		publishTask.dependsOn(publishNodeModuleTasks);
+
+		if ((GradleUtil.getRootDir(project, ".lfrbuild-master-only") != null) &&
+			!GradlePluginsDefaultsUtil.isSnapshot(project)) {
+
+			publishTask.finalizedBy(updateFileVersionsTask);
+		}
+
+		if (!GradlePluginsDefaultsUtil.isSnapshot(project)) {
+			publishTask.finalizedBy(updateVersionTask);
+		}
 	}
 
 	private void _configureTaskReplaceRegexJSMatches(
@@ -4218,40 +4252,6 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 			updateVersionTask.match(regex, fileTree);
 
 			updateVersionTask.finalizedBy(taskCache.getRefreshDigestTaskName());
-		}
-	}
-
-	private void _configureTaskPublish(
-		Project project, boolean testProject,
-		ReplaceRegexTask updateFileVersionsTask,
-		ReplaceRegexTask updateVersionTask) {
-
-		Task publishTask = GradleUtil.getTask(
-			project, PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME);
-
-		if (testProject) {
-			publishTask.setDependsOn(Collections.emptySet());
-			publishTask.setEnabled(false);
-			publishTask.setFinalizedBy(Collections.emptySet());
-
-			return;
-		}
-
-		TaskContainer taskContainer = project.getTasks();
-
-		TaskCollection<PublishNodeModuleTask> publishNodeModuleTasks =
-			taskContainer.withType(PublishNodeModuleTask.class);
-
-		publishTask.dependsOn(publishNodeModuleTasks);
-
-		if ((GradleUtil.getRootDir(project, ".lfrbuild-master-only") != null) &&
-			!GradlePluginsDefaultsUtil.isSnapshot(project)) {
-
-			publishTask.finalizedBy(updateFileVersionsTask);
-		}
-
-		if (!GradlePluginsDefaultsUtil.isSnapshot(project)) {
-			publishTask.finalizedBy(updateVersionTask);
 		}
 	}
 
