@@ -30,9 +30,10 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
-import org.gradle.util.CollectionUtils;
+import org.gradle.util.internal.CollectionUtils;
 
 import com.liferay.gradle.util.FileUtil;
 import com.liferay.gradle.util.GUtil;
@@ -63,8 +64,7 @@ public class BuildServiceTask extends JavaExec {
 		super.exec();
 	}
 
-	@InputFile
-	@PathSensitive(PathSensitivity.RELATIVE)
+	@OutputFile
 	public File getApiDir() {
 		return GradleUtil.toFile(getProject(), _apiDir);
 	}
@@ -84,14 +84,12 @@ public class BuildServiceTask extends JavaExec {
 		return _databaseNameMaxLength;
 	}
 
-	@InputFile
-	@PathSensitive(PathSensitivity.RELATIVE)
+	@OutputFile
 	public File getHbmFile() {
 		return GradleUtil.toFile(getProject(), _hbmFile);
 	}
 
-	@Input
-	@PathSensitive(PathSensitivity.RELATIVE)
+	@OutputFile
 	public File getImplDir() {
 		return GradleUtil.toFile(getProject(), _implDir);
 	}
@@ -126,8 +124,7 @@ public class BuildServiceTask extends JavaExec {
 		return GradleUtil.toStringList(_modelHintsConfigs);
 	}
 
-	@Input
-	@PathSensitive(PathSensitivity.RELATIVE)
+	@OutputFile
 	public File getModelHintsFile() {
 		return GradleUtil.toFile(getProject(), _modelHintsFile);
 	}
@@ -152,14 +149,12 @@ public class BuildServiceTask extends JavaExec {
 		return GradleUtil.toStringList(_resourceActionsConfigs);
 	}
 
-	@Input
-	@PathSensitive(PathSensitivity.RELATIVE)
+	@OutputFile
 	public File getResourcesDir() {
 		return GradleUtil.toFile(getProject(), _resourcesDir);
 	}
 
-	@Input
-	@PathSensitive(PathSensitivity.RELATIVE)
+	@OutputFile
 	public File getSpringFile() {
 		return GradleUtil.toFile(getProject(), _springFile);
 	}
@@ -169,8 +164,7 @@ public class BuildServiceTask extends JavaExec {
 		return GradleUtil.toStringList(_springNamespaces);
 	}
 
-	@Input
-	@PathSensitive(PathSensitivity.RELATIVE)
+	@OutputFile
 	public File getSqlDir() {
 		return GradleUtil.toFile(getProject(), _sqlDir);
 	}
@@ -196,9 +190,8 @@ public class BuildServiceTask extends JavaExec {
 		return GradleUtil.toString(_targetEntityName);
 	}
 
-	@Input
+	@OutputFile
 	@Optional
-	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getTestDir() {
 		return GradleUtil.toFile(getProject(), _testDir);
 	}
