@@ -14,21 +14,21 @@
 
 package com.liferay.gradle.plugins.task;
 
-import com.liferay.gradle.plugins.internal.util.FileUtil;
-import com.liferay.gradle.plugins.internal.util.GradleUtil;
-
 import java.io.File;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
+import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
+
+import com.liferay.gradle.plugins.internal.util.FileUtil;
+import com.liferay.gradle.plugins.internal.util.GradleUtil;
 
 /**
  * @author David Truong
@@ -55,6 +55,8 @@ public class BuildExtInfoTask extends JavaExec {
 		return GradleUtil.toFile(getProject(), _baseDir);
 	}
 
+	@InputFile
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getOutputDir() {
 		return GradleUtil.toFile(getProject(), _outputDir);
 	}
@@ -74,7 +76,6 @@ public class BuildExtInfoTask extends JavaExec {
 		_baseDir = baseDir;
 	}
 
-	@Input
 	public void setOutputDir(Object outputDir) {
 		_outputDir = outputDir;
 	}
