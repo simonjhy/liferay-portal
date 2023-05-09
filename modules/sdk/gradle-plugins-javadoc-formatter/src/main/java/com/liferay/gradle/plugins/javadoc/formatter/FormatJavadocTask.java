@@ -36,7 +36,7 @@ import org.gradle.util.CollectionUtils;
 public class FormatJavadocTask extends JavaExec {
 
 	public FormatJavadocTask() {
-		setMain("com.liferay.javadoc.formatter.JavadocFormatter");
+		getMainClass().set("com.liferay.javadoc.formatter.JavadocFormatter");
 	}
 
 	@Override
