@@ -14,12 +14,7 @@
 
 package com.liferay.gradle.plugins.service.builder;
 
-import com.liferay.gradle.plugins.service.builder.internal.util.GradleUtil;
-import com.liferay.gradle.util.FileUtil;
-import com.liferay.gradle.util.OSGiUtil;
-
 import java.io.File;
-
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -29,18 +24,25 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.GradleInternal;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.plugins.BasePlugin;
+import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.plugins.WarPlugin;
-import org.gradle.api.plugins.WarPluginConvention;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.api.tasks.bundling.War;
 import org.gradle.execution.ProjectConfigurer;
 import org.gradle.internal.service.ServiceRegistry;
+
+import com.liferay.gradle.plugins.service.builder.internal.util.GradleUtil;
+import com.liferay.gradle.util.FileUtil;
+import com.liferay.gradle.util.OSGiUtil;
 
 /**
  * @author Andrea Di Giorgi
@@ -405,10 +407,15 @@ public class ServiceBuilderPlugin implements Plugin<Project> {
 	}
 
 	protected File getWebAppDir(Project project) {
-		WarPluginConvention warPluginConvention = GradleUtil.getConvention(
-			project, WarPluginConvention.class);
-
-		return warPluginConvention.getWebAppDir();
+		ExtensionContainer extensions = project.getExtensions();
+		
+		War war = extensions.getByType(War.class);
+		
+		DirectoryProperty webAppDirectory = war.getWebAppDirectory();
+		
+		Provider<File> webAppFile = webAppDirectory.getAsFile();
+		
+		return webAppFile.get();
 	}
 
 }
