@@ -14,26 +14,10 @@
 
 package com.liferay.gradle.plugins.task;
 
-import aQute.bnd.gradle.BndUtils;
-import aQute.bnd.gradle.PropertiesWrapper;
-import aQute.bnd.osgi.Builder;
-import aQute.bnd.osgi.Constants;
-import aQute.bnd.osgi.Jar;
-import aQute.bnd.osgi.Processor;
-import aQute.bnd.version.MavenVersion;
-
-import aQute.lib.utf8properties.UTF8Properties;
-
-import aQute.service.reporter.Report;
-
-import com.liferay.gradle.plugins.internal.util.GradleUtil;
-import com.liferay.gradle.util.Validator;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -47,11 +31,25 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+
+import com.liferay.gradle.plugins.internal.util.GradleUtil;
+import com.liferay.gradle.util.Validator;
+
+import aQute.bnd.gradle.BndUtils;
+import aQute.bnd.gradle.PropertiesWrapper;
+import aQute.bnd.osgi.Builder;
+import aQute.bnd.osgi.Constants;
+import aQute.bnd.osgi.Jar;
+import aQute.bnd.osgi.Processor;
+import aQute.bnd.version.MavenVersion;
+import aQute.lib.utf8properties.UTF8Properties;
+import aQute.service.reporter.Report;
 
 /**
  * @author Andrea Di Giorgi
@@ -190,7 +188,7 @@ public class ExecuteBndTask extends DefaultTask {
 		}
 	}
 
-	@Input
+	@InputFile
 	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getBaseDir() {
 		return GradleUtil.toFile(getProject(), _baseDir);
@@ -231,6 +229,7 @@ public class ExecuteBndTask extends DefaultTask {
 		return _sourceDirs;
 	}
 
+	@Input
 	public boolean isFailOnError() {
 		return _failOnError;
 	}
