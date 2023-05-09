@@ -107,6 +107,7 @@ import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.PluginContainer;
+import org.gradle.api.provider.Property;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.Delete;
@@ -798,6 +799,8 @@ public class LiferayOSGiPlugin implements Plugin<Project> {
 					buildWSDDJar.setActions(Collections.emptyList());
 
 					buildWSDDJar.dependsOn(buildWSDDTask);
+					
+					Property<String> archiveAppendix = buildWSDDJar.getArchiveAppendix();
 
 					buildWSDDJar.doLast(
 						new Action<Task>() {
@@ -967,11 +970,11 @@ public class LiferayOSGiPlugin implements Plugin<Project> {
 
 					if (taskName.equals(
 							WSDDBuilderPlugin.BUILD_WSDD_TASK_NAME)) {
-
-						buildWSDDJar.setAppendix("wsdd");
+						
+						archiveAppendix.set("wsdd");
 					}
 					else {
-						buildWSDDJar.setAppendix("wsdd-" + taskName);
+						archiveAppendix.set("wsdd-" + taskName);
 					}
 
 					buildWSDDTask.finalizedBy(buildWSDDJar);
