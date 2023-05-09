@@ -56,6 +56,7 @@ public class DockerListImage extends AbstractDockerRemoteApiTask {
 		onNext(action);
 	}
 
+	@Input
 	public List<Image> getImages() {
 		return _imagesProperty.get();
 	}
@@ -80,17 +81,20 @@ public class DockerListImage extends AbstractDockerRemoteApiTask {
 		}
 	}
 
-	public boolean withDanglingFilter() {
+	@Input
+	public boolean getDanglingFilter() {
 		return _withDanglingFilter.get();
 	}
 
 	@Input
+	public String getImageId() {
+		return _imageIdProperty.get();
+	}
+	
 	private Property<String> _imageIdProperty;
 
-	@Input
 	private ListProperty<Image> _imagesProperty;
 
-	@Input
 	private Property<Boolean> _withDanglingFilter;
 
 }
