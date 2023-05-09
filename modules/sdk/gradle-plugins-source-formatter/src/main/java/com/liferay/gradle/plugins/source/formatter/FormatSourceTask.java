@@ -24,7 +24,7 @@ import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.util.CollectionUtils;
 
@@ -49,7 +49,7 @@ public class FormatSourceTask extends JavaExec {
 		super.exec();
 	}
 
-	@InputFile
+	@InputDirectory
 	public File getBaseDir() {
 		return GradleUtil.toFile(
 			getProject(), _sourceFormatterArgs.getBaseDirName());
