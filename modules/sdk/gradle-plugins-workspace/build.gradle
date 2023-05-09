@@ -136,18 +136,18 @@ dependencies {
 	api group: "com.github.docker-java", name: "docker-java", version: "3.2.8"
 	api group: 'com.google.code.gson', name: 'gson', version: '2.9.0'
 	api group: "com.liferay", name: "com.liferay.ant.bnd", version: "3.2.9"
-	api(group: "com.liferay", name: "com.liferay.gradle.plugins", version: "14.0.109") {
+	api(group: "com.liferay", name: "com.liferay.gradle.plugins", version: "714.0.109") {
 		exclude group: "biz.aQute.bnd", module: "biz.aQute.bnd"
 	}
-	api(group: "com.liferay", name: "com.liferay.gradle.plugins.css.builder", version: "5.0.8") {
+	api(group: "com.liferay", name: "com.liferay.gradle.plugins.css.builder", version: "75.0.8") {
 		exclude group: "biz.aQute.bnd", module: "biz.aQute.bnd"
 	}
 	api(group: "com.liferay", name: "com.liferay.gradle.plugins.poshi.runner", version: "3.0.67") {
 		exclude group: "biz.aQute.bnd", module: "biz.aQute.bnd"
 	}
-	api group: "com.liferay", name: "com.liferay.gradle.plugins.source.formatter", version: "5.2.10"
-	api group: "com.liferay", name: "com.liferay.gradle.plugins.target.platform", version: "3.0.10"
-	api(group: "com.liferay", name: "com.liferay.gradle.plugins.theme.builder", version: "2.0.23") {
+	api group: "com.liferay", name: "com.liferay.gradle.plugins.source.formatter", version: "75.2.10"
+	api group: "com.liferay", name: "com.liferay.gradle.plugins.target.platform", version: "73.0.10"
+	api(group: "com.liferay", name: "com.liferay.gradle.plugins.theme.builder", version: "72.0.24") {
 		exclude group: "biz.aQute.bnd", module: "biz.aQute.bnd"
 	}
 	api group: "com.liferay", name: "com.liferay.petra.lang", version: "5.1.2"
