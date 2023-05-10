@@ -1,6 +1,13 @@
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
+buildscript {
+	dependencies {
+		classpath fileTree(dir: pluginClasspathDir, include: "*.jar")
+	}
+}
+
+apply plugin: "com.liferay.node"
 apply plugin: "com.liferay.js.transpiler.base"
 apply plugin: "java-library"
 

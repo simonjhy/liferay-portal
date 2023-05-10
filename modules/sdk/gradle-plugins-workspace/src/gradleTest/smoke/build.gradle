@@ -1,5 +1,12 @@
+buildscript {
+	dependencies {
+		classpath fileTree(dir: pluginClasspathDir, include: "*.jar")
+	}
+}
+
 import com.liferay.gradle.plugins.gulp.ExecuteGulpTask
 
+apply plugin: "com.liferay.node"
 apply plugin: "com.liferay.gulp"
 
 node {

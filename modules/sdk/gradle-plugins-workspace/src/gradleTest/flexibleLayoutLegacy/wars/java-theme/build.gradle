@@ -1,15 +1,3 @@
-buildscript {
-	dependencies {
-		classpath group: "com.liferay", name: "com.liferay.gradle.plugins.theme.builder", version: "72.0.24"
-	}
-
-	repositories {
-		maven {
-			url "https://repository-cdn.liferay.com/nexus/content/groups/public"
-		}
-	}
-}
-
 apply plugin: "com.liferay.portal.tools.theme.builder"
 
 dependencies {

@@ -14,11 +14,7 @@
 
 package com.liferay.gradle.plugins.workspace.task;
 
-import com.liferay.gradle.plugins.workspace.internal.util.GradleUtil;
-import com.liferay.portal.tools.bundle.support.constants.BundleSupportConstants;
-
 import java.io.File;
-
 import java.net.URL;
 
 import org.gradle.api.DefaultTask;
@@ -26,7 +22,11 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+
+import com.liferay.gradle.plugins.workspace.internal.util.GradleUtil;
+import com.liferay.portal.tools.bundle.support.constants.BundleSupportConstants;
 
 /**
  * @author     Andrea Di Giorgi
@@ -64,7 +64,7 @@ public class CreateTokenTask extends DefaultTask {
 		return GradleUtil.toFile(getProject(), _passwordFile);
 	}
 
-	@Input
+	@OutputFile
 	public File getTokenFile() {
 		return GradleUtil.toFile(getProject(), _tokenFile);
 	}
@@ -74,6 +74,7 @@ public class CreateTokenTask extends DefaultTask {
 		return GradleUtil.toURL(_tokenUrl);
 	}
 
+	@Input
 	public boolean isForce() {
 		return GradleUtil.toBoolean(_force);
 	}
@@ -90,12 +91,10 @@ public class CreateTokenTask extends DefaultTask {
 		_password = password;
 	}
 
-	@Input
 	public void setPasswordFile(Object passwordFile) {
 		_passwordFile = passwordFile;
 	}
 
-	@Input
 	public void setTokenFile(Object tokenFile) {
 		_tokenFile = tokenFile;
 	}

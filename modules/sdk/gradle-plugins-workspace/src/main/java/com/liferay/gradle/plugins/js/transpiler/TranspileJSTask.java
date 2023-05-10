@@ -14,13 +14,7 @@
 
 package com.liferay.gradle.plugins.js.transpiler;
 
-import com.liferay.gradle.plugins.node.task.ExecuteNodeScriptTask;
-import com.liferay.gradle.util.FileUtil;
-import com.liferay.gradle.util.GUtil;
-import com.liferay.gradle.util.GradleUtil;
-
 import java.io.File;
-
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -34,10 +28,16 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
+
+import com.liferay.gradle.plugins.node.task.ExecuteNodeScriptTask;
+import com.liferay.gradle.util.FileUtil;
+import com.liferay.gradle.util.GUtil;
+import com.liferay.gradle.util.GradleUtil;
 
 /**
  * @author     Andrea Di Giorgi
@@ -100,7 +100,7 @@ public class TranspileJSTask extends ExecuteNodeScriptTask {
 		return GradleUtil.toString(_modules);
 	}
 
-	@Input
+	@InputDirectory
 	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getSourceDir() {
 		return GradleUtil.toFile(getProject(), _sourceDir);
@@ -135,10 +135,12 @@ public class TranspileJSTask extends ExecuteNodeScriptTask {
 		return GradleUtil.toStringList(_soyDependencies);
 	}
 
+	@Input
 	public List<String> getSoySrcIncludes() {
 		return GradleUtil.toStringList(_soySrcIncludes);
 	}
 
+	@Input
 	public List<String> getSrcIncludes() {
 		return GradleUtil.toStringList(_srcIncludes);
 	}
@@ -149,6 +151,7 @@ public class TranspileJSTask extends ExecuteNodeScriptTask {
 		return super.getWorkingDir();
 	}
 
+	@Input
 	public boolean isSkipWhenEmpty() {
 		return _skipWhenEmpty;
 	}

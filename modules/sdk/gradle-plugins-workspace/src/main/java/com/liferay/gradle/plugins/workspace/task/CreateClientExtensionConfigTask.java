@@ -44,7 +44,7 @@ import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskOutputs;
 
@@ -160,7 +160,7 @@ public class CreateClientExtensionConfigTask extends DefaultTask {
 		_createClientExtensionConfigFile(jsonMap);
 	}
 
-	@InputFile
+	@OutputFile
 	public File getClientExtensionConfigFile() {
 		return GradleUtil.toFile(getProject(), _clientExtensionConfigFile);
 	}
@@ -170,18 +170,17 @@ public class CreateClientExtensionConfigTask extends DefaultTask {
 		return _clientExtensions;
 	}
 
-	@InputFile
+	@OutputFile
 	public File getDockerFile() {
 		return GradleUtil.toFile(getProject(), _dockerFile);
 	}
 
-	@InputFile
-	
+	@OutputFile
 	public File getLcpJsonFile() {
 		return GradleUtil.toFile(getProject(), _lcpJsonFile);
 	}
 
-	@InputFile
+	@OutputFile
 	public File getPluginPackagePropertiesFile() {
 		return GradleUtil.toFile(getProject(), _pluginPackagePropertiesFile);
 	}

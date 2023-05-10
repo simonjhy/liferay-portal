@@ -35,6 +35,7 @@ import org.gradle.api.GradleException;
 import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.TaskProvider;
@@ -123,6 +124,8 @@ public abstract class BaseProjectConfigurator implements ProjectConfigurator {
 
 			});
 
+		copy.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
+		
 		copy.setDescription(
 			"Assembles the project and deploys it to the Liferay Docker " +
 				"container.");

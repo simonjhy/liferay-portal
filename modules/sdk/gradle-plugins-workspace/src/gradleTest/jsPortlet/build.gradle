@@ -6,6 +6,7 @@ gradle.liferayWorkspace {
 
 node {
 	nodeVersion = "14.19.0"
+	useNpm = false
 }
 
 runGradleTest {

@@ -1,3 +1,9 @@
+buildscript {
+	dependencies {
+		classpath fileTree(dir: pluginClasspathDir, include: "*.jar")
+	}
+}
+
 apply plugin: "com.liferay.soy"
 apply plugin: "java-library"
 
