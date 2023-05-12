@@ -118,6 +118,7 @@ public class FormatJavadocTask extends JavaExec {
 		_updateJavadocs = updateJavadocs;
 	}
 
+	@Input
 	protected List<String> getCompleteArgs() {
 		List<String> args = new ArrayList<>(getArgs());
 
