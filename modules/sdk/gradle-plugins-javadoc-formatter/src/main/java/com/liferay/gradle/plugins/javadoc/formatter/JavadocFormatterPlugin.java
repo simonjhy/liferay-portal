@@ -39,12 +39,12 @@ public class JavadocFormatterPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
-//		Configuration javadocFormatterConfiguration =
-//			addConfigurationJavadocFormatter(project);
-//
-//		addTaskFormatJavadoc(project);
-//
-//		configureTasksFormatJavadoc(project, javadocFormatterConfiguration);
+		Configuration javadocFormatterConfiguration =
+			addConfigurationJavadocFormatter(project);
+
+		addTaskFormatJavadoc(project);
+
+		configureTasksFormatJavadoc(project, javadocFormatterConfiguration);
 	}
 
 	protected Configuration addConfigurationJavadocFormatter(
@@ -87,7 +87,7 @@ public class JavadocFormatterPlugin implements Plugin<Project> {
 	protected void addDependenciesJavadocFormatter(Project project) {
 		GradleUtil.addDependency(
 			project, CONFIGURATION_NAME, "com.liferay",
-			"com.liferay.javadoc.formatter", "71.0.34");
+			"com.liferay.javadoc.formatter", "latest.release");
 	}
 
 	protected FormatJavadocTask addTaskFormatJavadoc(Project project) {
