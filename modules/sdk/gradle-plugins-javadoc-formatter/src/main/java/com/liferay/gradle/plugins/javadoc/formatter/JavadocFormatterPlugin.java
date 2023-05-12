@@ -87,7 +87,7 @@ public class JavadocFormatterPlugin implements Plugin<Project> {
 	protected void addDependenciesJavadocFormatter(Project project) {
 		GradleUtil.addDependency(
 			project, CONFIGURATION_NAME, "com.liferay",
-			"com.liferay.javadoc.formatter", "latest.release");
+			"com.liferay.javadoc.formatter", "71.0.34");
 	}
 
 	protected FormatJavadocTask addTaskFormatJavadoc(Project project) {
