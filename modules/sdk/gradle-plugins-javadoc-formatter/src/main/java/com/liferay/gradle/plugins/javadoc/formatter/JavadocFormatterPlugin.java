@@ -39,12 +39,12 @@ public class JavadocFormatterPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
-		Configuration javadocFormatterConfiguration =
-			addConfigurationJavadocFormatter(project);
-
-		addTaskFormatJavadoc(project);
-
-		configureTasksFormatJavadoc(project, javadocFormatterConfiguration);
+//		Configuration javadocFormatterConfiguration =
+//			addConfigurationJavadocFormatter(project);
+//
+//		addTaskFormatJavadoc(project);
+//
+//		configureTasksFormatJavadoc(project, javadocFormatterConfiguration);
 	}
 
 	protected Configuration addConfigurationJavadocFormatter(
