@@ -30,6 +30,7 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
@@ -64,7 +65,7 @@ public class BuildServiceTask extends JavaExec {
 		super.exec();
 	}
 
-	@OutputFile
+	@OutputDirectory
 	public File getApiDir() {
 		return GradleUtil.toFile(getProject(), _apiDir);
 	}
@@ -89,7 +90,7 @@ public class BuildServiceTask extends JavaExec {
 		return GradleUtil.toFile(getProject(), _hbmFile);
 	}
 
-	@OutputFile
+	@OutputDirectory
 	public File getImplDir() {
 		return GradleUtil.toFile(getProject(), _implDir);
 	}
@@ -149,7 +150,7 @@ public class BuildServiceTask extends JavaExec {
 		return GradleUtil.toStringList(_resourceActionsConfigs);
 	}
 
-	@OutputFile
+	@OutputDirectory
 	public File getResourcesDir() {
 		return GradleUtil.toFile(getProject(), _resourcesDir);
 	}
@@ -164,7 +165,7 @@ public class BuildServiceTask extends JavaExec {
 		return GradleUtil.toStringList(_springNamespaces);
 	}
 
-	@OutputFile
+	@OutputDirectory
 	public File getSqlDir() {
 		return GradleUtil.toFile(getProject(), _sqlDir);
 	}
