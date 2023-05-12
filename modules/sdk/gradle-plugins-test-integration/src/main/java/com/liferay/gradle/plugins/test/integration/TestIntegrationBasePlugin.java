@@ -306,11 +306,11 @@ public class TestIntegrationBasePlugin implements Plugin<Project> {
 				testIntegrationSourceSet.
 					getRuntimeClasspathConfigurationName()));
 
-		project.afterEvaluate(
-			new Action<Project>() {
-
-				@Override
-				public void execute(Project project) {
+//		project.afterEvaluate(
+//			new Action<Project>() {
+//
+//				@Override
+//				public void execute(Project project) {
 					Set<File> testSrcDirs = new LinkedHashSet<>(
 						ideaModule.getTestSourceDirs());
 
@@ -320,9 +320,9 @@ public class TestIntegrationBasePlugin implements Plugin<Project> {
 					testSrcDirs.addAll(sourceDirectorySet.getSrcDirs());
 
 					ideaModule.setTestSourceDirs(testSrcDirs);
-				}
-
-			});
+//				}
+//
+//			});
 	}
 
 	private void _configureTaskCheck(Test test) {
