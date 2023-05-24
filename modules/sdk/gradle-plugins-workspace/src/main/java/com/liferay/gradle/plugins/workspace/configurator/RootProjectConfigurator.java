@@ -75,6 +75,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
+import net.saliman.gradle.plugin.properties.PropertiesPlugin;
+
 import org.apache.commons.io.FilenameUtils;
 
 import org.gradle.api.Action;
@@ -223,6 +225,8 @@ public class RootProjectConfigurator implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
+		_applyPlugins(project);
+
 		WorkspaceExtension workspaceExtension = GradleUtil.getExtension(
 			(ExtensionAware)project.getGradle(), WorkspaceExtension.class);
 
@@ -1735,6 +1739,18 @@ public class RootProjectConfigurator implements Plugin<Project> {
 			"Verify Liferay Workspace product settings.");
 
 		return verifyProductTask;
+	}
+
+	private void _applyPlugins(Project project) {
+		if (GradleUtil.getProperty(
+				project,
+				WorkspacePlugin.PROPERTY_PREFIX +
+					"feature.net.saliman.properties.plugin.enabled",
+				true)) {
+
+			project.apply(
+				Collections.singletonMap("plugin", PropertiesPlugin.class));
+		}
 	}
 
 	private void _configureCopySpecExpandTomcatVersion(
