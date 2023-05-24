@@ -65,7 +65,7 @@ public class WorkspacePlugin implements Plugin<Settings> {
 			settings);
 
 		_applyPlugins(settings);
-		
+
 		Path rootDirPath = rootDir.toPath();
 
 		FileSystem fileSystem = rootDirPath.getFileSystem();
