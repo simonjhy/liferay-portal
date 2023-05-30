@@ -38,5 +38,11 @@ gradle.projectsEvaluated {
 		targetContainerId {
 			gradle.liferayWorkspace.dockerContainerId
 		}
+
+		doLast{
+			def cleanDockerImageTask = project.tasks.getByName('cleanDockerImage')
+
+			cleanDockerImageTask.execute()
+		}
 	}
 }
