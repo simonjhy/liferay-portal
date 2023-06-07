@@ -33,25 +33,25 @@
     <dependency>
       <groupId>biz.aQute.bnd</groupId>
       <artifactId>biz.aQute.bnd</artifactId>
-      <version>4.3.0</version>
+      <version>5.3.0</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>biz.aQute.bnd</groupId>
       <artifactId>biz.aQute.bnd.gradle</artifactId>
-      <version>4.3.0</version>
+      <version>5.3.0</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>biz.aQute.bnd</groupId>
       <artifactId>biz.aQute.repository</artifactId>
-      <version>4.3.0</version>
+      <version>5.3.0</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>biz.aQute.bnd</groupId>
       <artifactId>biz.aQute.resolve</artifactId>
-      <version>4.3.0</version>
+      <version>5.3.0</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
