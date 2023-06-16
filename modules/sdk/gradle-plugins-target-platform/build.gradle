@@ -41,3 +41,7 @@ gradleTest {
 
 	versions gradleVersion
 }
+
+tasks.named('gradleTest') {
+	maxParallelForks = Runtime.runtime.availableProcessors()
+}

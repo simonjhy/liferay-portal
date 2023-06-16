@@ -246,6 +246,10 @@ processResources {
 	from downloadProductInfo
 }
 
+tasks.named('gradleTest') {
+	maxParallelForks = Runtime.runtime.availableProcessors()
+}
+
 updateFileVersions {
 	match(/name: "com\.liferay\.gradle\.plugins\.workspace", version: "(\d.+)"/, "../../../workspaces/liferay-sample-workspace/settings.gradle")
 	match(/name: "com\.liferay\.gradle\.plugins\.workspace", version: "(\d.+)"/, "../../../workspaces/refresh_liferay_sample_workspace.sh")
