@@ -1,2 +1,5 @@
 *.pom	text eol=lf
 ivy.xml	text eol=lf
+*.java linguist-generated=true
+yarn.lock  linguist-generated=true
+package.lock  linguist-generated=true
