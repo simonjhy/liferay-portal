@@ -8,6 +8,10 @@ allprojects {
 	}
 }
 
+cache{
+	forcedCache = false
+}
+
 runGradleTest {
 	dependsOn eclipseClasspath
 

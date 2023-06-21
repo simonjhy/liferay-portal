@@ -1,6 +1,10 @@
 task runGradleTest
 task untarOverrideTestScript(type: Copy)
 
+cache{
+	forcedCache = false
+}
+
 runGradleTest {
 	dependsOn createDockerContainer, "inspectCustomImage", untarOverrideTestScript
 

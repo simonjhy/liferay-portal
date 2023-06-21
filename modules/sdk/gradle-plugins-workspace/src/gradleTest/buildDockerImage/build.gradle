@@ -1,5 +1,9 @@
 task runGradleTest
 
+cache{
+	forcedCache = false
+}
+
 runGradleTest {
 	dependsOn buildDockerImage
 

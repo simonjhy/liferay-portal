@@ -13,6 +13,10 @@ repositories {
 	}
 }
 
+cache{
+	forcedCache = false
+}
+
 runGradleTest {
 	dependsOn war
 

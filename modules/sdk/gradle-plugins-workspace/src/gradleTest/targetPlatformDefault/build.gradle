@@ -11,6 +11,10 @@ allprojects {
 	}
 }
 
+cache{
+	forcedCache = false
+}
+
 checkApi {
 	dependsOn ":modules:foo-api:resolve"
 
