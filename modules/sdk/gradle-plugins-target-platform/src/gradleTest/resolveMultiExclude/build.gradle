@@ -29,6 +29,10 @@ apply plugin: "com.liferay.target.platform"
 task checkRule
 task runGradleTest
 
+cache{
+	forcedCache = false
+}
+
 allprojects {
 	apply plugin: "com.liferay.plugin"
 
