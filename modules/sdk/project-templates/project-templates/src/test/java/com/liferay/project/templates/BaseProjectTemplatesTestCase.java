@@ -1169,13 +1169,7 @@ public interface BaseProjectTemplatesTestCase {
 	}
 
 	public default boolean isBuildProjects() {
-		if (Validator.isNotNull(BUILD_PROJECTS) &&
-			BUILD_PROJECTS.equals("true")) {
-
-			return true;
-		}
-
-		return false;
+		return true;
 	}
 
 	public default void modifyElementText(
