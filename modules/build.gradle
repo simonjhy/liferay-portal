@@ -371,6 +371,12 @@ gradle.beforeProject {
 				main = "com.liferay.project.templates.ProjectTemplates"
 			}
 
+			jar{
+				doFirst{
+					rename "gitignore", ".gitignore"
+				}
+			}
+
 			processResources {
 				exclude "**/.sass-cache/"
 
@@ -381,8 +387,6 @@ gradle.beforeProject {
 				outputs.upToDateWhen {
 					false
 				}
-
-				rename "gitignore", ".gitignore"
 			}
 		}
 
