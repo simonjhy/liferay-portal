@@ -62,7 +62,7 @@ public class ProjectTemplatesRESTBuilderTest
 
 	@Test
 	public void testBuildTemplateRESTBuilder() throws Exception {
-		String liferayVersion = "7.4.3.4";
+		String liferayVersion = "7.4.3.56";
 		String name = "guestbook";
 		String packageName = "com.liferay.docs.guestbook";
 		String template = "rest-builder";
@@ -111,7 +111,7 @@ public class ProjectTemplatesRESTBuilderTest
 	@Ignore
 	@Test
 	public void testBuildTemplateRESTBuilderCheckExports() throws Exception {
-		String liferayVersion = "7.4.3.4";
+		String liferayVersion = "7.4.3.56";
 		String name = "guestbook";
 		String packageName = "com.liferay.docs.guestbook";
 		String template = "rest-builder";
@@ -164,7 +164,7 @@ public class ProjectTemplatesRESTBuilderTest
 	public void testBuildTemplateRESTBuilderWorkspaceRelativePath()
 		throws Exception {
 
-		String liferayVersion = "7.4.3.4";
+		String liferayVersion = "7.4.3.56";
 		String name = "sample";
 
 		File gradleWorkspaceDir = buildWorkspace(
