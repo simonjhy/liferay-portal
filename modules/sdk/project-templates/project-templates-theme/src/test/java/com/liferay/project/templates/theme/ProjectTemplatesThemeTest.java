@@ -76,14 +76,41 @@ public class ProjectTemplatesThemeTest implements BaseProjectTemplatesTestCase {
 		String template = "theme";
 		String name = "theme-test";
 
-		testBuildTemplateProjectWarInWorkspace(
-			temporaryFolder, _gradleDistribution, mavenExecutor, template, name,
-			_liferayVersion);
+		if (!_isAppleARM()) {
+			testBuildTemplateProjectWarInWorkspace(
+				temporaryFolder, _gradleDistribution, mavenExecutor, template,
+				name, _liferayVersion);
+		}
+		else if (_liferayVersion.startsWith("7.4")) {
+			testBuildTemplateProjectWarInWorkspace(
+				temporaryFolder, _gradleDistribution, mavenExecutor, template,
+				name, _liferayVersion);
+		}
 	}
 
 	@Rule
 	public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
+	private boolean _isAppleARM() {
+		if (_appleARM != null) {
+			return _appleARM.booleanValue();
+		}
+
+		String arch = System.getProperty("os.arch");
+
+		arch = arch.toLowerCase();
+
+		if (arch.contains("aarch")) {
+			_appleARM = Boolean.TRUE;
+		}
+		else {
+			_appleARM = Boolean.FALSE;
+		}
+
+		return _appleARM.booleanValue();
+	}
+
+	private static Boolean _appleARM;
 	private static URI _gradleDistribution;
 
 	private final String _liferayVersion;
