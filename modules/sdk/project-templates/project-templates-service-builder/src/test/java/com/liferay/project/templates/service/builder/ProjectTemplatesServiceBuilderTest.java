@@ -114,7 +114,7 @@ public class ProjectTemplatesServiceBuilderTest
 		throws Exception {
 
 		File gradleProjectDir = _buildTemplateWithGradle(
-			"service-builder", "foo-bar", "--liferay-version", "7.4.3.36");
+			"service-builder", "foo-bar", "--liferay-version", "7.4.3.56");
 
 		testContains(
 			gradleProjectDir, "foo-bar-service/service.xml",
@@ -240,7 +240,7 @@ public class ProjectTemplatesServiceBuilderTest
 	@Test
 	public void testBuildTemplateServiceBuilderWorkspaceUAD() throws Exception {
 		String dependencyInjector = "ds";
-		String liferayVersion = "7.4.3.36";
+		String liferayVersion = "7.4.3.56";
 		String name = "guestbook";
 		String packageName = "com.test.guestbook";
 		String template = "service-builder";
