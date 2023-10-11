@@ -84,16 +84,16 @@ public class ProjectTemplatesNpmAngularPortletTest
 	}
 
 	@Test
-	public void testBuildTemplateNpmReactPortlet() throws Exception {
+	public void testBuildTemplateNpmAngularPortlet() throws Exception {
 		String template = "npm-angular-portlet";
 
-		testBuildTemplateNpm1(
+		testBuildAngularTemplate(
 			temporaryFolder, mavenExecutor, template, _name, _packageName,
 			_className, _liferayProduct, _liferayVersion, _nodePackageManager,
 			_gradleDistribution);
 	}
 
-	public void testBuildTemplateNpm1(
+	public void testBuildAngularTemplate(
 			TemporaryFolder temporaryFolder, MavenExecutor mavenExecutor,
 			String template, String name, String packageName, String className,
 			String liferayProduct, String liferayVersion,
@@ -132,7 +132,7 @@ public class ProjectTemplatesNpmAngularPortletTest
 
 		testContains(
 			gradleProjectDir, "package.json",
-			"liferay-npm-bundler\": \"2.30.0", "\"main\": \"lib/angular-loader.js\"");
+			"liferay-npm-bundler\": \"2.31.2", "\"main\": \"lib/angular-loader.js\"");
 
 		File mavenWorkspaceDir = buildWorkspace(
 			temporaryFolder, "maven", "mavenWS", liferayVersion, mavenExecutor);
