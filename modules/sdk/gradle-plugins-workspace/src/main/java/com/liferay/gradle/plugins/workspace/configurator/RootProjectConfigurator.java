@@ -1633,7 +1633,17 @@ public class RootProjectConfigurator implements Plugin<Project> {
 
 			});
 
-		downloadBundleTask.finalizedBy(verifyBundleTask);
+		verifyBundleTask.doLast(new Action<Task>() {
+			@Override
+			public void execute(Task task) {
+				try {
+					System.out.println("myTask executed successfully.");
+				} catch (Exception exception) {
+					// 捕获被依赖任务(myDependencyTask)执行时的异常，并处理
+					exception.printStackTrace();
+				}
+			}
+		});
 
 		project.afterEvaluate(
 			new Action<Project>() {
@@ -1656,6 +1666,8 @@ public class RootProjectConfigurator implements Plugin<Project> {
 				}
 
 			});
+
+		downloadBundleTask.finalizedBy(verifyBundleTask);
 
 		return verifyBundleTask;
 	}
