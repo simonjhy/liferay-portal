@@ -34,6 +34,7 @@ import com.liferay.gradle.plugins.workspace.internal.util.GradleUtil;
 import com.liferay.gradle.plugins.workspace.internal.util.StringUtil;
 import com.liferay.gradle.plugins.workspace.task.CreateTokenTask;
 import com.liferay.gradle.plugins.workspace.task.InitBundleTask;
+import com.liferay.gradle.plugins.workspace.task.LiferayDownloadTask;
 import com.liferay.gradle.plugins.workspace.task.VerifyBundleTask;
 import com.liferay.gradle.plugins.workspace.task.VerifyProductTask;
 import com.liferay.gradle.util.OSDetector;
@@ -41,8 +42,6 @@ import com.liferay.gradle.util.Validator;
 import com.liferay.gradle.util.copy.StripPathSegmentsAction;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
-
-import de.undercouch.gradle.tasks.download.Download;
 
 import groovy.lang.Closure;
 
@@ -83,6 +82,7 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileCopyDetails;
 import org.gradle.api.file.RelativePath;
 import org.gradle.api.initialization.Settings;
+import org.gradle.api.internal.TaskOutputsInternal;
 import org.gradle.api.invocation.Gradle;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.plugins.ExtensionAware;
@@ -246,7 +246,7 @@ public class RootProjectConfigurator implements Plugin<Project> {
 		VerifyProductTask verifyProductTask = _addTaskVerifyProduct(
 			project, workspaceExtension);
 
-		Download downloadBundleTask = _addTaskDownloadBundle(
+		LiferayDownloadTask downloadBundleTask = _addTaskDownloadBundle(
 			project, verifyProductTask, workspaceExtension);
 
 		VerifyBundleTask verifyBundleTask = _addTaskVerifyBundle(
@@ -453,7 +453,8 @@ public class RootProjectConfigurator implements Plugin<Project> {
 
 	@SuppressWarnings("serial")
 	private Copy _addTaskCopyBundle(
-		Project project, String taskName, Download downloadBundleTask,
+		Project project, String taskName,
+		LiferayDownloadTask downloadBundleTask,
 		final WorkspaceExtension workspaceExtension, String environment,
 		Configuration providedModulesConfiguration) {
 
@@ -794,9 +795,9 @@ public class RootProjectConfigurator implements Plugin<Project> {
 	}
 
 	private Copy _addTaskDistBundle(
-		final Project project, Download downloadBundleTask, String taskName,
-		WorkspaceExtension workspaceExtension, String environment,
-		Configuration providedModulesConfiguration) {
+		final Project project, LiferayDownloadTask downloadBundleTask,
+		String taskName, WorkspaceExtension workspaceExtension,
+		String environment, Configuration providedModulesConfiguration) {
 
 		Copy copy = _addTaskCopyBundle(
 			project, taskName, downloadBundleTask, workspaceExtension,
@@ -1011,12 +1012,12 @@ public class RootProjectConfigurator implements Plugin<Project> {
 		return dockerTagImage;
 	}
 
-	private Download _addTaskDownloadBundle(
+	private LiferayDownloadTask _addTaskDownloadBundle(
 		final Project project, VerifyProductTask verifyProductTask,
 		final WorkspaceExtension workspaceExtension) {
 
-		final Download download = GradleUtil.addTask(
-			project, DOWNLOAD_BUNDLE_TASK_NAME, Download.class);
+		final LiferayDownloadTask download = GradleUtil.addTask(
+			project, DOWNLOAD_BUNDLE_TASK_NAME, LiferayDownloadTask.class);
 
 		download.dependsOn(verifyProductTask);
 
@@ -1111,7 +1112,8 @@ public class RootProjectConfigurator implements Plugin<Project> {
 
 	private InitBundleTask _addTaskInitBundle(
 		Project project, VerifyProductTask verifyProductTask,
-		Download downloadBundleTask, VerifyBundleTask verifyBundleTask,
+		LiferayDownloadTask downloadBundleTask,
+		VerifyBundleTask verifyBundleTask,
 		final WorkspaceExtension workspaceExtension,
 		Configuration osgiModulesConfiguration) {
 
@@ -1120,6 +1122,29 @@ public class RootProjectConfigurator implements Plugin<Project> {
 
 		initBundleTask.dependsOn(
 			verifyProductTask, downloadBundleTask, verifyBundleTask);
+
+		initBundleTask.onlyIf(
+			new Spec<Task>() {
+
+				@Override
+				public boolean isSatisfiedBy(Task task) {
+					TaskOutputsInternal downloadBundleTaskOutputs =
+						downloadBundleTask.getOutputs();
+
+					FileCollection fileCollection =
+						downloadBundleTaskOutputs.getFiles();
+
+					File destFile = fileCollection.getSingleFile();
+
+					if (!destFile.exists()) {
+						return false;
+					}
+
+					return true;
+				}
+
+			});
+
 		initBundleTask.doLast(
 			new Action<Task>() {
 
@@ -1440,7 +1465,7 @@ public class RootProjectConfigurator implements Plugin<Project> {
 	}
 
 	private void _addTasksDistBundleEnvironments(
-		Project project, Download downloadBundleTask,
+		Project project, LiferayDownloadTask downloadBundleTask,
 		WorkspaceExtension workspaceExtension,
 		Configuration providedModulesConfiguration) {
 
@@ -1602,7 +1627,8 @@ public class RootProjectConfigurator implements Plugin<Project> {
 
 	private VerifyBundleTask _addTaskVerifyBundle(
 		Project project, VerifyProductTask verifyProductTask,
-		Download downloadBundleTask, WorkspaceExtension workspaceExtension) {
+		LiferayDownloadTask downloadBundleTask,
+		WorkspaceExtension workspaceExtension) {
 
 		VerifyBundleTask verifyBundleTask = GradleUtil.addTask(
 			project, VERIFY_BUNDLE_TASK_NAME, VerifyBundleTask.class);
@@ -1617,6 +1643,18 @@ public class RootProjectConfigurator implements Plugin<Project> {
 
 				@Override
 				public boolean isSatisfiedBy(Task task) {
+					TaskOutputsInternal downloadBundleTaskOutputs =
+						downloadBundleTask.getOutputs();
+
+					FileCollection fileCollection =
+						downloadBundleTaskOutputs.getFiles();
+
+					File destFile = fileCollection.getSingleFile();
+
+					if (!destFile.exists()) {
+						return false;
+					}
+
 					if (!Objects.equals(
 							workspaceExtension.getBundleUrl(),
 							workspaceExtension.getDefaultBundleUrl())) {
@@ -1632,18 +1670,6 @@ public class RootProjectConfigurator implements Plugin<Project> {
 				}
 
 			});
-
-		verifyBundleTask.doLast(new Action<Task>() {
-			@Override
-			public void execute(Task task) {
-				try {
-					System.out.println("myTask executed successfully.");
-				} catch (Exception exception) {
-					// 捕获被依赖任务(myDependencyTask)执行时的异常，并处理
-					exception.printStackTrace();
-				}
-			}
-		});
 
 		project.afterEvaluate(
 			new Action<Project>() {
@@ -1755,7 +1781,7 @@ public class RootProjectConfigurator implements Plugin<Project> {
 	}
 
 	private void _configureDownloadTask(
-		Project project, Download download,
+		Project project, LiferayDownloadTask download,
 		WorkspaceExtension workspaceExtension) {
 
 		File destinationDir = workspaceExtension.getBundleCacheDir();
@@ -1864,7 +1890,7 @@ public class RootProjectConfigurator implements Plugin<Project> {
 
 	@SuppressWarnings("serial")
 	private void _configureTaskCopyBundleFromDownload(
-		Copy copy, final Download download) {
+		Copy copy, final LiferayDownloadTask download) {
 
 		final Project project = copy.getProject();
 
@@ -2069,7 +2095,7 @@ public class RootProjectConfigurator implements Plugin<Project> {
 		return version.toString();
 	}
 
-	private File _getDownloadFile(Download download) {
+	private File _getDownloadFile(LiferayDownloadTask download) {
 		String fileName = String.valueOf((URL)download.getSrc());
 
 		return new File(
@@ -2095,7 +2121,7 @@ public class RootProjectConfigurator implements Plugin<Project> {
 		return sb.toString();
 	}
 
-	private List<?> _getSrcList(Download download) {
+	private List<?> _getSrcList(LiferayDownloadTask download) {
 		Object src = download.getSrc();
 
 		if (src == null) {
